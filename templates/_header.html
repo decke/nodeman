@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title><?=$config->get('title')?></title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/custom.css">
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+      <a class="navbar-brand" href="<?=$config->get('title.url')?>"><?=$config->get('title')?></a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarDefault" aria-controls="navbarDefault" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarDefault">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+          </li>
+        </ul>
+
+        <?php if($session->isAuthenticated()): ?>
+        <ul class="navbar-nav float-right">
+          <li class="nav-item">
+            <a class="btn btn-outline-success" href="/logout">Logout</a>
+          </li>
+        </ul>
+        <?php else: ?>
+        <form class="form-inline my-2 my-lg-0" action="/login" method="post">
+          <input type="text" name="username" placeholder="Username" class="form-control mr-sm-2">
+          <input type="password" name="password" placeholder="Password" class="form-control mr-sm-2">
+          <button type="submit" value="Login" class="btn btn-success my-2 my-sm-0">Sign in</button>
+        </form>
+        <?php endif; ?>
+
+      </div>
+    </nav>
+

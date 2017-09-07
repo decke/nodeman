@@ -1,0 +1,18 @@
+{
+   "name": "ffgraz/nodeman",
+   "description": "FunkFeuer Node Manager",
+   "homepage": "https://github.com/decke/nodeman",
+   "license": "BSD-2-Clause",
+   "require": {
+      "slim/slim": "^3.0",
+      "slim/flash": "^0.2.0",
+      "slim/php-view": "~2.0",
+      "php": ">=5.5.0"
+   },
+   "autoload": {
+      "psr-0": {
+         "FunkFeuer": "lib"
+      },
+      "files": ["lib/functions.php"]
+   }
+}
