@@ -1,0 +1,48 @@
+#!/usr/local/bin/php
+<?php
+
+namespace BTA\Dashboard;
+
+use \FunkFeuer\Nodeman\Config;
+
+require_once __DIR__.'/../vendor/autoload.php';
+
+/* set working directory to root directory */
+chdir(dirname(__FILE__).'/../');
+
+/* set default timezone to UTC */
+date_default_timezone_set('UTC');
+
+/* allow fetching urls */
+ini_set("allow_url_fopen", 1);
+
+
+function logMsg($msg, $level = 'INFO')
+{
+    printf("[%s] [%5s] %s\n", date('H:i:s d.m.Y', time()), $level, $msg);
+}
+
+
+$json = @file_get_contents('http://localhost:9090/topology');
+if(!$json) {
+    logMsg("Failed fetching topology info from olsrd", "ERROR");
+    exit(1);
+}
+
+$data = json_decode($json);
+if(!$data) {
+    logMsg("Failed parsing json content from olsrd", "ERROR");
+    exit(1);
+}
+
+$linkcount = count($data->{'topology'});
+
+for($i=0; $i < $linkcount; $i++)
+{
+    $link = $data->{'topology'}[$i];
+
+    printf("#%d %s -> %s (%f)\n", $i, $link->lastHopIP, $link->destinationIP, $link->linkQuality);
+}
+
+exit(0);
+
