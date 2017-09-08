@@ -9,6 +9,13 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/custom.css">
+    <?php
+      if(isset($css)) {
+        foreach($css as $file) {
+          printf('<link rel="stylesheet" href="%s">'."\n", $file);
+        }
+      }
+    ?>
   </head>
 
   <body>
@@ -27,6 +34,10 @@
           <?php if(!$session->isAuthenticated()): ?>
           <li class="nav-item active">
             <a class="nav-link" href="/register">Register</a>
+          </li>
+          <?php else: ?>
+          <li class="nav-item active">
+            <a class="nav-link" href="/locations/add">Add Location</a>
           </li>
           <?php endif; ?>
         </ul>

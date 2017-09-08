@@ -2,3 +2,7 @@ body {
   padding-top: 5rem;
 }
 
+#map {
+  height: 500px;
+}
+

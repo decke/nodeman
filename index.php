@@ -126,7 +126,10 @@ $app->get('/locations/add', function($request, $response) use ($session) {
         return $response->withStatus(302)->withHeader('Location', '/');
     }
 
-    return $this->view->render($response, 'locations/add.html');
+    return $this->view->render($response, 'locations/add.html', array(
+        'css' => array('/css/leaflet.css'),
+        'js' => array('/js/leaflet.js', '/js/grazmap.js'),
+    ));
 });
 
 $app->post('/locations/add', function($request, $response) use ($session) {
@@ -144,6 +147,9 @@ $app->post('/locations/add', function($request, $response) use ($session) {
     if (strlen($request->getParam('address')) > 255) {
         $this->flash->addMessage('error', 'Address too long (max length 255)');
     }
+    if (!$request->getParam('latitude') || !$request->getParam('longitude')) {
+        $this->flash->addMessage('error', 'Position on map is missing');
+    }
 
     $location = new Location();
     if ($location->load($request->getParam('name'))) {
@@ -157,8 +163,8 @@ $app->post('/locations/add', function($request, $response) use ($session) {
         $location->name = $request->getParam('name');
         $location->owner = $session->getUser()->userid;
         $location->address = $request->getParam('address');
-        $location->latitude = 0.0;
-        $location->longitude = 0.0;
+        $location->latitude = $request->getParam('latitude');
+        $location->longitude = $request->getParam('longitude');
         $location->status = '';
         $location->description = '';
 
@@ -176,7 +182,11 @@ $app->post('/locations/add', function($request, $response) use ($session) {
         'address' => htmlentities($request->getParam('address'))
     );
 
-    return $this->view->render($response, 'locations/add.html', array('data' => $data));
+    return $this->view->render($response, 'locations/add.html', array(
+        'data' => $data,
+        'css' => array('/css/leaflet.css'),
+        'js' => array('/js/leaflet.js', '/js/grazmap.js'),
+    ));
 });
 
 $app->run();
