@@ -119,5 +119,64 @@ $app->post('/register', function($request, $response) use ($session) {
     return $this->view->render($response, 'register.html', array('data' => $data));
 });
 
+/* Locations */
+$app->get('/locations/add', function($request, $response) use ($session) {
+    if (!$session->isAuthenticated()) {
+        $this->flash->addMessage('error', 'Please login first');
+        return $response->withStatus(302)->withHeader('Location', '/');
+    }
+
+    return $this->view->render($response, 'locations/add.html');
+});
+
+$app->post('/locations/add', function($request, $response) use ($session) {
+    if (!$session->isAuthenticated()) {
+        $this->flash->addMessage('error', 'Please login first');
+        return $response->withStatus(302)->withHeader('Location', '/');
+    }
+
+    if (!preg_match('/^[0-9A-Za-z]{3,50}$/', $request->getParam('name'))) {
+        $this->flash->addMessage('error', 'Location name is invalid. Length from 3-50. Allowed characters only 0-9, A-Z, a-z');
+    }
+    if (strlen($request->getParam('address')) < 5) {
+        $this->flash->addMessage('error', 'Address is invalid');
+    }
+    if (strlen($request->getParam('address')) > 255) {
+        $this->flash->addMessage('error', 'Address too long (max length 255)');
+    }
+
+    $location = new Location();
+    if ($location->load($request->getParam('name'))) {
+        $this->flash->addMessage('error', 'Location name already exists');
+    }
+
+    /* HACK: Slim-Flash hasMessage('error') does not see messages for next request */
+    if(!isset($_SESSION['slimFlash']['error']))
+    {
+        $location = new Location();
+        $location->name = $request->getParam('name');
+        $location->owner = $session->getUser()->userid;
+        $location->address = $request->getParam('address');
+        $location->latitude = 0.0;
+        $location->longitude = 0.0;
+        $location->status = '';
+        $location->description = '';
+
+        if($location->save()) {
+            $this->flash->addMessage('success', 'Location created');
+            return $response->withStatus(302)->withHeader('Location', '/');
+        }
+        else {
+            $this->flash->addMessage('error', 'Location creation failed');
+        }
+    }
+
+    $data = array(
+        'name' => htmlentities($request->getParam('name')),
+        'address' => htmlentities($request->getParam('address'))
+    );
+
+    return $this->view->render($response, 'locations/add.html', array('data' => $data));
+});
 
 $app->run();

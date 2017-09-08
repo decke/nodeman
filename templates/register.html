@@ -1,4 +1,4 @@
-<?php include("_header.html"); ?>
+<?php include("templates/_header.html"); ?>
 
     <div class="container">
 
@@ -13,7 +13,7 @@
       <form action="/register" method="post">
         <div class="form-group">
           <label for="username">Username</label>
-          <input type="text" id="username" name="username" class="form-control" placeholder="Your username" value="<?=$data['username']?>">
+          <input type="text" id="username" name="username" class="form-control" aria-describedby="usernameHelp" placeholder="Your username" value="<?=$data['username']?>">
           <small id="usernameHelp" class="form-text text-muted">
             Length from 3-50. Allowed characters only 0-9, A-Z, a-z, @, _, -, .
           </small>
@@ -64,4 +64,4 @@
       </form>
     </div>
 
-<?php include("_footer.html"); ?>
+<?php include("templates/_footer.html"); ?>

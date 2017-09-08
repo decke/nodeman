@@ -36,21 +36,21 @@ class Location
 
     public function __get($name)
     {
-        if(isset($this->_data[$name])) {
+        if(array_key_exists($name, $this->_data)) {
             return $this->_data[$name];
         }
 
-        throw new Exception('Undefined property '.$name.' in class Location');
+        throw new \Exception('Undefined property '.$name.' in class Location');
     }
 
     public function __set($name, $value)
     {
-        if(isset($this->_data[$name])) {
+        if(array_key_exists($name, $this->_data)) {
             $this->_data[$name] = $value;
             return true;
         }
 
-        throw new Exception('Undefined property '.$name.' in class Location');
+        throw new \Exception('Undefined property '.$name.' in class Location');
     }
 
     public function load($name)
