@@ -15,11 +15,14 @@ class User
 {
     private $_handle;
     private $_data = array(
-        'userid'   => null,
-        'username' => null,
-        'password' => null,
-        'email'    => null,
-        'phone'    => null
+        'userid'    => null,
+        'username'  => null,
+        'password'  => null,
+        'email'     => null,
+        'firstname' => null,
+        'lastname'  => null,
+        'phone'     => null,
+        'usergroup' => null
     );
 
     public function __construct($username = null)
@@ -33,25 +36,33 @@ class User
 
     public function __get($name)
     {
-        if(isset($this->_data[$name])) {
+        if(array_key_exists($name, $this->_data)) {
             return $this->_data[$name];
         }
 
-        throw new Exception('Undefined property '.$name.' in class User');
+        throw new \Exception('Undefined property '.$name.' in class User');
     }
 
     public function __set($name, $value)
     {
+        if($name == 'username') {
+            $value = strtolower($value);
+        }
+
         if($name == 'password') {
             return $this->setPassword($value);
         }
 
-        if(isset($this->_data[$name])) {
+        if($name == 'email') {
+            $value = strtolower($value);
+        }
+
+        if(array_key_exists($name, $this->_data)) {
             $this->_data[$name] = $value;
             return true;
         }
 
-        throw new Exception('Undefined property '.$name.' in class User');
+        throw new \Exception('Undefined property '.$name.' in class User');
     }
 
     public function setPassword($password)
@@ -65,10 +76,20 @@ class User
         return password_verify($password, $this->password);
     }
 
+    public function emailExists($email)
+    {
+        $stmt = $this->_handle->prepare("SELECT count(*) FROM users WHERE email = ?");
+        $stmt->execute(array(strtolower($email)));
+        $result = $stmt->fetchAll();
+
+         return ($result[0][0] > 0);
+    }
+
     public function load($username)
     {
-        $stmt = $this->_handle->prepare("SELECT userid, username, password, email, phone FROM users WHERE username = ?");
-        if(!$stmt->execute(array($username)))
+        $stmt = $this->_handle->prepare("SELECT userid, username, password, email, firstname,
+            lastname, phone, usergroup FROM users WHERE username = ?");
+        if(!$stmt->execute(array(strtolower($username))))
             return false;
 
         while($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
@@ -84,9 +105,11 @@ class User
     {
         if(!$this->userid)
         {
-            $stmt = $this->_handle->prepare("INSERT INTO users (username, password, email, phone) VALUES (?, ?, ?, ?)");
+            $stmt = $this->_handle->prepare("INSERT INTO users (username, password, email, firstname,
+                lastname, phone, usergroup) VALUES (?, ?, ?, ?, ?, ?, ?)");
 
-            if($stmt->execute(array($this->username, $this->password, $this->email, $this->phone)))
+            if($stmt->execute(array($this->username, $this->password, $this->email, $this->firstname,
+                $this->lastname, $this->phone, $this->usergroup)))
             {
                 $this->userid = $this->_handle->lastInsertId();
                 return true;
@@ -94,9 +117,11 @@ class User
         }
         else
         {
-            $stmt = $this->_handle->prepare("UPDATE users SET username = ?, password = ?, email = ?, phone = ? WHERE userid = ?");
+            $stmt = $this->_handle->prepare("UPDATE users SET username = ?, password = ?, email = ?,
+                firstname = ?, lastname = ?, phone = ?, usergroup = ? WHERE userid = ?");
 
-            return $stmt->execute(array($this->username, $this->password, $this->email, $this->phone, $this->userid));
+            return $stmt->execute(array($this->username, $this->password, $this->email, $this->firstname,
+                $this->lastname, $this->phone, $this->usergroup, $this->userid));
         }
 
         return false;

@@ -56,4 +56,68 @@ $app->get('/logout', function($request, $response, $args) use ($session) {
     return $response->withStatus(302)->withHeader('Location', '/');
 });
 
+/* Registration */
+$app->get('/register', function($request, $response) {
+    return $this->view->render($response, 'register.html');
+});
+
+$app->post('/register', function($request, $response) use ($session) {
+    if (!preg_match('/^[0-9A-Za-z@._-]{3,50}$/', $request->getParam('username'))) {
+        $this->flash->addMessage('error', 'Username is invalid. Length from 3-50. Allowed characters only 0-9, A-Z, a-z, @, _, -, .');
+    }
+    if (strlen($request->getParam('password1')) < 6) {
+        $this->flash->addMessage('error', 'Password too short (min length 6)');
+    }
+    if ($request->getParam('password1') != $request->getParam('password2')) {
+        $this->flash->addMessage('error', 'Passwords do not match');
+    }
+    if (!filter_var($request->getParam('email'), FILTER_VALIDATE_EMAIL)) {
+        $this->flash->addMessage('error', 'EMail address invalid');
+    }
+    if (strlen($request->getParam('email')) > 50) {
+        $this->flash->addMessage('error', 'EMail address too short (max length 50)');
+    }
+
+    $user = new User();
+    if ($user->load($request->getParam('username'))) {
+        $this->flash->addMessage('error', 'Username already exists');
+    }
+
+    if ($user->emailExists($request->getParam('email'))) {
+        $this->flash->addMessage('error', 'EMail address already in use');
+    }
+
+    /* HACK: Slim-Flash hasMessage('error') does not see messages for next request */
+    if(!isset($_SESSION['slimFlash']['error']))
+    {
+        $user = new User();
+        $user->username = $request->getParam('username');
+        $user->setPassword($request->getParam('password1'));
+        $user->email = $request->getParam('email');
+        $user->firstname = $request->getParam('firstname');
+        $user->lastname = $request->getParam('lastname');
+        $user->phone = $request->getParam('phone');
+        $user->usergroup = 'user';
+
+        if($user->save()) {
+            $this->flash->addMessage('success', 'Account created');
+            return $response->withStatus(302)->withHeader('Location', '/');
+        }
+        else {
+            $this->flash->addMessage('error', 'Account creation failed');
+        }
+    }
+
+    $data = array(
+        'username' => htmlentities($request->getParam('username')),
+        'email' => htmlentities($request->getParam('email')),
+        'firstname' => htmlentities($request->getParam('firstname')),
+        'lastname' => htmlentities($request->getParam('lastname')),
+        'phone' => htmlentities($request->getParam('phone'))
+    );
+
+    return $this->view->render($response, 'register.html', array('data' => $data));
+});
+
+
 $app->run();

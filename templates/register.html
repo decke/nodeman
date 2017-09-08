@@ -1,0 +1,67 @@
+<?php include("_header.html"); ?>
+
+    <div class="container">
+
+      <h1>Create new account</h1>
+
+      <?php if($flash->hasMessage('error')): ?>
+        <?php foreach($flash->getMessage('error') as $msg): ?>
+          <div class="alert alert-danger" role="alert"><strong>Sorry</strong> <?=$msg?></div>
+        <?php endforeach; ?>
+      <?php endif; ?>
+
+      <form action="/register" method="post">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" class="form-control" placeholder="Your username" value="<?=$data['username']?>">
+          <small id="usernameHelp" class="form-text text-muted">
+            Length from 3-50. Allowed characters only 0-9, A-Z, a-z, @, _, -, .
+          </small>
+        </div>
+        <div class="form-group">
+          <label for="password1">Password</label>
+          <input type="password" id="password1" name="password1" class="form-control" aria-describedby="password1Help">
+          <small id="password1Help" class="form-text text-muted">
+            Must be at least 6 characters long. Please use letters, numbers and special characters.
+          </small>
+        </div>
+        <div class="form-group">
+          <label for="password2">Password</label>
+          <input type="password" id="password2" name="password2" class="form-control" aria-describedby="password2Help">
+          <small id="password2Help" class="form-text text-muted">
+            Same password again as above. For verification against typing mistakes.
+          </small>
+        </div>
+
+        <div class="form-group row">
+          <div class="col">
+            <label for="firstname">Firstname</label>
+            <input type="text" id="firstname" name="firstname" class="form-control" placeholder="First name (optional)" value="<?=$data['firstname']?>">
+          </div>
+          <div class="col">
+            <label for="lastname">Lastname</label>
+            <input type="text" id="lastname" name="lastname" class="form-control" placeholder="Last name (optional)" value="<?=$data['lastname']?>">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">EMail</label>
+          <input type="text" id="email" name="email" class="form-control" aria-describedby="emailHelp" value="<?=$data['email']?>">
+          <small id="emailHelp" class="form-text text-muted">
+            This email will be visible for other users so they can contact you.
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Phone</label>
+          <input type="text" id="phone" name="phone" class="form-control" aria-describedby="phoneHelp" placeholder="+43 664 000001" value="<?=$data['phone']?>">
+          <small id="phoneHelp" class="form-text text-muted">
+            Telephone number will be visible for other users so they can contact you.
+          </small>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Register</button>
+      </form>
+    </div>
+
+<?php include("_footer.html"); ?>

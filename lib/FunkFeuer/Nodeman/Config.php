@@ -23,8 +23,11 @@ class Config
 
     public static function getDbHandle()
     {
-        if(self::$handle === null)
+        if(self::$handle === null) {
             self::$handle = new \PDO(self::$datasource);
+            self::$handle->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            self::$handle->exec('PRAGMA foreign_keys = ON');
+        }
 
         return self::$handle;
     }
