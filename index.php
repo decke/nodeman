@@ -119,6 +119,14 @@ $app->post('/register', function($request, $response) use ($session) {
     return $this->view->render($response, 'register.html', array('data' => $data));
 });
 
+/* Map */
+$app->get('/map', function($request, $response) use ($session) {
+    return $this->view->render($response, 'map.html', array(
+        'css' => array('/css/leaflet.css', '/css/map.css'),
+        'js' => array('/js/leaflet.js', '/js/map.js'),
+    ));
+});
+
 /* Locations */
 $app->get('/locations/add', function($request, $response) use ($session) {
     if (!$session->isAuthenticated()) {
