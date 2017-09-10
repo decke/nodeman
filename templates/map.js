@@ -28,17 +28,20 @@ function initmap() {
    var offlineIcon = new TowerIcon({iconUrl: 'css/images/tower-offline.svg'});
    var tunnelIcon = new TowerIcon({iconUrl: 'css/images/tower-tunnel.svg'});
 
-   L.marker([47.0800, 15.4400], { icon: onlineIcon }).addTo(map).bindPopup("node1");
-   L.marker([47.0710, 15.4390], { icon: offlineIcon }).addTo(map).bindPopup("node2");
-   L.marker([47.0850, 15.4490], { icon: tunnelIcon }).addTo(map).bindPopup("node2");
+<?php
+   foreach($locations as $location)
+      printf("L.marker(%s, {icon:%sIcon}).addTo(map).bindPopup(\"%s\");\n",
+         $location['location'], $location['type'], $location['name']);
+?>
 
-   var latlngs = [
-      [ [47.0800, 15.4400], [47.0710, 15.4390] ],
-      [ [47.0730, 15.4420], [47.0700, 15.4420] ],
-      [ [47.0730, 15.4420], [47.0710, 15.4390] ]
+   var links = [
+<?php
+   for($i=0,$cnt=count($links); $i < $cnt; ++$i)
+      printf("[ %s,%s ]%s\n", $links[$i]['from'], $links[$i]['to'], ($i+1 < $cnt) ? ',' : '');
+?>
    ];
 
-   var link = L.polyline(latlngs, { color: 'green', weight: 3, opacity: 0.5 }).addTo(map);
+   var link = L.polyline(links, { color: 'green', weight: 3, opacity: 0.5 }).addTo(map);
    map.fitBounds(polyline.getBounds());
 }
 
