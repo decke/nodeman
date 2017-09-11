@@ -128,13 +128,14 @@ $app->get('/map', function($request, $response) use ($session) {
 });
 
 $app->get('/map.js', function($request, $response) use ($session) {
+    $location = new Location();
+    $locations = array();
+
+    foreach($location->getAllLocations(null, 0, 999999) as $loc)
+        $locations[] = array('name' => $loc->name, 'type' => $loc->status, 'location' => $loc->getLongLat());
+
     return $this->view->render($response, 'map.js', array(
-        'locations' => array(
-            array('name' => 'bluelife2', 'type' => 'online', 'location' => '[47.0800,15.4400]'),
-            array('name' => 'bluelife3', 'type' => 'offline', 'location' => '[47.0710,15.4390]'),
-            array('name' => 'bluelife4', 'type' => 'tunnel', 'location' => '[47.0850,15.4490]'),
-            array('name' => 'test234', 'type' => 'offline', 'location' => '[47.0890,15.4520]')
-        ),
+        'locations' => $locations,
         'links' => array(
             array('from' => '[47.0800,15.4400]', 'to' => '[47.0710,15.4390]', 'type' => 'PLAN'),
             array('from' => '[47.0730,15.4420]', 'to' => '[47.0700,15.4420]', 'type' => 'PLAN'),
@@ -176,7 +177,7 @@ $app->post('/locations/add', function($request, $response) use ($session) {
     }
 
     $location = new Location();
-    if ($location->load($request->getParam('name'))) {
+    if ($location->loadByName($request->getParam('name'))) {
         $this->flash->addMessage('error', 'Location name already exists');
     }
 
@@ -189,7 +190,8 @@ $app->post('/locations/add', function($request, $response) use ($session) {
         $location->address = $request->getParam('address');
         $location->latitude = $request->getParam('latitude');
         $location->longitude = $request->getParam('longitude');
-        $location->status = '';
+        $location->status = 'offline';
+        $location->gallerylink = '';
         $location->description = '';
 
         if($location->save()) {

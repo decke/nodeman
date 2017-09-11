@@ -45,7 +45,8 @@ CREATE TABLE locations (
    address CHAR(255) NOT NULL,
    latitude REAL NOT NULL,
    longitude REAL NOT NULL,
-   status CHAR(10) NOT NULL,
+   status CHAR(10) NOT NULL, -- current status: [online|offline|tunnel]
+   gallerylink CHAR(255) NOT NULL,
    description BLOB,
    FOREIGN KEY(owner) REFERENCES users(userid)
 );
@@ -57,7 +58,7 @@ CREATE INDEX locations_idx2 ON locations (owner);
 CREATE TABLE nodes (
    nodeid INTEGER PRIMARY KEY NOT NULL,
    name CHAR(50) NOT NULL,
-   category CHAR(10) NOT NULL, -- node category: [backbone|server|client|tunnel]
+   category CHAR(10) NOT NULL, -- node category: [fiber|backbone|server|client|tunnel]
    owner INTEGER NOT NULL,
    location INTEGER NOT NULL,
    hardware INTEGER NOT NULL,
@@ -96,8 +97,8 @@ CREATE TABLE linkdata (
    linkid INTEGER PRIMARY KEY NOT NULL,
    fromaddress INTEGER NOT NULL,
    toaddress INTEGER NOT NULL,
-   quality INTEGER NOT NULL,
-   type CHAR(5) NOT NULL, -- link type: [IPv4|IPv6|VPN4|VPN6]
+   quality REAL NOT NULL,
+   type CHAR(5) NOT NULL, -- link type: [IPv4|IPv6|VPN4|VPN6|PLAN]
    FOREIGN KEY(fromaddress) REFERENCES interfaces(interfaceid),
    FOREIGN KEY(toaddress) REFERENCES interfaces(interfaceid)
 );
