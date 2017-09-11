@@ -8,12 +8,12 @@ function onMapClick(e) {
    if(marker !== null)
       map.removeLayer(marker);
 
-   marker = new L.marker(e.latlng, {draggable:'true'});
+   marker = new L.marker(e.latlng);
    marker.addTo(map);
 
    document.getElementById('latitude').value = e.latlng.lat;
    document.getElementById('longitude').value = e.latlng.lng;
-};
+}
 
 function initmap() {
    map = new L.map('map');
