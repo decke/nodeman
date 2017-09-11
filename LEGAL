@@ -1,6 +1,32 @@
 This project includes some material from 3rd parties.
 
-css/images/tower-*.svg:
+images/tower-*.svg:
   "Wifi Tower" by "Vectors Market" used under CC BY 3.0 US / Removed defective text and colorized
   https://thenounproject.com/term/wifi-antenna/285973/
 
+css/open-iconic-bootstrap.min.css:
+fonts/open-iconic.*:
+  "Open Iconic, a free and open icon set" used under MIT License and fonts under Open Font License
+  https://useiconic.com/open/
+
+css/leaflet.css:
+images/layers*.png:
+images/marker-*.png:
+js/leaflet.js:
+  "Leaflet - a JavaScript library for interactive maps" used under BSD 2-clause License
+  http://leafletjs.com/
+
+css/bootsrap.min.css:
+js/bootstrap.min.js:
+  "Bootstrap" used under MIT License
+   https://getbootstrap.com/
+
+js/popper.min.js:
+  "Popper.js" used under MIT License
+   https://popper.js.org/
+
+js/jquery.slim.min.js:
+  "jQuery" used under MIT License
+
+vendor/slim:
+  "Slim Framework" used under MIT License
