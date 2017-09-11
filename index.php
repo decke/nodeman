@@ -132,15 +132,23 @@ $app->get('/map.js', function($request, $response) use ($session) {
     $locations = array();
 
     foreach($location->getAllLocations(null, 0, 999999) as $loc)
-        $locations[] = array('name' => $loc->name, 'type' => $loc->status, 'location' => $loc->getLongLat());
+    {
+        $popup = sprintf('<b>%s</b><br>%s', $loc->name, $loc->address);
+
+        if(strlen($loc->gallerylink))
+            $popup .= sprintf('<br><a href=\"%s\">Gallery</a>', $loc->gallerylink);
+
+        $locations[] = array(
+            'name' => $loc->name,
+            'type' => $loc->status,
+            'location' => $loc->getLongLat(),
+            'popup' => $popup
+        );
+    }
 
     return $this->view->render($response, 'map.js', array(
         'locations' => $locations,
-        'links' => array(
-            array('from' => '[47.0800,15.4400]', 'to' => '[47.0710,15.4390]', 'type' => 'PLAN'),
-            array('from' => '[47.0730,15.4420]', 'to' => '[47.0700,15.4420]', 'type' => 'PLAN'),
-            array('from' => '[47.0730,15.4420]', 'to' => '[47.0710,15.4390]', 'type' => 'IPv4')
-        ),
+        'links' => array()
     ))->withHeader('Content-Type', 'application/javascript; charset=utf-8');
 });
 

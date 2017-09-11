@@ -29,9 +29,10 @@ function initmap() {
    var tunnelIcon = new TowerIcon({iconUrl: 'css/images/tower-tunnel.svg'});
 
 <?php
-   foreach($locations as $location)
+   foreach($locations as $location) {
       printf("L.marker(%s, {icon:%sIcon}).addTo(map).bindPopup(\"%s\");\n",
-         $location['location'], $location['type'], $location['name']);
+         $location['location'], $location['type'], $location['popup']);
+   }
 ?>
 
    var links = [
