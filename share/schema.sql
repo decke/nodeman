@@ -45,7 +45,7 @@ CREATE TABLE locations (
    address CHAR(255) NOT NULL,
    latitude REAL NOT NULL,
    longitude REAL NOT NULL,
-   status CHAR(10) NOT NULL, -- current status: [online|offline|tunnel]
+   status CHAR(10) NOT NULL, -- current status: [online|offline]
    gallerylink CHAR(255) NOT NULL,
    description BLOB,
    FOREIGN KEY(owner) REFERENCES users(userid)
@@ -58,7 +58,6 @@ CREATE INDEX locations_idx2 ON locations (owner);
 CREATE TABLE nodes (
    nodeid INTEGER PRIMARY KEY NOT NULL,
    name CHAR(50) NOT NULL,
-   category CHAR(10) NOT NULL, -- node category: [fiber|backbone|server|client|tunnel]
    owner INTEGER NOT NULL,
    location INTEGER NOT NULL,
    hardware INTEGER NOT NULL,
@@ -78,10 +77,10 @@ CREATE TABLE interfaces (
    interfaceid INTEGER PRIMARY KEY NOT NULL,
    name CHAR(50) NOT NULL,
    node INTEGER NOT NULL,
-   type CHAR(5) NOT NULL, -- interface type: [IPv4|IPv6|VPN4|VPN6]
+   category CHAR(10) NOT NULL, -- interface category: [fiber|tunnel|wifi2.4|wifi5]
+   type CHAR(5) NOT NULL, -- interface type: [IPv4|IPv6]
    address CHAR(50) NOT NULL,
-   linkstatus INTEGER NOT NULL, -- OLSR status: 0=down, 1=up
-   status INTEGER NOT NULL, -- administrative status: 0=disabled, 1=enabled, 2=invalid
+   status CHAR(10) NOT NULL, -- current OLSR status: [online|offline]
    ping INTEGER NOT NULL, -- smokeping: 0=disabled, 1=enabled
    comment CHAR(255) NOT NULL,
    FOREIGN KEY(node) REFERENCES nodes(nodeid)
@@ -89,22 +88,22 @@ CREATE TABLE interfaces (
 
 CREATE INDEX interfaces_idx1 ON interfaces (name);
 CREATE INDEX interfaces_idx2 ON interfaces (node);
-CREATE INDEX interfaces_idx3 ON interfaces (type);
-CREATE INDEX interfaces_idx4 ON interfaces (address);
+CREATE INDEX interfaces_idx3 ON interfaces (category);
+CREATE INDEX interfaces_idx4 ON interfaces (type);
+CREATE INDEX interfaces_idx5 ON interfaces (address);
 
 
 CREATE TABLE linkdata (
    linkid INTEGER PRIMARY KEY NOT NULL,
-   fromaddress INTEGER NOT NULL,
-   toaddress INTEGER NOT NULL,
+   fromif INTEGER NOT NULL,
+   toif INTEGER NOT NULL,
    quality REAL NOT NULL,
-   type CHAR(5) NOT NULL, -- link type: [IPv4|IPv6|VPN4|VPN6|PLAN]
-   FOREIGN KEY(fromaddress) REFERENCES interfaces(interfaceid),
-   FOREIGN KEY(toaddress) REFERENCES interfaces(interfaceid)
+   FOREIGN KEY(fromif) REFERENCES interfaces(interfaceid),
+   FOREIGN KEY(toif) REFERENCES interfaces(interfaceid)
 );
 
-CREATE INDEX linkdata_idx1 ON linkdata (fromaddress);
-CREATE INDEX linkdata_idx2 ON linkdata (toaddress);
+CREATE INDEX linkdata_idx1 ON linkdata (fromif);
+CREATE INDEX linkdata_idx2 ON linkdata (toif);
 
 
 ---
