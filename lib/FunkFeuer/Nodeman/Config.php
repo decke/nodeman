@@ -6,7 +6,7 @@ namespace FunkFeuer\Nodeman;
  * Configuration class to store various static settings.
  *
  * @author     Bernhard Froehlich <decke@bluelife.at>
- * @copyright  2017 Bernhard Froehlich         
+ * @copyright  2017 Bernhard Froehlich
  * @license    BSD License (2 Clause)
  *
  * @link       https://github.com/decke/nodeman
@@ -23,7 +23,7 @@ class Config
 
     public static function getDbHandle()
     {
-        if(self::$handle === null) {
+        if (self::$handle === null) {
             self::$handle = new \PDO(self::$datasource);
             self::$handle->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
             self::$handle->exec('PRAGMA foreign_keys = ON');
@@ -36,18 +36,19 @@ class Config
     {
         $handle = self::getDbHandle();
 
-        $stmt = $handle->prepare("SELECT name, value FROM config WHERE name = ?");
-        if(!$stmt) {
+        $stmt = $handle->prepare('SELECT name, value FROM config WHERE name = ?');
+        if (!$stmt) {
             return false;
         }
 
-        if(!$stmt->execute(array(strtolower($property)))) {
+        if (!$stmt->execute(array(strtolower($property)))) {
             return false;
         }
 
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
-        if(!is_array($row))
+        if (!is_array($row)) {
             return false;
+        }
 
         return true;
     }
@@ -56,17 +57,17 @@ class Config
     {
         $handle = self::getDbHandle();
 
-        $stmt = $handle->prepare("SELECT name, value FROM config WHERE name = ?");
-        if(!$stmt) {
+        $stmt = $handle->prepare('SELECT name, value FROM config WHERE name = ?');
+        if (!$stmt) {
             return false;
         }
 
-        if(!$stmt->execute(array(strtolower($property)))) {
+        if (!$stmt->execute(array(strtolower($property)))) {
             throw new \Exception('Could not find config property '.$property);
         }
 
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
-        if(!is_array($row)) {
+        if (!is_array($row)) {
             throw new \Exception('Could not find config property '.$property);
         }
 
@@ -77,10 +78,11 @@ class Config
     {
         $handle = self::getDbHandle();
 
-        if(!self::exists($property))
+        if (!self::exists($property)) {
             return false;
+        }
 
-        $stmt = $handle->prepare("UPDATE config SET value = ? WHERE name = ?");
+        $stmt = $handle->prepare('UPDATE config SET value = ? WHERE name = ?');
 
         return $stmt->execute(array($value, strtolower($property)));
     }

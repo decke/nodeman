@@ -4,10 +4,10 @@
     <script src="/js/popper.min.js"></script>
     <script src="/js/bootstrap.min.js"></script>
     <?php
-      if(isset($js)) {
-        foreach($js as $file) {
-          printf('<script src="%s"></script>'."\n", $file);
-        }
+      if (isset($js)) {
+          foreach ($js as $file) {
+              printf('<script src="%s"></script>'."\n", $file);
+          }
       }
     ?>
   </body>

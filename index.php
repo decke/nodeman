@@ -1,7 +1,7 @@
 <?php
 
 /**
- * FunkFeuer Node Manager
+ * FunkFeuer Node Manager.
  *
  * @author     Bernhard Froehlich <decke@bluelife.at>
  * @copyright  2017 Bernhard Froehlich
@@ -9,6 +9,7 @@
  *
  * @link       https://github.com/decke/nodeman
  */
+
 namespace FunkFeuer\Nodeman;
 
 require_once __DIR__.'/vendor/autoload.php';
@@ -19,7 +20,7 @@ $app = new \Slim\App();
 
 /* init php-view */
 $container = $app->getContainer();
-$container['view'] = function($container) use ($session) {
+$container['view'] = function ($container) use ($session) {
     $renderer = new \Slim\Views\PhpRenderer(__DIR__.'/templates/');
     $renderer->addAttribute('session', $session);
     $renderer->addAttribute('config', new \FunkFeuer\Nodeman\Config());
@@ -29,39 +30,38 @@ $container['view'] = function($container) use ($session) {
 };
 
 /* init flash messages */
-$container['flash'] = function() {
+$container['flash'] = function () {
     return new \Slim\Flash\Messages();
 };
 
-
 /* landing page */
-$app->get('/', function($request, $response) {
+$app->get('/', function ($request, $response) {
     return $this->view->render($response, 'index.html');
 });
 
 /* Authentication - Login */
-$app->post('/login', function($request, $response) use ($session) {
+$app->post('/login', function ($request, $response) use ($session) {
     if (!$request->getParam('username') || !$request->getParam('password')) {
         $this->flash->addMessage('error', 'Authentication failed');
-    }
-    elseif (!$session->login($request->getParam('username'), $request->getParam('password'))) {
+    } elseif (!$session->login($request->getParam('username'), $request->getParam('password'))) {
         $this->flash->addMessage('error', 'Authentication failed');
     }
 
     return $response->withStatus(302)->withHeader('Location', '/');
 });
 
-$app->get('/logout', function($request, $response, $args) use ($session) {
+$app->get('/logout', function ($request, $response, $args) use ($session) {
     $session->logout();
+
     return $response->withStatus(302)->withHeader('Location', '/');
 });
 
 /* Registration */
-$app->get('/register', function($request, $response) {
+$app->get('/register', function ($request, $response) {
     return $this->view->render($response, 'register.html');
 });
 
-$app->post('/register', function($request, $response) use ($session) {
+$app->post('/register', function ($request, $response) use ($session) {
     if (!preg_match('/^[0-9A-Za-z@._-]{3,50}$/', $request->getParam('username'))) {
         $this->flash->addMessage('error', 'Username is invalid. Length from 3-50. Allowed characters only 0-9, A-Z, a-z, @, _, -, .');
     }
@@ -88,8 +88,7 @@ $app->post('/register', function($request, $response) use ($session) {
     }
 
     /* HACK: Slim-Flash hasMessage('error') does not see messages for next request */
-    if(!isset($_SESSION['slimFlash']['error']))
-    {
+    if (!isset($_SESSION['slimFlash']['error'])) {
         $user = new User();
         $user->username = $request->getParam('username');
         $user->setPassword($request->getParam('password1'));
@@ -99,61 +98,61 @@ $app->post('/register', function($request, $response) use ($session) {
         $user->phone = $request->getParam('phone');
         $user->usergroup = 'user';
 
-        if($user->save()) {
+        if ($user->save()) {
             $this->flash->addMessage('success', 'Account created');
+
             return $response->withStatus(302)->withHeader('Location', '/');
-        }
-        else {
+        } else {
             $this->flash->addMessage('error', 'Account creation failed');
         }
     }
 
     $data = array(
-        'username' => htmlentities($request->getParam('username')),
-        'email' => htmlentities($request->getParam('email')),
+        'username'  => htmlentities($request->getParam('username')),
+        'email'     => htmlentities($request->getParam('email')),
         'firstname' => htmlentities($request->getParam('firstname')),
-        'lastname' => htmlentities($request->getParam('lastname')),
-        'phone' => htmlentities($request->getParam('phone'))
+        'lastname'  => htmlentities($request->getParam('lastname')),
+        'phone'     => htmlentities($request->getParam('phone'))
     );
 
     return $this->view->render($response, 'register.html', array('data' => $data));
 });
 
 /* Map */
-$app->get('/map', function($request, $response) use ($session) {
+$app->get('/map', function ($request, $response) use ($session) {
     return $this->view->render($response, 'map.html', array(
         'css' => array('/css/leaflet.css', '/css/map.css'),
-        'js' => array('/js/leaflet.js', '/map.js'),
+        'js'  => array('/js/leaflet.js', '/map.js'),
     ));
 });
 
-$app->get('/map.js', function($request, $response) use ($session) {
+$app->get('/map.js', function ($request, $response) use ($session) {
     $location = new Location();
     $locations = array();
 
-    foreach($location->getAllLocations(null, 0, 999999) as $loc)
-    {
+    foreach ($location->getAllLocations(null, 0, 999999) as $loc) {
         $popup = sprintf('<b>%s</b><br>%s', $loc->name, $loc->address);
 
-        if(strlen($loc->gallerylink))
+        if (strlen($loc->gallerylink)) {
             $popup .= sprintf('<br><a href=\"%s\">Gallery</a>', $loc->gallerylink);
+        }
 
         $locations[] = array(
-            'name' => $loc->name,
-            'type' => $loc->status,
+            'name'     => $loc->name,
+            'type'     => $loc->status,
             'location' => $loc->getLongLat(),
-            'popup' => $popup
+            'popup'    => $popup
         );
     }
 
     return $this->view->render($response, 'map.js', array(
         'locations' => $locations,
-        'links' => array()
+        'links'     => array()
     ))->withHeader('Content-Type', 'application/javascript; charset=utf-8');
 });
 
 /* Locations */
-$app->get('/locations/', function($request, $response) use ($session) {
+$app->get('/locations/', function ($request, $response) use ($session) {
     $loc = new Location();
 
     return $this->view->render($response, 'locations.html', array(
@@ -161,21 +160,23 @@ $app->get('/locations/', function($request, $response) use ($session) {
     ));
 });
 
-$app->get('/locations/add', function($request, $response) use ($session) {
+$app->get('/locations/add', function ($request, $response) use ($session) {
     if (!$session->isAuthenticated()) {
         $this->flash->addMessage('error', 'Please login first');
+
         return $response->withStatus(302)->withHeader('Location', '/');
     }
 
     return $this->view->render($response, 'locations/add.html', array(
         'css' => array('/css/leaflet.css'),
-        'js' => array('/js/leaflet.js', '/js/grazmap.js'),
+        'js'  => array('/js/leaflet.js', '/js/grazmap.js'),
     ));
 });
 
-$app->post('/locations/add', function($request, $response) use ($session) {
+$app->post('/locations/add', function ($request, $response) use ($session) {
     if (!$session->isAuthenticated()) {
         $this->flash->addMessage('error', 'Please login first');
+
         return $response->withStatus(302)->withHeader('Location', '/');
     }
 
@@ -198,8 +199,7 @@ $app->post('/locations/add', function($request, $response) use ($session) {
     }
 
     /* HACK: Slim-Flash hasMessage('error') does not see messages for next request */
-    if(!isset($_SESSION['slimFlash']['error']))
-    {
+    if (!isset($_SESSION['slimFlash']['error'])) {
         $location = new Location();
         $location->name = $request->getParam('name');
         $location->owner = $session->getUser()->userid;
@@ -210,24 +210,24 @@ $app->post('/locations/add', function($request, $response) use ($session) {
         $location->gallerylink = '';
         $location->description = '';
 
-        if($location->save()) {
+        if ($location->save()) {
             $this->flash->addMessage('success', 'Location created');
+
             return $response->withStatus(302)->withHeader('Location', '/');
-        }
-        else {
+        } else {
             $this->flash->addMessage('error', 'Location creation failed');
         }
     }
 
     $data = array(
-        'name' => htmlentities($request->getParam('name')),
+        'name'    => htmlentities($request->getParam('name')),
         'address' => htmlentities($request->getParam('address'))
     );
 
     return $this->view->render($response, 'locations/add.html', array(
         'data' => $data,
-        'css' => array('/css/leaflet.css'),
-        'js' => array('/js/leaflet.js', '/js/grazmap.js'),
+        'css'  => array('/css/leaflet.css'),
+        'js'   => array('/js/leaflet.js', '/js/grazmap.js'),
     ));
 });
 

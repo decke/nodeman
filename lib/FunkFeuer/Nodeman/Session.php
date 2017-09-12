@@ -46,7 +46,7 @@ class Session
     {
         $user = new User($username);
 
-        if(!$user->checkPassword($password)) {
+        if (!$user->checkPassword($password)) {
             return false;
         }
 
@@ -69,7 +69,7 @@ class Session
 
     public static function getUser()
     {
-        if(self::isAuthenticated()) {
+        if (self::isAuthenticated()) {
             return new User(self::getUsername());
         }
 

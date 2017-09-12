@@ -1,15 +1,15 @@
-<?php include("templates/_header.html"); ?>
+<?php include 'templates/_header.html'; ?>
 
     <div class="container">
 
-      <?php if($flash->hasMessage('error')): ?>
-        <?php foreach($flash->getMessage('error') as $msg): ?>
+      <?php if ($flash->hasMessage('error')): ?>
+        <?php foreach ($flash->getMessage('error') as $msg): ?>
           <div class="alert alert-danger" role="alert"><strong>Sorry</strong> <?=$msg?></div>
         <?php endforeach; ?>
       <?php endif; ?>
 
-      <?php if($flash->hasMessage('success')): ?>
-        <?php foreach($flash->getMessage('success') as $msg): ?>
+      <?php if ($flash->hasMessage('success')): ?>
+        <?php foreach ($flash->getMessage('success') as $msg): ?>
           <div class="alert alert-success" role="alert"><strong>Success</strong> <?=$msg?></div>
         <?php endforeach; ?>
       <?php endif; ?>
@@ -17,4 +17,4 @@
       <h1><?=$config->get('title')?></h1>
     </div>
 
-<?php include("templates/_footer.html"); ?>
+<?php include 'templates/_footer.html'; ?>

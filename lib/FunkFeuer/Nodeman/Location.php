@@ -3,7 +3,7 @@
 namespace FunkFeuer\Nodeman;
 
 /**
- * Location data for nodes
+ * Location data for nodes.
  *
  * @author     Bernhard Froehlich <decke@bluelife.at>
  * @copyright  2017 Bernhard Froehlich
@@ -30,14 +30,14 @@ class Location
     {
         $this->_handle = Config::getDbHandle();
 
-        if($locationid !== null) {
+        if ($locationid !== null) {
             $this->load($locationid);
         }
     }
 
     public function __get($name)
     {
-        if(array_key_exists($name, $this->_data)) {
+        if (array_key_exists($name, $this->_data)) {
             return $this->_data[$name];
         }
 
@@ -46,8 +46,9 @@ class Location
 
     public function __set($name, $value)
     {
-        if(array_key_exists($name, $this->_data)) {
+        if (array_key_exists($name, $this->_data)) {
             $this->_data[$name] = $value;
+
             return true;
         }
 
@@ -61,12 +62,13 @@ class Location
 
     public function load($id)
     {
-        $stmt = $this->_handle->prepare("SELECT locationid, name, owner, address,
-            latitude, longitude, status, gallerylink, description FROM locations WHERE locationid = ?");
-        if(!$stmt->execute(array($id)))
+        $stmt = $this->_handle->prepare('SELECT locationid, name, owner, address,
+            latitude, longitude, status, gallerylink, description FROM locations WHERE locationid = ?');
+        if (!$stmt->execute(array($id))) {
             return false;
+        }
 
-        while($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $this->_data = $row;
 
             return true;
@@ -77,12 +79,13 @@ class Location
 
     public function loadByName($name)
     {
-        $stmt = $this->_handle->prepare("SELECT locationid, name, owner, address,
-            latitude, longitude, status, gallerylink, description FROM locations WHERE name = ?");
-        if(!$stmt->execute(array($name)))
+        $stmt = $this->_handle->prepare('SELECT locationid, name, owner, address,
+            latitude, longitude, status, gallerylink, description FROM locations WHERE name = ?');
+        if (!$stmt->execute(array($name))) {
             return false;
+        }
 
-        while($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $this->_data = $row;
 
             return true;
@@ -93,22 +96,19 @@ class Location
 
     public function save()
     {
-        if(!$this->locationid)
-        {
-            $stmt = $this->_handle->prepare("INSERT INTO locations (name, owner, address,
-                longitude, latitude, status, gallerylink, description) VALUES (?, ?, ?, ?, ?, ?, ?,?)");
+        if (!$this->locationid) {
+            $stmt = $this->_handle->prepare('INSERT INTO locations (name, owner, address,
+                longitude, latitude, status, gallerylink, description) VALUES (?, ?, ?, ?, ?, ?, ?,?)');
 
-            if($stmt->execute(array($this->name, $this->owner, $this->address,
-                $this->longitude, $this->latitude, $this->status, $this->gallerylink, $this->description)))
-            {
+            if ($stmt->execute(array($this->name, $this->owner, $this->address,
+                $this->longitude, $this->latitude, $this->status, $this->gallerylink, $this->description))) {
                 $this->locationid = $this->_handle->lastInsertId();
+
                 return true;
             }
-        }
-        else
-        {
-            $stmt = $this->_handle->prepare("UPDATE locations SET name = ?, owner = ?, address = ?,
-                longitude = ?, latitude = ?, status = ?, gallerylink = ?, description = ? WHERE locationid = ?");
+        } else {
+            $stmt = $this->_handle->prepare('UPDATE locations SET name = ?, owner = ?, address = ?,
+                longitude = ?, latitude = ?, status = ?, gallerylink = ?, description = ? WHERE locationid = ?');
 
             return $stmt->execute(array($this->name, $this->owner, $this->address,
                 $this->longitude, $this->latitude, $this->status, $this->gallerylink, $this->description, $this->locationid));
@@ -121,12 +121,13 @@ class Location
     {
         $data = array();
 
-        $stmt = $this->_handle->prepare("SELECT locationid FROM locations WHERE (owner = ? OR ? IS NULL) ORDER BY name ASC LIMIT ?, ?");
-        if(!$stmt->execute(array($owner, $owner, $start, $limit)))
+        $stmt = $this->_handle->prepare('SELECT locationid FROM locations WHERE (owner = ? OR ? IS NULL) ORDER BY name ASC LIMIT ?, ?');
+        if (!$stmt->execute(array($owner, $owner, $start, $limit))) {
             return $data;
+        }
 
-        while($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $data[] = new Location($row['locationid']);
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $data[] = new self($row['locationid']);
         }
 
         return $data;
@@ -134,10 +135,11 @@ class Location
 
     public function countAllLocations($owner = null)
     {
-        $stmt = $this->_handle->prepare("SELECT count(*) FROM locations WHERE (owner = ? OR ? IS NULL)");
-        if(!$stmt->execute(array($owner, $owner)))
+        $stmt = $this->_handle->prepare('SELECT count(*) FROM locations WHERE (owner = ? OR ? IS NULL)');
+        if (!$stmt->execute(array($owner, $owner))) {
             return false;
-        
+        }
+
         return $stmt->fetch(\PDO::FETCH_BOTH)[0];
     }
 }

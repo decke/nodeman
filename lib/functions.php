@@ -8,7 +8,6 @@
  *
  * @link       https://github.com/decke/nodeman
  */
-
 function checkDbSchema($handle)
 {
 }

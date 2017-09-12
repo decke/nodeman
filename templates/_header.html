@@ -11,10 +11,10 @@
     <link rel="stylesheet" href="/css/open-iconic-bootstrap.min.css">
     <link rel="stylesheet" href="/css/custom.css">
     <?php
-      if(isset($css)) {
-        foreach($css as $file) {
-          printf('<link rel="stylesheet" href="%s">'."\n", $file);
-        }
+      if (isset($css)) {
+          foreach ($css as $file) {
+              printf('<link rel="stylesheet" href="%s">'."\n", $file);
+          }
       }
     ?>
   </head>
@@ -35,7 +35,7 @@
           <li class="nav-item">
             <a class="nav-link" href="/map">Map</a>
           </li>
-          <?php if(!$session->isAuthenticated()): ?>
+          <?php if (!$session->isAuthenticated()): ?>
           <li class="nav-item active">
             <a class="nav-link" href="/register">Register</a>
           </li>
@@ -46,7 +46,7 @@
           <?php endif; ?>
         </ul>
 
-        <?php if($session->isAuthenticated()): ?>
+        <?php if ($session->isAuthenticated()): ?>
         <ul class="navbar-nav float-right">
           <li class="nav-item">
             <a class="btn btn-outline-success" href="/logout">Logout</a>

@@ -3,7 +3,7 @@
 namespace FunkFeuer\Nodeman;
 
 /**
- * User class for registered users
+ * User class for registered users.
  *
  * @author     Bernhard Froehlich <decke@bluelife.at>
  * @copyright  2017 Bernhard Froehlich
@@ -29,14 +29,14 @@ class User
     {
         $this->_handle = Config::getDbHandle();
 
-        if($username !== null) {
+        if ($username !== null) {
             $this->load($username);
         }
     }
 
     public function __get($name)
     {
-        if(array_key_exists($name, $this->_data)) {
+        if (array_key_exists($name, $this->_data)) {
             return $this->_data[$name];
         }
 
@@ -45,20 +45,21 @@ class User
 
     public function __set($name, $value)
     {
-        if($name == 'username') {
+        if ($name == 'username') {
             $value = strtolower($value);
         }
 
-        if($name == 'password') {
+        if ($name == 'password') {
             return $this->setPassword($value);
         }
 
-        if($name == 'email') {
+        if ($name == 'email') {
             $value = strtolower($value);
         }
 
-        if(array_key_exists($name, $this->_data)) {
+        if (array_key_exists($name, $this->_data)) {
             $this->_data[$name] = $value;
+
             return true;
         }
 
@@ -68,6 +69,7 @@ class User
     public function setPassword($password)
     {
         $this->_data['password'] = password_hash($password, PASSWORD_DEFAULT, array('cost' => 11));
+
         return true;
     }
 
@@ -78,21 +80,22 @@ class User
 
     public function emailExists($email)
     {
-        $stmt = $this->_handle->prepare("SELECT count(*) FROM users WHERE email = ?");
+        $stmt = $this->_handle->prepare('SELECT count(*) FROM users WHERE email = ?');
         $stmt->execute(array(strtolower($email)));
         $result = $stmt->fetchAll();
 
-         return ($result[0][0] > 0);
+        return $result[0][0] > 0;
     }
 
     public function load($username)
     {
-        $stmt = $this->_handle->prepare("SELECT userid, username, password, email, firstname,
-            lastname, phone, usergroup FROM users WHERE username = ?");
-        if(!$stmt->execute(array(strtolower($username))))
+        $stmt = $this->_handle->prepare('SELECT userid, username, password, email, firstname,
+            lastname, phone, usergroup FROM users WHERE username = ?');
+        if (!$stmt->execute(array(strtolower($username)))) {
             return false;
+        }
 
-        while($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $this->_data = $row;
 
             return true;
@@ -103,22 +106,19 @@ class User
 
     public function save()
     {
-        if(!$this->userid)
-        {
-            $stmt = $this->_handle->prepare("INSERT INTO users (username, password, email, firstname,
-                lastname, phone, usergroup) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        if (!$this->userid) {
+            $stmt = $this->_handle->prepare('INSERT INTO users (username, password, email, firstname,
+                lastname, phone, usergroup) VALUES (?, ?, ?, ?, ?, ?, ?)');
 
-            if($stmt->execute(array($this->username, $this->password, $this->email, $this->firstname,
-                $this->lastname, $this->phone, $this->usergroup)))
-            {
+            if ($stmt->execute(array($this->username, $this->password, $this->email, $this->firstname,
+                $this->lastname, $this->phone, $this->usergroup))) {
                 $this->userid = $this->_handle->lastInsertId();
+
                 return true;
             }
-        }
-        else
-        {
-            $stmt = $this->_handle->prepare("UPDATE users SET username = ?, password = ?, email = ?,
-                firstname = ?, lastname = ?, phone = ?, usergroup = ? WHERE userid = ?");
+        } else {
+            $stmt = $this->_handle->prepare('UPDATE users SET username = ?, password = ?, email = ?,
+                firstname = ?, lastname = ?, phone = ?, usergroup = ? WHERE userid = ?');
 
             return $stmt->execute(array($this->username, $this->password, $this->email, $this->firstname,
                 $this->lastname, $this->phone, $this->usergroup, $this->userid));

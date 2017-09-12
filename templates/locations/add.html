@@ -1,11 +1,11 @@
-<?php include("templates/_header.html"); ?>
+<?php include 'templates/_header.html'; ?>
 
     <div class="container">
 
       <h1>Create new location</h1>
 
-      <?php if($flash->hasMessage('error')): ?>
-        <?php foreach($flash->getMessage('error') as $msg): ?>
+      <?php if ($flash->hasMessage('error')): ?>
+        <?php foreach ($flash->getMessage('error') as $msg): ?>
           <div class="alert alert-danger" role="alert"><strong>Sorry</strong> <?=$msg?></div>
         <?php endforeach; ?>
       <?php endif; ?>
@@ -38,4 +38,4 @@
       </form>
     </div>
 
-<?php include("templates/_footer.html"); ?>
+<?php include 'templates/_footer.html'; ?>

@@ -1,4 +1,4 @@
-<?php include("templates/_header.html"); ?>
+<?php include 'templates/_header.html'; ?>
 
     <div class="container">
 
@@ -9,9 +9,8 @@
 
 <?php
 
-foreach($locations as $location)
-{
-  printf('<tr><td><a href="/locations/%s">%s</a></td><td>%s</td><td><img src="/css/images/tower-%s.svg" style="height: 2em" alt="%s"></td></tr>',
+foreach ($locations as $location) {
+    printf('<tr><td><a href="/locations/%s">%s</a></td><td>%s</td><td><img src="/css/images/tower-%s.svg" style="height: 2em" alt="%s"></td></tr>',
     $location->name,
     $location->name,
     htmlentities($location->address),
@@ -25,4 +24,4 @@ foreach($locations as $location)
 
     </div>
             
-<?php include("templates/_footer.html"); ?>
+<?php include 'templates/_footer.html'; ?>
