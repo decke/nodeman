@@ -4,25 +4,21 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <title><?=$config->get('title')?></title>
+    <title>{{ config.title }}</title>
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/open-iconic-bootstrap.min.css">
     <link rel="stylesheet" href="/css/custom.css">
-    <?php
-      if (isset($css)) {
-          foreach ($css as $file) {
-              printf('<link rel="stylesheet" href="%s">'."\n", $file);
-          }
-      }
-    ?>
+    {% for file in css %}
+        <link rel="stylesheet" href="{{ file }}">
+    {% endfor %}
   </head>
 
   <body>
 
     <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-      <a class="navbar-brand" href="<?=$config->get('title.url')?>"><?=$config->get('title')?></a>
+      <a class="navbar-brand" href="{{ config.title.url }}">{{ config.title }}</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarDefault" aria-controls="navbarDefault" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -35,30 +31,30 @@
           <li class="nav-item">
             <a class="nav-link" href="/map">Map</a>
           </li>
-          <?php if (!$session->isAuthenticated()): ?>
+          {% if not session.isAuthenticated() %}
           <li class="nav-item active">
             <a class="nav-link" href="/register">Register</a>
           </li>
-          <?php else: ?>
+          {% else %}
           <li class="nav-item active">
             <a class="nav-link" href="/locations/add">Add Location</a>
           </li>
-          <?php endif; ?>
+          {% endif %}
         </ul>
 
-        <?php if ($session->isAuthenticated()): ?>
+        {% if session.isAuthenticated() %}
         <ul class="navbar-nav float-right">
           <li class="nav-item">
             <a class="btn btn-outline-success" href="/logout">Logout</a>
           </li>
         </ul>
-        <?php else: ?>
+        {% else %}
         <form class="form-inline my-2 my-lg-0" action="/login" method="post">
           <input type="text" name="username" placeholder="Username" class="form-control mr-sm-2">
           <input type="password" name="password" placeholder="Password" class="form-control mr-sm-2">
           <button type="submit" value="Login" class="btn btn-success my-2 my-sm-0">Sign in</button>
         </form>
-        <?php endif; ?>
+        {% endif %}
 
       </div>
     </nav>

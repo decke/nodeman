@@ -28,18 +28,14 @@ function initmap() {
    var offlineIcon = new TowerIcon({iconUrl: '/images/tower-offline.svg'});
    var tunnelIcon = new TowerIcon({iconUrl: '/images/tower-tunnel.svg'});
 
-<?php
-   foreach($locations as $location) {
-      printf("L.marker(%s, {icon:%sIcon}).addTo(map).bindPopup(\"%s\");\n",
-         $location['location'], $location['type'], $location['popup']);
-   }
-?>
+   {% for loc in locations %}
+       L.marker({{ loc.location }}, {icon:{{ loc.type}}Icon}).addTo(map).bindPopup("{{ loc.popup|raw }}");
+   {% endfor %}
 
    var links = [
-<?php
-   for($i=0,$cnt=count($links); $i < $cnt; ++$i)
-      printf("[ %s,%s ]%s\n", $links[$i]['from'], $links[$i]['to'], ($i+1 < $cnt) ? ',' : '');
-?>
+       {% for link in links %}
+           [ {{ link.from }}, {{ link.to }} ]{% if not loop.last %},{% endif %}
+       {% endfor %}
    ];
 
    var link = L.polyline(links, { color: 'green', weight: 3, opacity: 0.5 }).addTo(map);

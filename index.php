@@ -21,10 +21,18 @@ $app = new \Slim\App();
 /* init php-view */
 $container = $app->getContainer();
 $container['view'] = function ($container) use ($session) {
-    $renderer = new \Slim\Views\PhpRenderer(__DIR__.'/templates/');
-    $renderer->addAttribute('session', $session);
-    $renderer->addAttribute('config', new \FunkFeuer\Nodeman\Config());
-    $renderer->addAttribute('flash', new \Slim\Flash\Messages());
+    $renderer = new \Slim\Views\Twig(__DIR__.'/templates/', array(
+        'cache' => false,
+        // 'cache' => Config::get('cache.directory')
+    ));
+
+    $env = $renderer->getEnvironment();
+    $env->addGlobal('session', $session);
+    $env->addGlobal('config', new \FunkFeuer\Nodeman\Config());
+    $env->addGlobal('flash', new \Slim\Flash\Messages());
+
+    $basePath = rtrim(str_ireplace('index.php', '', $container['request']->getUri()->getBasePath()), '/');
+    $renderer->addExtension(new \Slim\Views\TwigExtension($container['router'], $basePath));
 
     return $renderer;
 };
@@ -108,11 +116,11 @@ $app->post('/register', function ($request, $response) use ($session) {
     }
 
     $data = array(
-        'username'  => htmlentities($request->getParam('username')),
-        'email'     => htmlentities($request->getParam('email')),
-        'firstname' => htmlentities($request->getParam('firstname')),
-        'lastname'  => htmlentities($request->getParam('lastname')),
-        'phone'     => htmlentities($request->getParam('phone'))
+        'username'  => $request->getParam('username'),
+        'email'     => $request->getParam('email'),
+        'firstname' => $request->getParam('firstname'),
+        'lastname'  => $request->getParam('lastname'),
+        'phone'     => $request->getParam('phone')
     );
 
     return $this->view->render($response, 'register.html', array('data' => $data));
@@ -220,8 +228,8 @@ $app->post('/locations/add', function ($request, $response) use ($session) {
     }
 
     $data = array(
-        'name'    => htmlentities($request->getParam('name')),
-        'address' => htmlentities($request->getParam('address'))
+        'name'    => $request->getParam('name'),
+        'address' => $request->getParam('address')
     );
 
     return $this->view->render($response, 'locations/add.html', array(

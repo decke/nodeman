@@ -9,4 +9,3 @@ disabled:
 finder:
   name:
     - "*.php"
-    - "*.html"

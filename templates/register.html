@@ -1,19 +1,17 @@
-<?php include 'templates/_header.html'; ?>
+{% include('_header.html') %}
 
     <div class="container">
 
       <h1>Create new account</h1>
 
-      <?php if ($flash->hasMessage('error')): ?>
-        <?php foreach ($flash->getMessage('error') as $msg): ?>
-          <div class="alert alert-danger" role="alert"><strong>Sorry</strong> <?=$msg?></div>
-        <?php endforeach; ?>
-      <?php endif; ?>
+      {% for msg in flash.getMessage('error') %}
+        <div class="alert alert-danger" role="alert"><strong>Sorry</strong> {{ msg }}</div>
+      {% endfor %}
 
       <form action="/register" method="post">
         <div class="form-group">
           <label for="username">Username</label>
-          <input type="text" id="username" name="username" class="form-control" aria-describedby="usernameHelp" placeholder="Your username" value="<?=$data['username']?>">
+          <input type="text" id="username" name="username" class="form-control" aria-describedby="usernameHelp" placeholder="Your username" value="{{ data['username'] }}">
           <small id="usernameHelp" class="form-text text-muted">
             Length from 3-50. Allowed characters only 0-9, A-Z, a-z, @, _, -, .
           </small>
@@ -36,17 +34,17 @@
         <div class="form-group row">
           <div class="col">
             <label for="firstname">Firstname</label>
-            <input type="text" id="firstname" name="firstname" class="form-control" placeholder="First name (optional)" value="<?=$data['firstname']?>">
+            <input type="text" id="firstname" name="firstname" class="form-control" placeholder="First name (optional)" value="{{ data['firstname'] }}">
           </div>
           <div class="col">
             <label for="lastname">Lastname</label>
-            <input type="text" id="lastname" name="lastname" class="form-control" placeholder="Last name (optional)" value="<?=$data['lastname']?>">
+            <input type="text" id="lastname" name="lastname" class="form-control" placeholder="Last name (optional)" value="{{ data['lastname'] }}">
           </div>
         </div>
 
         <div class="form-group">
           <label for="email">EMail</label>
-          <input type="text" id="email" name="email" class="form-control" aria-describedby="emailHelp" value="<?=$data['email']?>">
+          <input type="text" id="email" name="email" class="form-control" aria-describedby="emailHelp" value="{{ data['email'] }}">
           <small id="emailHelp" class="form-text text-muted">
             This email will be visible for other users so they can contact you.
           </small>
@@ -54,7 +52,7 @@
 
         <div class="form-group">
           <label for="phone">Phone</label>
-          <input type="text" id="phone" name="phone" class="form-control" aria-describedby="phoneHelp" placeholder="+43 664 000001 (optional)" value="<?=$data['phone']?>">
+          <input type="text" id="phone" name="phone" class="form-control" aria-describedby="phoneHelp" placeholder="+43 664 000001 (optional)" value="{{ data['phone'] }}">
           <small id="phoneHelp" class="form-text text-muted">
             Telephone number will be visible for other users so they can contact you.
           </small>
@@ -64,4 +62,4 @@
       </form>
     </div>
 
-<?php include 'templates/_footer.html'; ?>
+{% include('_footer.html') %}

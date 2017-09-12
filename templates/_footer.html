@@ -3,12 +3,8 @@
     <script src="/js/jquery.slim.min.js"></script>
     <script src="/js/popper.min.js"></script>
     <script src="/js/bootstrap.min.js"></script>
-    <?php
-      if (isset($js)) {
-          foreach ($js as $file) {
-              printf('<script src="%s"></script>'."\n", $file);
-          }
-      }
-    ?>
+    {% for file in js %}
+        <script src="{{ file }}"></script>
+    {% endfor %}
   </body>
 </html>
