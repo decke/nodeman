@@ -241,7 +241,6 @@ $app->post('/location/add', function ($request, $response) use ($session) {
     ));
 });
 
-
 /* Nodes */
 $app->get('/location/{locationid}/add', function ($request, $response, $args) use ($session) {
     if (!$session->isAuthenticated()) {
