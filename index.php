@@ -160,7 +160,7 @@ $app->get('/map.js', function ($request, $response) use ($session) {
 });
 
 /* Locations */
-$app->get('/locations/', function ($request, $response) use ($session) {
+$app->get('/locations', function ($request, $response) use ($session) {
     $loc = new Location();
 
     return $this->view->render($response, 'locations.html', array(
@@ -168,20 +168,20 @@ $app->get('/locations/', function ($request, $response) use ($session) {
     ));
 });
 
-$app->get('/locations/add', function ($request, $response) use ($session) {
+$app->get('/location/add', function ($request, $response) use ($session) {
     if (!$session->isAuthenticated()) {
         $this->flash->addMessage('error', 'Please login first');
 
         return $response->withStatus(302)->withHeader('Location', '/');
     }
 
-    return $this->view->render($response, 'locations/add.html', array(
+    return $this->view->render($response, 'location/add.html', array(
         'css' => array('/css/leaflet.css'),
         'js'  => array('/js/leaflet.js', '/js/grazmap.js')
     ));
 });
 
-$app->post('/locations/add', function ($request, $response) use ($session) {
+$app->post('/location/add', function ($request, $response) use ($session) {
     if (!$session->isAuthenticated()) {
         $this->flash->addMessage('error', 'Please login first');
 
@@ -232,11 +232,81 @@ $app->post('/locations/add', function ($request, $response) use ($session) {
         'address' => $request->getParam('address')
     );
 
-    return $this->view->render($response, 'locations/add.html', array(
+    return $this->view->render($response, 'location/add.html', array(
         'data' => $data,
         'css'  => array('/css/leaflet.css'),
         'js'   => array('/js/leaflet.js', '/js/grazmap.js')
     ));
 });
+
+
+/* Nodes */
+$app->get('/location/{locationid}/add', function ($request, $response, $args) use ($session) {
+    if (!$session->isAuthenticated()) {
+        $this->flash->addMessage('error', 'Please login first');
+
+        return $response->withStatus(302)->withHeader('Location', '/');
+    }
+     
+    return $this->view->render($response, 'location/node/add.html', array(
+        'data' => array('locationid' => $args['locationid'])
+    ));
+});
+
+$app->post('/location/{locationid}/add', function ($request, $response, $args) use ($session) {
+    if (!$session->isAuthenticated()) {
+        $this->flash->addMessage('error', 'Please login first');
+
+        return $response->withStatus(302)->withHeader('Location', '/');
+    }
+
+    $location = new Location($args['locationid']);
+    if ($location->owner != $session->getUser()->userid) {
+        $this->flash->addMessage('error', 'Permission denied');
+
+        return $response->withStatus(302)->withHeader('Location', '/');
+    }
+
+    if (!preg_match('/^[0-9A-Za-z]{3,50}$/', $request->getParam('name'))) {
+        $this->flash->addMessage('error', 'Node name is invalid. Length from 3-50. Allowed characters only 0-9, A-Z, a-z');
+    }
+    if (strlen($request->getParam('documentation')) > 16384) {
+        $this->flash->addMessage('error', 'Documentation is too long (max 16K)');
+    }
+
+    $location = new Location($args['locationid']);
+    if ($location->nodeExists($request->getParam('name'))) {
+        $this->flash->addMessage('error', 'Node name already exists');
+    }
+
+    /* HACK: Slim-Flash hasMessage('error') does not see messages for next request */
+    if (!isset($_SESSION['slimFlash']['error'])) {
+        $node = new node();
+        $node->name = $request->getParam('name');
+        $node->owner = $session->getUser()->userid;
+        $node->location = $args['locationid'],
+        $node->hardware = 0;
+        $node->documentation = $request->getParam('documentation');
+
+        if ($node->save()) {
+            $this->flash->addMessage('success', 'Node created');
+
+            return $response->withStatus(302)->withHeader('Location', '/location/'.$node->location.'/node/'.$node->nodeid.'/');
+        } else {
+            $this->flash->addMessage('error', 'Location creation failed');
+        }
+    }
+
+    $data = array(
+        'name'          => $request->getParam('name'),
+        'documentation' => $request->getParam('documentation'),
+        'locationid'    => $args['locationid']
+    );
+
+    return $this->view->render($response, 'location/node/add.html', array(
+        'data' => $data
+    ));
+});
+
 
 $app->run();

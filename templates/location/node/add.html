@@ -1,0 +1,32 @@
+{% include('_header.html') %}
+
+    <div class="container">
+
+      <h1>Create new Node</h1>
+
+      {% for msg in flash.getMessage('error') %}
+        <div class="alert alert-danger" role="alert"><strong>Sorry</strong> {{ msg }}</div>
+      {% endfor %}
+
+      <form action="/location/{{ data['locationid'] }}/add" method="post">
+        <div class="form-group">
+          <label for="name">Node name</label>
+          <input type="text" id="name" name="name" class="form-control" aria-describedby="nameHelp" value="{{ data['name'] }}">
+          <small id="nameHelp" class="form-text text-muted">
+            Length from 3-50. Allowed characters only 0-9, A-Z, a-z.
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label for="documentation">Documentation</label>
+          <textarea id="documentation" name="documentation" class="form-control" aria-describedby="documentationHelp">{{ data['documentation'] }}</textarea>
+          <small id="documentationHelp" class="form-text text-muted">
+            Please use Markdown Syntax to format your node documentation. <a href="https://daringfireball.net/projects/markdown/basics" target="_blank">Markdown examples</a> and <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Here-Cheatsheet" target="_blank">more examples</a>.</p>
+          </small>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Create</button>
+      </form>
+    </div>
+
+{% include('_footer.html') %}

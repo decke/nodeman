@@ -28,6 +28,9 @@ js/popper.min.js:
 js/jquery.slim.min.js:
   "jQuery" used under MIT License
 
+vendor/erusev:
+  "Parsedown" used under MIT License
+
 vendor/slim:
   "Slim Framework" used under MIT License
 

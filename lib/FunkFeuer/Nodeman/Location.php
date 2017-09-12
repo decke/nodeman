@@ -142,4 +142,30 @@ class Location
 
         return $stmt->fetch(\PDO::FETCH_BOTH)[0];
     }
+
+    public function getAllNodes()
+    {
+        $data = array();
+
+        $stmt = $this->_handle->prepare('SELECT nodeid FROM nodes WHERE (location = ? OR ? IS NULL) ORDER BY nodeid');
+        if (!$stmt->execute(array($this->location, $this->location))) {
+            return $data;
+        }
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $data[] = new Node($row['nodeid']);
+        }
+
+        return $data;
+    }
+
+    public function nodeExists($name)
+    {
+        $stmt = $this->_handle->prepare('SELECT count(*) FROM nodes WHERE location = ? AND LOWER(name) = LOWER(?)');
+        if (!$stmt->execute(array($this->location, $name))) {
+            return false;
+        }
+
+        return $stmt->fetch(\PDO::FETCH_BOTH)[0] > 0;
+    }
 }
