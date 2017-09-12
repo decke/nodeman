@@ -122,7 +122,7 @@ $app->post('/register', function ($request, $response) use ($session) {
 $app->get('/map', function ($request, $response) use ($session) {
     return $this->view->render($response, 'map.html', array(
         'css' => array('/css/leaflet.css', '/css/map.css'),
-        'js'  => array('/js/leaflet.js', '/map.js'),
+        'js'  => array('/js/leaflet.js', '/map.js')
     ));
 });
 
@@ -169,7 +169,7 @@ $app->get('/locations/add', function ($request, $response) use ($session) {
 
     return $this->view->render($response, 'locations/add.html', array(
         'css' => array('/css/leaflet.css'),
-        'js'  => array('/js/leaflet.js', '/js/grazmap.js'),
+        'js'  => array('/js/leaflet.js', '/js/grazmap.js')
     ));
 });
 
@@ -227,7 +227,7 @@ $app->post('/locations/add', function ($request, $response) use ($session) {
     return $this->view->render($response, 'locations/add.html', array(
         'data' => $data,
         'css'  => array('/css/leaflet.css'),
-        'js'   => array('/js/leaflet.js', '/js/grazmap.js'),
+        'js'   => array('/js/leaflet.js', '/js/grazmap.js')
     ));
 });
 
