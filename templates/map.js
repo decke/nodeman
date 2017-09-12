@@ -24,9 +24,9 @@ function initmap() {
       }
    });
 
-   var onlineIcon = new TowerIcon({iconUrl: 'css/images/tower-online.svg'});
-   var offlineIcon = new TowerIcon({iconUrl: 'css/images/tower-offline.svg'});
-   var tunnelIcon = new TowerIcon({iconUrl: 'css/images/tower-tunnel.svg'});
+   var onlineIcon = new TowerIcon({iconUrl: '/images/tower-online.svg'});
+   var offlineIcon = new TowerIcon({iconUrl: '/images/tower-offline.svg'});
+   var tunnelIcon = new TowerIcon({iconUrl: '/images/tower-tunnel.svg'});
 
 <?php
    foreach($locations as $location) {
