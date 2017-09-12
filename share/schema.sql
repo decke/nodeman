@@ -111,7 +111,7 @@ CREATE INDEX linkdata_idx2 ON linkdata (toaddress);
 --- INITIAL DATA
 ---
 
-INSERT INTO "config" VALUES('schemaversion','0');
+INSERT INTO "config" VALUES('cache.directory', 'tmp/');
 INSERT INTO "config" VALUES('security.https_only','false');
 INSERT INTO "config" VALUES('title','FunkFeuer Graz');
 INSERT INTO "config" VALUES('title.url','https://graz.funkfeuer.at/');
