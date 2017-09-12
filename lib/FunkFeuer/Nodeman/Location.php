@@ -121,13 +121,13 @@ class Location
     {
         $data = array();
 
-        $stmt = $this->_handle->prepare('SELECT locationid FROM locations WHERE (owner = ? OR ? IS NULL) ORDER BY name ASC LIMIT ?, ?');
+        $stmt = $this->_handle->prepare('SELECT locationid FROM locations WHERE (owner = ? OR ? IS NULL) ORDER BY name LIMIT ?, ?');
         if (!$stmt->execute(array($owner, $owner, $start, $limit))) {
             return $data;
         }
 
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $data[] = new self($row['locationid']);
+            $data[] = new Location($row['locationid']);
         }
 
         return $data;

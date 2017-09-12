@@ -9,10 +9,11 @@
 
       {% for loc in locations %}
         <tr>
-          <td><a href="/locations"{{ loc.name }}">{{ loc.name }}</a></td>
+          <td><a href="/location/{{ loc.locationid }}/">{{ loc.name }}</a></td>
           <td>{{ loc.address }}</td>
           <td><img src="/css/images/tower-{{ loc.status }}.svg" style="height: 2em" alt="{{ loc.status }}"></td>
         </tr>
+{{ dump(loc) }}
       {% endfor %}
 
       </table>

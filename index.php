@@ -23,10 +23,12 @@ $container = $app->getContainer();
 $container['view'] = function ($container) use ($session) {
     $renderer = new \Slim\Views\Twig(__DIR__.'/templates/', array(
         'cache' => false,
+        'debug' => true
         // 'cache' => Config::get('cache.directory')
     ));
 
     $env = $renderer->getEnvironment();
+    $env->addExtension(new \Twig_Extension_Debug());
     $env->addGlobal('session', $session);
     $env->addGlobal('config', new \FunkFeuer\Nodeman\Config());
     $env->addGlobal('flash', new \Slim\Flash\Messages());
@@ -284,7 +286,7 @@ $app->post('/location/{locationid}/add', function ($request, $response, $args) u
         $node = new node();
         $node->name = $request->getParam('name');
         $node->owner = $session->getUser()->userid;
-        $node->location = $args['locationid'],
+        $node->location = $args['locationid'];
         $node->hardware = 0;
         $node->documentation = $request->getParam('documentation');
 
