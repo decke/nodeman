@@ -1,3 +1,5 @@
+![[StyleCI](https://styleci.io/repos/102716552/shield)](https://styleci.io/repos/102716552)
+
 # nodeman
 FunkFeuer Node Manager
 
