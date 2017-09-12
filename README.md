@@ -1,4 +1,4 @@
-![[StyleCI](https://styleci.io/repos/102716552/shield)](https://styleci.io/repos/102716552)
+![StyleCI Badge](https://styleci.io/repos/102716552/shield?branch=master)
 
 # nodeman
 FunkFeuer Node Manager
