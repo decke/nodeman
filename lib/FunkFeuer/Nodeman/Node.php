@@ -119,7 +119,7 @@ class Node
         }
 
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $data[] = new Interface($row['interfaceid']);
+            $data[] = new NetInterface($row['interfaceid']);
         }
 
         return $data;
