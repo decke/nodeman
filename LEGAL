@@ -30,3 +30,8 @@ js/jquery.slim.min.js:
 
 vendor/slim:
   "Slim Framework" used under MIT License
+
+vendor/twig:
+  "Twig" used under BSD 3-clause License
+   https://twig.symfony.com/
+
