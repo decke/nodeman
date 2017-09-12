@@ -249,7 +249,7 @@ $app->get('/location/{locationid}/add', function ($request, $response, $args) us
 
         return $response->withStatus(302)->withHeader('Location', '/');
     }
-     
+
     return $this->view->render($response, 'location/node/add.html', array(
         'data' => array('locationid' => $args['locationid'])
     ));
@@ -309,6 +309,5 @@ $app->post('/location/{locationid}/add', function ($request, $response, $args) u
         'data' => $data
     ));
 });
-
 
 $app->run();

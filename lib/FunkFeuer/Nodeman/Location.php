@@ -127,7 +127,7 @@ class Location
         }
 
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $data[] = new Location($row['locationid']);
+            $data[] = new self($row['locationid']);
         }
 
         return $data;
