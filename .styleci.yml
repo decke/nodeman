@@ -1,0 +1,12 @@
+preset: recommended
+
+risky: false
+
+disabled:
+  - short_array_syntax
+  - trailing_comma_in_multiline_array
+
+finder:
+  name:
+    - "*.php"
+    - "*.html"
