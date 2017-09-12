@@ -153,6 +153,14 @@ $app->get('/map.js', function($request, $response) use ($session) {
 });
 
 /* Locations */
+$app->get('/locations/', function($request, $response) use ($session) {
+    $loc = new Location();
+
+    return $this->view->render($response, 'locations.html', array(
+        'locations' => $loc->getAllLocations(null, 0, 999999)
+    ));
+});
+
 $app->get('/locations/add', function($request, $response) use ($session) {
     if (!$session->isAuthenticated()) {
         $this->flash->addMessage('error', 'Please login first');

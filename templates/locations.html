@@ -1,0 +1,28 @@
+<?php include("templates/_header.html"); ?>
+
+    <div class="container">
+
+      <h1>Locations</h1>
+
+      <table class="table table-striped">
+      <thead><tr><th>Name</th><th style="width: 60%">Address</th><th>Status</th></tr></thead>
+
+<?php
+
+foreach($locations as $location)
+{
+  printf('<tr><td><a href="/locations/%s">%s</a></td><td>%s</td><td><img src="/css/images/tower-%s.svg" style="height: 2em" alt="%s"></td></tr>',
+    $location->name,
+    $location->name,
+    htmlentities($location->address),
+    $location->status,
+    $location->status
+  );
+}
+
+?>
+      </table>
+
+    </div>
+            
+<?php include("templates/_footer.html"); ?>
