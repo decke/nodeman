@@ -1,0 +1,134 @@
+#!/usr/local/bin/php
+<?php
+
+namespace FunkFeuer\Nodeman;
+
+use \FunkFeuer\Nodeman\Config;
+
+require_once __DIR__.'/../vendor/autoload.php';
+
+/* set working directory to root directory */
+chdir(dirname(__FILE__).'/../');
+
+/* set default timezone to UTC */
+date_default_timezone_set('UTC');
+
+
+$default_uid = 1; /* Default User ID fuer Locations die niemandem gehoeren */
+
+
+function logMsg($msg, $level = 'INFO')
+{
+    printf("[%s] [%5s] %s\n", date('H:i:s d.m.Y', time()), $level, $msg);
+}
+
+function fetchPersons($handle)
+{
+    $data = array();
+    $stmt = $handle->prepare('SELECT id, nick, firstname, lastname, email, tel, password FROM person WHERE 1=1 ORDER BY id');
+    if (!$stmt->execute(array())) {
+        return false;
+    }
+
+    while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+        $data[] = $row;
+    }
+
+    return $data;
+}
+
+function fetchLocations($handle)
+{
+    $data = array();
+    $stmt = $handle->prepare('SELECT id, pixel_x, pixel_y, gps_lon, gps_lat, hidden, name, street, streetnr, creator_ip, time, comment, person_id, gallery_link, hastinc FROM location WHERE 1=1 ORDER BY id');
+    if (!$stmt->execute(array())) {
+        return false;
+    }
+
+    while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+        $data[] = $row;
+    }
+
+    return $data;
+}
+
+$nodeman = Config::getDbHandle();
+$nodeman->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+
+$manman = new \PDO('sqlite:share/manman.db');
+$manman->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+
+/* Create Users */
+foreach(fetchPersons($manman) as $person)
+{
+    $user = new User();
+    if($user->load($person['nick']))
+        $person['nick'] = '';
+
+    if($person['nick'] == '')
+        $person['nick'] = sprintf('user-%d', $person['id']);
+
+    if($person['tel'] === null)
+        $person['tel'] = '';
+
+    $user = new User();
+    $user->username = $person['nick'];
+    $user->password = '';
+    $user->email = $person['email'];
+    $user->firstname = $person['firstname'];
+    $user->lastname = $person['lastname'];
+    $user->phone = $person['tel'];
+    $user->usergroup = $person['admin'] == 1 ? 'admin' : 'user';
+
+    try {
+        $user->save();
+
+        // reset userid to the original one from the dump and overwrite password hash
+        $stmt = $nodeman->prepare('UPDATE users SET userid = ?, password = ? WHERE userid = ?');
+        $stmt->execute(array($person['id'], $person['password'], $user->userid));
+
+        logMsg(sprintf("User %s created. ID %d", $user->username, $user->userid));
+    } catch(\Exception $e) {
+        logMsg(sprintf("Creating user %s failed!", $person['nick']), 'ERROR');
+        logMsg($e->getMessage(), 'ERROR');
+    }
+}
+
+/* Create Locations */
+foreach(fetchLocations($manman) as $loc)
+{
+    /* convert from X/Y position to GPS coordinates */
+    /* See: https://git.ffgraz.net/karte.git/tree/data.php */
+    $loc['gps_lon'] = 15.43844103813 + ($loc['pixel_x'] - 4080) / 50675.5176;
+    $loc['gps_lat'] = 47.07177327969 + (4806 - $loc['pixel_y']) / 75505.521;
+
+    if(!$loc['gallery_link'])
+        $loc['gallery_link'] = '';
+
+    if($loc['person_id'] < 1)
+        $loc['person_id'] = $default_uid;
+
+    $location = new Location();
+    $location->name = $loc['name'];
+    $location->owner = $loc['person_id'];
+    $location->address = sprintf("%s %d", $loc['street'], $loc['streetnr']);
+    $location->latitude = $loc['gps_lat'];
+    $location->longitude = $loc['gps_lon'];
+    $location->status = 'offline';
+    $location->gallerylink = $loc['gallery_link'];
+    $location->description = $loc['comment'];
+
+    try {
+        $location->save();
+
+        $stmt = $nodeman->prepare('UPDATE locations SET locationid = ? WHERE locationid = ?');
+        $stmt->execute(array($loc['id'], $location->locationid));
+        logMsg(sprintf("Location %s created. ID %d", $location->name, $location->locationid));
+    } catch(\Exception $e) {
+        logMsg(sprintf("Creating location %s failed!", $loc['name']), 'ERROR');
+        logMsg($e->getMessage(), 'ERROR');
+    }
+}
+
+exit(0);
+
