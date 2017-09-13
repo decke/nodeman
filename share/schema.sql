@@ -45,7 +45,7 @@ CREATE TABLE locations (
    address CHAR(255) NOT NULL,
    latitude REAL NOT NULL,
    longitude REAL NOT NULL,
-   status CHAR(10) NOT NULL, -- current status: [online|offline]
+   status CHAR(10) NOT NULL, -- current status: [online|offline|hidden]
    gallerylink CHAR(255) NOT NULL,
    description BLOB,
    FOREIGN KEY(owner) REFERENCES users(userid)
