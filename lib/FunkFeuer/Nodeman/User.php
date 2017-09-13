@@ -66,6 +66,11 @@ class User
         throw new \Exception('Undefined property '.$name.' in class User');
     }
 
+    public function __isset($name)
+    {
+        return array_key_exists($name, $this->_data);
+    }
+
     public function setPassword($password)
     {
         $this->_data['password'] = password_hash($password, PASSWORD_DEFAULT, array('cost' => 11));

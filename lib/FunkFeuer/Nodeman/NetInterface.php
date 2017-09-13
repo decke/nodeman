@@ -55,6 +55,11 @@ class NetInterface
         throw new \Exception('Undefined property '.$name.' in class '.__CLASS__);
     }
 
+    public function __isset($name)
+    {
+        return array_key_exists($name, $this->_data);
+    }
+
     public function load($id)
     {
         $stmt = $this->_handle->prepare('SELECT interfaceid, name, node, category, type, address,

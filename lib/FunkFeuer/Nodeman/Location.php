@@ -55,6 +55,11 @@ class Location
         throw new \Exception('Undefined property '.$name.' in class Location');
     }
 
+    public function __isset($name)
+    {
+        return array_key_exists($name, $this->_data);
+    }
+
     public function getLongLat()
     {
         return sprintf('[%f, %f]', $this->latitude, $this->longitude);
