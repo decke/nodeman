@@ -4,10 +4,8 @@ var deflocation = [47.0707, 15.4395];
 var defzoom = 13;
 
 function initmap() {
-   map = new L.map('map');
-
    // create the tile layer with correct attribution
-   var layer = L.tileLayer('https://maps{s}.wien.gv.at/basemap/geolandbasemap/normal/google3857/{z}/{y}/{x}.{format}', {
+   var basemap = L.tileLayer('https://maps{s}.wien.gv.at/basemap/geolandbasemap/normal/google3857/{z}/{y}/{x}.{format}', {
       	maxZoom: 20,
 	attribution: 'Datenquelle: <a href="www.basemap.at">basemap.at</a>',
 	subdomains: ["", "1", "2", "3", "4"],
@@ -15,9 +13,25 @@ function initmap() {
 	bounds: [[46.35877, 8.782379], [49.037872, 17.189532]]
    });
 
+   var orthomap = L.tileLayer('https://maps{s}.wien.gv.at/basemap/bmaporthofoto30cm/normal/google3857/{z}/{y}/{x}.{format}', {
+      	maxZoom: 20,
+	attribution: 'Datenquelle: <a href="www.basemap.at">basemap.at</a>',
+	subdomains: ["", "1", "2", "3", "4"],
+	format: 'jpeg',
+	bounds: [[46.35877, 8.782379], [49.037872, 17.189532]]
+   });
+
+   var topomap = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+	attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community'
+   });
+
+   map = new L.map('map');
+
    // start the map in Graz
    map.setView(deflocation, defzoom);
-   map.addLayer(layer);
+   map.addLayer(basemap);
+
+   L.control.layers({ "Karte": basemap, "Satellit": orthomap, "Terrain": topomap }).addTo(map);
 
    // custom icons
    var TowerIcon = L.Icon.extend({
