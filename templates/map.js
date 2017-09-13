@@ -7,13 +7,17 @@ function initmap() {
    map = new L.map('map');
 
    // create the tile layer with correct attribution
-   var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-   var osmAttrib='Map data &copy;  <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
-   var osm = new L.TileLayer(osmUrl, {minZoom: 10, maxZoom: 19, attribution: osmAttrib});		
+   var layer = L.tileLayer('https://maps{s}.wien.gv.at/basemap/geolandbasemap/normal/google3857/{z}/{y}/{x}.{format}', {
+      	maxZoom: 20,
+	attribution: 'Datenquelle: <a href="www.basemap.at">basemap.at</a>',
+	subdomains: ["", "1", "2", "3", "4"],
+	format: 'png',
+	bounds: [[46.35877, 8.782379], [49.037872, 17.189532]]
+   });
 
    // start the map in Graz
    map.setView(deflocation, defzoom);
-   map.addLayer(osm);
+   map.addLayer(layer);
 
    // custom icons
    var TowerIcon = L.Icon.extend({
@@ -38,8 +42,7 @@ function initmap() {
        {% endfor %}
    ];
 
-   var link = L.polyline(links, { color: 'green', weight: 3, opacity: 0.5 }).addTo(map);
-   map.fitBounds(polyline.getBounds());
+   L.polyline(links, { color: 'green', weight: 3, opacity: 0.5 }).addTo(map);
 }
 
 initmap();
