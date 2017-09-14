@@ -121,15 +121,27 @@ $app->post('/register', function ($request, $response) use ($session) {
 
 /* Map */
 $app->get('/map', function ($request, $response) use ($session) {
+    $query = '';
+
+    if ($request->getParam('lat') && $request->getParam('lng')) {
+        $query = sprintf('?lat=%lf&lng=%lf', $request->getParam('lat'), $request->getParam('lng'));
+    }
+
     return $this->view->render($response, 'map.html', array(
         'css' => array('/css/leaflet.css', '/css/map.css'),
-        'js'  => array('/js/leaflet.js', '/map.js')
+        'js'  => array('/js/leaflet.js', '/map.js'.$query)
     ));
 });
 
 $app->get('/map.js', function ($request, $response) use ($session) {
     $location = new Location();
     $locations = array();
+    $deflocation = array();
+
+    if ($request->getParam('lat') && $request->getParam('lng')) {
+        $deflocation['lat'] = $request->getParam('lat');
+        $deflocation['lng'] = $request->getParam('lng');
+    }
 
     foreach ($location->getAllLocations(null, 0, 999999) as $loc) {
         $popup = sprintf('<b>%s</b><br>%s', $loc->name, $loc->address);
@@ -147,8 +159,9 @@ $app->get('/map.js', function ($request, $response) use ($session) {
     }
 
     return $this->view->render($response, 'map.js', array(
-        'locations' => $locations,
-        'links'     => array()
+        'deflocation' => $deflocation,
+        'locations'   => $locations,
+        'links'       => array()
     ))->withHeader('Content-Type', 'application/javascript; charset=utf-8');
 });
 
@@ -297,6 +310,22 @@ $app->post('/location/{locationid}/add', function ($request, $response, $args) u
 
     return $this->view->render($response, 'location/node/add.html', array(
         'data' => $data
+    ));
+});
+
+/* User Area */
+$app->get('/user/home', function ($request, $response) use ($session) {
+    if (!$session->isAuthenticated()) {
+        $this->flash->addMessage('error', 'Please login first');
+
+        return $response->withStatus(302)->withHeader('Location', '/');
+    }
+
+    $loc = new Location();
+
+    return $this->view->render($response, 'user/home.html', array(
+        'user'      => $session->getUser(),
+        'locations' => $loc->getAllLocations($session->getUser()->userid, 0, 999999)
     ));
 });
 

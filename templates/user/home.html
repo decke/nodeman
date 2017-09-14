@@ -1,0 +1,75 @@
+{% include('_header.html') %}
+
+    <div class="container">
+
+      <div class="row">
+        <div class="col-sm-6">
+          <div class="card">
+            <div class="card-header"><h5>User Details</h5></div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-3"><b>E-Mail:</b></div>
+                <div class="col">{{ user.email }}</div>
+              </div>
+              <div class="row">
+                <div class="col-3"><b>Name:</b></div>
+                <div class="col">{{ user.firstname }} {{ user.lastname }}</div>
+              </div>
+              <div class="row">
+                <div class="col-3"><b>Phone:</b></div>
+                <div class="col">{{ user.phone }}</div>
+              </div>
+              <div class="row text-right">
+                <div class="col">
+                  <a href="/user/edit" class="btn btn-primary">Edit userdata</a>
+                  <a href="/user/changepwd" class="btn btn-primary">Change password</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="card">
+            <div class="card-header"><h5>Locations</h5></div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col">
+                  <a href="/location/add" class="btn btn-primary">Add Location</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <br />
+
+      <h2>Your Locations</h2>
+
+      <table class="table table-striped">
+        <thead><tr><th>Name</th><th style="width: 60%">Address</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+
+        {% for loc in locations %}
+          <tr>
+            <td><a href="/location/{{ loc.locationid }}/">{{ loc.name }}</a></td>
+            <td>{{ loc.address }} <a href="/map?lat={{ loc.latitude }}&lng={{ loc.longitude }}" class="btn btn-outline-primary btn-sm">
+              <span class="oi oi-map-marker" title="icon map-marker" aria-hidden="true"></span>
+              </a>
+            </td>
+            <td><img src="/css/images/tower-{{ loc.status }}.svg" style="height: 2em" alt="{{ loc.status }}"></td>
+            <td>
+              <a href="/location/{{ loc.locationid }}" class="btn btn-primary btn-sm">Show</a>
+              <a href="/location/{{ loc.locationid }}/edit" class="btn btn-primary btn-sm">
+                <span class="oi oi-wrench" title="icon wrench" aria-hidden="true"></span>
+              </a>
+            </td>
+          </tr>
+        {% endfor %}
+
+        </tbody>
+      </table>
+
+    </div>
+
+{% include('_footer.html') %}

@@ -148,7 +148,17 @@ class Location
         return $stmt->fetch(\PDO::FETCH_BOTH)[0];
     }
 
-    public function getAllNodes()
+    public function countNodes()
+    {
+        $stmt = $this->_handle->prepare('SELECT count(*) FROM nodes WHERE location = ?');
+        if (!$stmt->execute(array($this->location))) {
+            return false;
+        }
+
+        return $stmt->fetch(\PDO::FETCH_BOTH)[0];
+    }
+
+    public function getNodes()
     {
         $data = array();
 

@@ -6,3 +6,8 @@ body {
   height: 500px;
 }
 
+.navbar-nav > li {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+

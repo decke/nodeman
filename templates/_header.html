@@ -38,15 +38,17 @@
           <li class="nav-item active">
             <a class="nav-link" href="/register">Register</a>
           </li>
-          {% else %}
-          <li class="nav-item active">
-            <a class="nav-link" href="/location/add">Add Location</a>
-          </li>
           {% endif %}
         </ul>
 
         {% if session.isAuthenticated() %}
         <ul class="navbar-nav float-right">
+          <li class="nav-item active">
+            <a class="nav-link btn btn-outline-primary" href="/user/home">
+              <span class="oi oi-person" title="icon person" aria-hidden="true"></span>
+              My Locations
+            </a>
+          </li>
           <li class="nav-item">
             <a class="btn btn-outline-success" href="/logout">Logout</a>
           </li>

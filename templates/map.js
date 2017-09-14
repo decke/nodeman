@@ -1,6 +1,10 @@
 var map;
 
+{% if deflocation %}
+var deflocation = [{{ deflocation.lat }}, {{ deflocation.lng }}];
+{% else %}
 var deflocation = [47.0707, 15.4395];
+{% endif %}
 var defzoom = 13;
 
 function initmap() {
@@ -32,6 +36,10 @@ function initmap() {
    map.addLayer(basemap);
 
    L.control.layers({ "Karte": basemap, "Satellit": orthomap, "Terrain": topomap }).addTo(map);
+
+   {% if deflocation %}
+   L.marker([{{ deflocation.lat }}, {{ deflocation.lng }}]).addTo(map);
+   {% endif %}
 
    // custom icons
    var TowerIcon = L.Icon.extend({

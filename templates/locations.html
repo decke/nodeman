@@ -5,15 +5,19 @@
       <h1>Locations</h1>
 
       <table class="table table-striped">
-      <thead><tr><th>Name</th><th style="width: 60%">Address</th><th>Status</th></tr></thead>
+        <thead><tr><th>Name</th><th style="width: 60%">Address</th><th>Status</th><th></th></tr></thead>
 
-      {% for loc in locations %}
-        <tr>
-          <td><a href="/location/{{ loc.locationid }}/">{{ loc.name }}</a></td>
-          <td>{{ loc.address }}</td>
-          <td><img src="/css/images/tower-{{ loc.status }}.svg" style="height: 2em" alt="{{ loc.status }}"></td>
-        </tr>
-      {% endfor %}
+        {% for loc in locations %}
+          <tr>
+            <td><a href="/location/{{ loc.locationid }}/">{{ loc.name }}</a></td>
+            <td>{{ loc.address }} <a href="/map?lat={{ loc.latitude }}&lng={{ loc.longitude }}" class="btn btn-outline-primary btn-sm">
+              <span class="oi oi-map-marker" title="icon map-marker" aria-hidden="true"></span>
+              </a>
+            </td>
+            <td><img src="/css/images/tower-{{ loc.status }}.svg" style="height: 2em" alt="{{ loc.status }}"></td>
+            <td><a href="/location/{{ loc.locationid }}" class="btn btn-primary btn-sm">Show</a></td>
+          </tr>
+        {% endfor %}
 
       </table>
 
