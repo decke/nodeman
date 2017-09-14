@@ -80,6 +80,17 @@ class User
 
     public function checkPassword($password)
     {
+        /* Support old MD5 hashes */
+        if (strlen($this->password) == 32 && $this->password[0] != '$') {
+            if(md5($password) == $this->password) {
+                /* generate a new hash */
+                $this->setPassword($password);
+                return $this->save();
+            }
+
+            return false;
+        }
+
         return password_verify($password, $this->password);
     }
 
