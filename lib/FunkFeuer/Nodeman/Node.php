@@ -93,7 +93,7 @@ class Node
 
     public function save()
     {
-        if (!$this->locationid) {
+        if (!$this->location) {
             $stmt = $this->_handle->prepare('INSERT INTO nodes (name, owner, location, hardware,
                 description) VALUES (?, ?, ?, ?, ?)');
 
