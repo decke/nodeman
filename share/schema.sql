@@ -115,7 +115,9 @@ INSERT INTO "config" VALUES('title','FunkFeuer Graz');
 INSERT INTO "config" VALUES('title.url','https://graz.funkfeuer.at/');
 
 --- default account
---- username: admin, password: admin
+--- email: admin@example.com, password: admin
 INSERT INTO "users" VALUES(1,'admin@example.com','$2y$11$mHyBgtw2Iu0JuUpAvr.ChekNkRZMsLzmoH0/rJJQUYxEJjii.CFjS','','','','admin');
+
+INSERT INTO "hardware" VALUES(1, 'unknown', 'unknown', '');
 
 COMMIT;
