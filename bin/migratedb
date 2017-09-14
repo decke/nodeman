@@ -61,6 +61,14 @@ $manman->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 /* Create Users */
 foreach(fetchPersons($manman) as $person)
 {
+    if (!$person['tel'])
+        $person['tel'] = '';
+
+    if (!filter_var($person['email'], FILTER_VALIDATE_EMAIL)) {
+        logMsg(sprintf("EMail %s is invalid! Skipping user", $person['email']), 'ERROR');
+        continue;
+    }
+
     $user = new User();
     $user->password = '';
     $user->email = $person['email'];
@@ -76,10 +84,11 @@ foreach(fetchPersons($manman) as $person)
         $stmt = $nodeman->prepare('UPDATE users SET userid = ?, password = ? WHERE userid = ?');
         $stmt->execute(array($person['id'], $person['password'], $user->userid));
 
-        logMsg(sprintf("User %s created. ID %d", $user->username, $user->userid));
+        logMsg(sprintf("User %s created. ID %d", $user->email, $user->userid));
     } catch(\Exception $e) {
         logMsg(sprintf("Creating user %s failed!", $person['email']), 'ERROR');
         logMsg($e->getMessage(), 'ERROR');
+        exit(1);
     }
 }
 
