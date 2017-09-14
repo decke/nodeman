@@ -62,17 +62,6 @@ $manman->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 foreach(fetchPersons($manman) as $person)
 {
     $user = new User();
-    if($user->load($person['nick']))
-        $person['nick'] = '';
-
-    if($person['nick'] == '')
-        $person['nick'] = sprintf('user-%d', $person['id']);
-
-    if($person['tel'] === null)
-        $person['tel'] = '';
-
-    $user = new User();
-    $user->username = $person['nick'];
     $user->password = '';
     $user->email = $person['email'];
     $user->firstname = $person['firstname'];
@@ -89,7 +78,7 @@ foreach(fetchPersons($manman) as $person)
 
         logMsg(sprintf("User %s created. ID %d", $user->username, $user->userid));
     } catch(\Exception $e) {
-        logMsg(sprintf("Creating user %s failed!", $person['nick']), 'ERROR');
+        logMsg(sprintf("Creating user %s failed!", $person['email']), 'ERROR');
         logMsg($e->getMessage(), 'ERROR');
     }
 }

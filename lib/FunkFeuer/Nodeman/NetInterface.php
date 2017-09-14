@@ -23,7 +23,7 @@ class NetInterface
         'address'       => null,
         'status'        => null,
         'ping'          => null,
-        'comment'       => null
+        'description'   => null
     );
 
     public function __construct($interfaceid = null)
@@ -63,7 +63,7 @@ class NetInterface
     public function load($id)
     {
         $stmt = $this->_handle->prepare('SELECT interfaceid, name, node, category, type, address,
-            status, ping, comment FROM interfaces WHERE interfaceid = ?');
+            status, ping, description FROM interfaces WHERE interfaceid = ?');
         if (!$stmt->execute(array($id))) {
             return false;
         }
@@ -80,7 +80,7 @@ class NetInterface
     public function loadByName($name)
     {
         $stmt = $this->_handle->prepare('SELECT interfaceid, name, node, category, type, address,
-            status, ping, comment FROM interfaces WHERE name = ?');
+            status, ping, description FROM interfaces WHERE name = ?');
         if (!$stmt->execute(array($name))) {
             return false;
         }
@@ -98,20 +98,20 @@ class NetInterface
     {
         if (!$this->locationid) {
             $stmt = $this->_handle->prepare('INSERT INTO interfaces (name, node, category, type, address,
-                status, ping, comment) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+                status, ping, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
 
             if ($stmt->execute(array($this->name, $this->node, $this->category, $this->type,
-                $this->address, $this->status, $this->ping, $this->comment))) {
+                $this->address, $this->status, $this->ping, $this->description))) {
                 $this->interfaceid = $this->_handle->lastInsertId();
 
                 return true;
             }
         } else {
             $stmt = $this->_handle->prepare('UPDATE interfaces SET name = ?, node = ?, category = ?,
-                type = ?, address = ?, status = ?, ping = ?, comment = ? WHERE interfaceid = ?');
+                type = ?, address = ?, status = ?, ping = ?, description = ? WHERE interfaceid = ?');
 
             return $stmt->execute(array($this->name, $this->node, $this->category, $this->type,
-                $this->address, $this->status, $this->ping, $this->comment, $this->interfaceid));
+                $this->address, $this->status, $this->ping, $this->description, $this->interfaceid));
         }
 
         return false;

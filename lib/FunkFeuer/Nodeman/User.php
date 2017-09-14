@@ -16,7 +16,6 @@ class User
     private $_handle;
     private $_data = array(
         'userid'    => null,
-        'username'  => null,
         'password'  => null,
         'email'     => null,
         'firstname' => null,
@@ -25,12 +24,12 @@ class User
         'usergroup' => null
     );
 
-    public function __construct($username = null)
+    public function __construct($userid = null)
     {
         $this->_handle = Config::getDbHandle();
 
-        if ($username !== null) {
-            $this->load($username);
+        if ($userid !== null) {
+            $this->load($userid);
         }
     }
 
@@ -45,10 +44,6 @@ class User
 
     public function __set($name, $value)
     {
-        if ($name == 'username') {
-            $value = strtolower($value);
-        }
-
         if ($name == 'password') {
             return $this->setPassword($value);
         }
@@ -103,11 +98,28 @@ class User
         return $result[0][0] > 0;
     }
 
-    public function load($username)
+    public function load($userid)
     {
-        $stmt = $this->_handle->prepare('SELECT userid, username, password, email, firstname,
-            lastname, phone, usergroup FROM users WHERE username = ?');
-        if (!$stmt->execute(array(strtolower($username)))) {
+        $stmt = $this->_handle->prepare('SELECT userid, password, email, firstname,
+            lastname, phone, usergroup FROM users WHERE userid = ?');
+        if (!$stmt->execute(array(strtolower($userid)))) {
+            return false;
+        }
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $this->_data = $row;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    public function loadByEMail($email)
+    {
+        $stmt = $this->_handle->prepare('SELECT userid, password, email, firstname,
+            lastname, phone, usergroup FROM users WHERE email = ?');
+        if (!$stmt->execute(array(strtolower($email)))) {
             return false;
         }
 
@@ -123,20 +135,20 @@ class User
     public function save()
     {
         if (!$this->userid) {
-            $stmt = $this->_handle->prepare('INSERT INTO users (username, password, email, firstname,
-                lastname, phone, usergroup) VALUES (?, ?, ?, ?, ?, ?, ?)');
+            $stmt = $this->_handle->prepare('INSERT INTO users (password, email, firstname,
+                lastname, phone, usergroup) VALUES (?, ?, ?, ?, ?, ?)');
 
-            if ($stmt->execute(array($this->username, $this->password, $this->email, $this->firstname,
+            if ($stmt->execute(array($this->password, $this->email, $this->firstname,
                 $this->lastname, $this->phone, $this->usergroup))) {
                 $this->userid = $this->_handle->lastInsertId();
 
                 return true;
             }
         } else {
-            $stmt = $this->_handle->prepare('UPDATE users SET username = ?, password = ?, email = ?,
+            $stmt = $this->_handle->prepare('UPDATE users SET password = ?, email = ?,
                 firstname = ?, lastname = ?, phone = ?, usergroup = ? WHERE userid = ?');
 
-            return $stmt->execute(array($this->username, $this->password, $this->email, $this->firstname,
+            return $stmt->execute(array($this->password, $this->email, $this->firstname,
                 $this->lastname, $this->phone, $this->usergroup, $this->userid));
         }
 

@@ -42,9 +42,12 @@ class Session
         return session_id();
     }
 
-    public static function login($username, $password)
+    public static function login($email, $password)
     {
-        $user = new User($username);
+        $user = new User();
+        if (!$user->loadByEmail($email)) {
+            return false;
+        }
 
         if (!$user->checkPassword($password)) {
             return false;
@@ -52,28 +55,19 @@ class Session
 
         /* login assumed to be successfull */
         $_SESSION['authenticated'] = true;
-        $_SESSION['username'] = $username;
+        $_SESSION['userid'] = $user->userid;
         $_SESSION['loginip'] = $_SERVER['REMOTE_ADDR'];
 
         return true;
     }
 
-    public static function getUsername()
-    {
-        if (isset($_SESSION['username'])) {
-            return $_SESSION['username'];
-        }
-
-        return false;
-    }
-
     public static function getUser()
     {
         if (self::isAuthenticated()) {
-            return new User(self::getUsername());
+            return new User($_SESSION['userid']);
         }
 
-        return false;
+        return null;
     }
 
     public static function isAuthenticated()

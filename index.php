@@ -51,9 +51,9 @@ $app->get('/', function ($request, $response) {
 
 /* Authentication - Login */
 $app->post('/login', function ($request, $response) use ($session) {
-    if (!$request->getParam('username') || !$request->getParam('password')) {
+    if (!$request->getParam('email') || !$request->getParam('password')) {
         $this->flash->addMessage('error', 'Authentication failed');
-    } elseif (!$session->login($request->getParam('username'), $request->getParam('password'))) {
+    } elseif (!$session->login($request->getParam('email'), $request->getParam('password'))) {
         $this->flash->addMessage('error', 'Authentication failed');
     }
 
@@ -72,8 +72,11 @@ $app->get('/register', function ($request, $response) {
 });
 
 $app->post('/register', function ($request, $response) use ($session) {
-    if (!preg_match('/^[0-9A-Za-z@._-]{3,50}$/', $request->getParam('username'))) {
-        $this->flash->addMessage('error', 'Username is invalid. Length from 3-50. Allowed characters only 0-9, A-Z, a-z, @, _, -, .');
+    if (!filter_var($request->getParam('email'), FILTER_VALIDATE_EMAIL)) {
+        $this->flash->addMessage('error', 'EMail address invalid');
+    }
+    if (strlen($request->getParam('email')) > 50) {
+        $this->flash->addMessage('error', 'EMail address too short (max length 50)');
     }
     if (strlen($request->getParam('password1')) < 6) {
         $this->flash->addMessage('error', 'Password too short (min length 6)');
@@ -81,18 +84,8 @@ $app->post('/register', function ($request, $response) use ($session) {
     if ($request->getParam('password1') != $request->getParam('password2')) {
         $this->flash->addMessage('error', 'Passwords do not match');
     }
-    if (!filter_var($request->getParam('email'), FILTER_VALIDATE_EMAIL)) {
-        $this->flash->addMessage('error', 'EMail address invalid');
-    }
-    if (strlen($request->getParam('email')) > 50) {
-        $this->flash->addMessage('error', 'EMail address too short (max length 50)');
-    }
 
     $user = new User();
-    if ($user->load($request->getParam('username'))) {
-        $this->flash->addMessage('error', 'Username already exists');
-    }
-
     if ($user->emailExists($request->getParam('email'))) {
         $this->flash->addMessage('error', 'EMail address already in use');
     }
@@ -100,7 +93,6 @@ $app->post('/register', function ($request, $response) use ($session) {
     /* HACK: Slim-Flash hasMessage('error') does not see messages for next request */
     if (!isset($_SESSION['slimFlash']['error'])) {
         $user = new User();
-        $user->username = $request->getParam('username');
         $user->setPassword($request->getParam('password1'));
         $user->email = $request->getParam('email');
         $user->firstname = $request->getParam('firstname');
@@ -118,7 +110,6 @@ $app->post('/register', function ($request, $response) use ($session) {
     }
 
     $data = array(
-        'username'  => $request->getParam('username'),
         'email'     => $request->getParam('email'),
         'firstname' => $request->getParam('firstname'),
         'lastname'  => $request->getParam('lastname'),
@@ -271,8 +262,8 @@ $app->post('/location/{locationid}/add', function ($request, $response, $args) u
     if (!preg_match('/^[0-9A-Za-z]{3,50}$/', $request->getParam('name'))) {
         $this->flash->addMessage('error', 'Node name is invalid. Length from 3-50. Allowed characters only 0-9, A-Z, a-z');
     }
-    if (strlen($request->getParam('documentation')) > 16384) {
-        $this->flash->addMessage('error', 'Documentation is too long (max 16K)');
+    if (strlen($request->getParam('description')) > 16384) {
+        $this->flash->addMessage('error', 'Dscription is too long (max 16K)');
     }
 
     $location = new Location($args['locationid']);
@@ -287,7 +278,7 @@ $app->post('/location/{locationid}/add', function ($request, $response, $args) u
         $node->owner = $session->getUser()->userid;
         $node->location = $args['locationid'];
         $node->hardware = 0;
-        $node->documentation = $request->getParam('documentation');
+        $node->description = $request->getParam('description');
 
         if ($node->save()) {
             $this->flash->addMessage('success', 'Node created');
@@ -299,8 +290,8 @@ $app->post('/location/{locationid}/add', function ($request, $response, $args) u
     }
 
     $data = array(
-        'name'          => $request->getParam('name'),
-        'documentation' => $request->getParam('documentation'),
+        'name'        => $request->getParam('name'),
+        'description' => $request->getParam('description'),
         'locationid'    => $args['locationid']
     );
 

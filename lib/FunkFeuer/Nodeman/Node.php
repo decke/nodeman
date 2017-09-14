@@ -20,7 +20,7 @@ class Node
         'owner'         => null,
         'location'      => null,
         'hardware'      => null,
-        'documentation' => null
+        'description'   => null
     );
 
     public function __construct($nodeid = null)
@@ -60,7 +60,7 @@ class Node
     public function load($id)
     {
         $stmt = $this->_handle->prepare('SELECT nodeid, name, owner, location, hardware,
-            documentation FROM nodes WHERE nodeid = ?');
+            description FROM nodes WHERE nodeid = ?');
         if (!$stmt->execute(array($id))) {
             return false;
         }
@@ -77,7 +77,7 @@ class Node
     public function loadByName($name)
     {
         $stmt = $this->_handle->prepare('SELECT nodeid, name, owner, location, hardware,
-            documentation FROM nodes WHERE name = ?');
+            description FROM nodes WHERE name = ?');
         if (!$stmt->execute(array($name))) {
             return false;
         }
@@ -95,20 +95,20 @@ class Node
     {
         if (!$this->locationid) {
             $stmt = $this->_handle->prepare('INSERT INTO nodes (name, owner, location, hardware,
-                documentation) VALUES (?, ?, ?, ?, ?)');
+                description) VALUES (?, ?, ?, ?, ?)');
 
             if ($stmt->execute(array($this->name, $this->owner, $this->location, $this->hardware,
-                $this->documentation))) {
+                $this->description))) {
                 $this->nodeid = $this->_handle->lastInsertId();
 
                 return true;
             }
         } else {
             $stmt = $this->_handle->prepare('UPDATE nodes SET name = ?, owner = ?, location = ?,
-                hardware = ?, documentation = ? WHERE nodeid = ?');
+                hardware = ?, description = ? WHERE nodeid = ?');
 
             return $stmt->execute(array($this->name, $this->owner, $this->location, $this->hardware,
-                $this->documentation, $this->nodeid));
+                $this->description, $this->nodeid));
         }
 
         return false;
