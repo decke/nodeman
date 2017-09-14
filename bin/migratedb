@@ -14,9 +14,6 @@ chdir(dirname(__FILE__).'/../');
 date_default_timezone_set('UTC');
 
 
-$default_uid = 1; /* Default User ID fuer Locations die niemandem gehoeren */
-
-
 function logMsg($msg, $level = 'INFO')
 {
     printf("[%s] [%5s] %s\n", date('H:i:s d.m.Y', time()), $level, $msg);
@@ -52,81 +49,161 @@ function fetchLocations($handle)
     return $data;
 }
 
+function fetchNodes($handle)
+{
+    $data = array();
+    $stmt = $handle->prepare('SELECT id, location_id, person_id, name, comment, creator_ip, time, smokeping, snmp_ip, snmp_lastseen, hastinc FROM node WHERE 1=1 ORDER BY id');
+    if (!$stmt->execute(array())) {
+        return false;
+    }
+
+    while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+        $data[] = $row;
+    }
+
+    return $data;
+}
+
+
+function createUsers($manman, $nodeman)
+{
+    /* Create Users */
+    foreach(fetchPersons($manman) as $person)
+    {
+        if (!$person['tel'])
+            $person['tel'] = '';
+
+        if (!filter_var($person['email'], FILTER_VALIDATE_EMAIL)) {
+            logMsg(sprintf("EMail %s is invalid! Skipping user", $person['email']), 'WARN');
+            continue;
+        }
+
+        $user = new User();
+        $user->password = '';
+        $user->email = $person['email'];
+        $user->firstname = $person['firstname'];
+        $user->lastname = $person['lastname'];
+        $user->phone = $person['tel'];
+        $user->usergroup = $person['admin'] == 1 ? 'admin' : 'user';
+
+        try {
+            $user->save();
+
+            // reset userid to the original one from the dump and overwrite password hash
+            $stmt = $nodeman->prepare('UPDATE users SET userid = ?, password = ? WHERE userid = ?');
+            $stmt->execute(array($person['id'], $person['password'], $user->userid));
+
+            logMsg(sprintf("User %s created. ID %d", $user->email, $person['id']));
+        } catch(\Exception $e) {
+            logMsg(sprintf("Creating user %s failed!", $person['email']), 'ERROR');
+            logMsg($e->getMessage(), 'ERROR');
+
+            return false;
+        }
+    }
+
+    return true;
+}
+
+function createLocations($manman, $nodeman)
+{
+    $nodeman->exec('DELETE FROM locations');
+
+    /* Create Locations */
+    foreach(fetchLocations($manman) as $loc)
+    {
+        /* convert from X/Y position to GPS coordinates */
+        /* See: https://git.ffgraz.net/karte.git/tree/data.php */
+        $loc['gps_lon'] = 15.43844103813 + ($loc['pixel_x'] - 4080) / 50675.5176;
+        $loc['gps_lat'] = 47.07177327969 + (4806 - $loc['pixel_y']) / 75505.521;
+
+        if(!$loc['gallery_link'])
+            $loc['gallery_link'] = '';
+
+        if($loc['person_id'] < 1) {
+            $loc['person_id'] = 1; /* default owner for not assigned locations */
+            logMsg(sprintf("Location %s has no owner. Assigning default User ID %d", $loc['name'], $loc['person_id']), 'WARN');
+        }
+
+        $location = new Location();
+        $location->name = $loc['name'];
+        $location->owner = $loc['person_id'];
+        $location->address = sprintf("%s %d", $loc['street'], $loc['streetnr']);
+        $location->latitude = $loc['gps_lat'];
+        $location->longitude = $loc['gps_lon'];
+        $location->status = 'offline';
+        $location->gallerylink = $loc['gallery_link'];
+        $location->description = $loc['comment'];
+
+        try {
+            $location->save();
+
+            $stmt = $nodeman->prepare('UPDATE locations SET locationid = ? WHERE locationid = ?');
+            $stmt->execute(array($loc['id'], $location->locationid));
+            logMsg(sprintf("Location %s created. ID %d", $location->name, $loc['id']));
+        } catch(\Exception $e) {
+            logMsg(sprintf("Creating location %s failed!", $loc['name']), 'ERROR');
+            logMsg($e->getMessage(), 'ERROR');
+        }
+    }
+
+    return true;
+}
+
+function createNodes($manman, $nodeman)
+{
+    $nodeman->exec('DELETE FROM nodes');
+
+    /* Create Nodes */
+    foreach(fetchNodes($manman) as $node)
+    {
+        if($node['person_id'] < 1)
+            $node['person_id'] = 1; /* default owner for not assigned nodes */
+
+        if($node['location_id'] < 1) {
+            $node['location_id'] = 4; /* default location for not assigned nodes (nirwana) */
+            logMsg(sprintf("Node %s has no location. Assigning default Location ID %d", $node['name'], $node['location_id']), 'WARN');
+        }
+
+        $newnode = new Node();
+        $newnode->name = $node['name'];
+        $newnode->owner = $node['person_id'];
+        $newnode->location = $node['location_id'];
+        $newnode->hardware = 1;
+        $newnode->description = $node['comment'];
+
+        try {
+            $newnode->save();
+
+            $stmt = $nodeman->prepare('UPDATE nodes SET nodeid = ? WHERE nodeid = ?');
+            $stmt->execute(array($node['id'], $newnode->nodeid));
+            logMsg(sprintf("Node %s created. ID %d", $newnode->name, $node['id']));
+        } catch(\Exception $e) {
+            logMsg(sprintf("Creating node %s failed!", $node['name']), 'ERROR');
+            logMsg($e->getMessage(), 'ERROR');
+
+            return false;
+        }
+    }
+
+    return true;
+}
+
+
 $nodeman = Config::getDbHandle();
 $nodeman->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
 $manman = new \PDO('sqlite:share/manman.db');
 $manman->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
-/* Create Users */
-foreach(fetchPersons($manman) as $person)
-{
-    if (!$person['tel'])
-        $person['tel'] = '';
+if(!createUsers($manman, $nodeman))
+    exit(1);
 
-    if (!filter_var($person['email'], FILTER_VALIDATE_EMAIL)) {
-        logMsg(sprintf("EMail %s is invalid! Skipping user", $person['email']), 'ERROR');
-        continue;
-    }
+if(!createLocations($manman, $nodeman))
+    exit(1);
 
-    $user = new User();
-    $user->password = '';
-    $user->email = $person['email'];
-    $user->firstname = $person['firstname'];
-    $user->lastname = $person['lastname'];
-    $user->phone = $person['tel'];
-    $user->usergroup = $person['admin'] == 1 ? 'admin' : 'user';
-
-    try {
-        $user->save();
-
-        // reset userid to the original one from the dump and overwrite password hash
-        $stmt = $nodeman->prepare('UPDATE users SET userid = ?, password = ? WHERE userid = ?');
-        $stmt->execute(array($person['id'], $person['password'], $user->userid));
-
-        logMsg(sprintf("User %s created. ID %d", $user->email, $user->userid));
-    } catch(\Exception $e) {
-        logMsg(sprintf("Creating user %s failed!", $person['email']), 'ERROR');
-        logMsg($e->getMessage(), 'ERROR');
-        exit(1);
-    }
-}
-
-/* Create Locations */
-foreach(fetchLocations($manman) as $loc)
-{
-    /* convert from X/Y position to GPS coordinates */
-    /* See: https://git.ffgraz.net/karte.git/tree/data.php */
-    $loc['gps_lon'] = 15.43844103813 + ($loc['pixel_x'] - 4080) / 50675.5176;
-    $loc['gps_lat'] = 47.07177327969 + (4806 - $loc['pixel_y']) / 75505.521;
-
-    if(!$loc['gallery_link'])
-        $loc['gallery_link'] = '';
-
-    if($loc['person_id'] < 1)
-        $loc['person_id'] = $default_uid;
-
-    $location = new Location();
-    $location->name = $loc['name'];
-    $location->owner = $loc['person_id'];
-    $location->address = sprintf("%s %d", $loc['street'], $loc['streetnr']);
-    $location->latitude = $loc['gps_lat'];
-    $location->longitude = $loc['gps_lon'];
-    $location->status = 'offline';
-    $location->gallerylink = $loc['gallery_link'];
-    $location->description = $loc['comment'];
-
-    try {
-        $location->save();
-
-        $stmt = $nodeman->prepare('UPDATE locations SET locationid = ? WHERE locationid = ?');
-        $stmt->execute(array($loc['id'], $location->locationid));
-        logMsg(sprintf("Location %s created. ID %d", $location->name, $location->locationid));
-    } catch(\Exception $e) {
-        logMsg(sprintf("Creating location %s failed!", $loc['name']), 'ERROR');
-        logMsg($e->getMessage(), 'ERROR');
-    }
-}
+if(!createNodes($manman, $nodeman))
+    exit(1);
 
 exit(0);
 
