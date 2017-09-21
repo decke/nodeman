@@ -77,7 +77,7 @@ class User
     {
         /* Support old MD5 hashes */
         if (strlen($this->password) == 32 && $this->password[0] != '$') {
-            if(md5($password) == $this->password) {
+            if (md5($password) == $this->password) {
                 /* generate a new hash */
                 $this->setPassword($password);
                 return $this->save();

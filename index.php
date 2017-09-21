@@ -303,8 +303,8 @@ $app->post('/location/{locationid}/add', function ($request, $response, $args) u
     }
 
     $data = array(
-        'name'        => $request->getParam('name'),
-        'description' => $request->getParam('description'),
+        'name'          => $request->getParam('name'),
+        'description'   => $request->getParam('description'),
         'locationid'    => $args['locationid']
     );
 
