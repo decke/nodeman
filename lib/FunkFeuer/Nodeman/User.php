@@ -80,6 +80,7 @@ class User
             if (md5($password) == $this->password) {
                 /* generate a new hash */
                 $this->setPassword($password);
+
                 return $this->save();
             }
 
