@@ -96,7 +96,7 @@ class NetInterface
 
     public function save()
     {
-        if (!$this->locationid) {
+        if (!$this->interfaceid) {
             $stmt = $this->_handle->prepare('INSERT INTO interfaces (name, node, category, type, address,
                 status, ping, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
 
