@@ -64,6 +64,35 @@ function fetchNodes($handle)
     return $data;
 }
 
+function fetchNode($handle, $nodeid)
+{
+    $stmt = $handle->prepare('SELECT id, location_id, person_id, name, comment, creator_ip, time, smokeping, snmp_ip, snmp_lastseen, hastinc FROM node WHERE id = ? ORDER BY id');
+    if (!$stmt->execute(array($nodeid))) {
+        return false;
+    }
+
+    while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+        return $row;
+    }
+
+    return array();
+}
+
+function fetchInterfaces($handle)
+{
+    $data = array();
+    $stmt = $handle->prepare('SELECT id, node_id, ip, net_id, name, snmp_mac, snmp_intnr FROM ip WHERE 1=1 ORDER BY id');
+    if (!$stmt->execute(array())) {
+        return false;
+    }
+
+    while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+        $data[] = $row;
+    }
+
+    return $data;
+}
+
 
 function createUsers($manman, $nodeman)
 {
@@ -161,11 +190,11 @@ function createNodes($manman, $nodeman)
             $node['person_id'] = 1; /* default owner for not assigned nodes */
 
         if($node['location_id'] < 1) {
-            $node['location_id'] = 4; /* default location for not assigned nodes (nirwana) */
+            $node['location_id'] = 11; /* default location for not assigned nodes (nirwana) */
             logMsg(sprintf("Node %s has no location. Assigning default Location ID %d", $node['name'], $node['location_id']), 'WARN');
         }
 
-        $newnode = new Node();
+        $newnode = new \FunkFeuer\Nodeman\Node();
         $newnode->name = $node['name'];
         $newnode->owner = $node['person_id'];
         $newnode->location = $node['location_id'];
@@ -189,6 +218,41 @@ function createNodes($manman, $nodeman)
     return true;
 }
 
+function createInterfaces($manman, $nodeman)
+{
+    $nodeman->exec('DELETE FROM interfaces');
+
+    /* Create Interfaces */
+    foreach(fetchInterfaces($manman) as $iface)
+    {
+        $node = fetchNode($manman, $iface['node_id']);
+
+        $newiface = new NetInterface();
+        $newiface->name = $iface['name'];
+        $newiface->node = $iface['node_id'];
+        $newiface->category = 'wifi5'; // TODO
+        $newiface->type = 'IPv4';
+        $newiface->address = $iface['ip'];
+        $newiface->status = 'offline';
+        $newiface->ping = $node['smokeping'];
+        $newiface->description = '';
+
+        try {
+            $newiface->save();
+
+            logMsg(sprintf("Interface %s created. ID %d", $newiface->name, $iface['id']));
+        } catch(\Exception $e) {
+            logMsg(sprintf("Creating interface %s for node %d failed!", $iface['name'], $iface['node_id']), 'ERROR');
+            logMsg($e->getMessage(), 'ERROR');
+
+            return false;
+        }
+    }
+
+    return true;
+}
+
+
 
 $nodeman = Config::getDbHandle();
 $nodeman->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
@@ -203,6 +267,9 @@ if(!createLocations($manman, $nodeman))
     exit(1);
 
 if(!createNodes($manman, $nodeman))
+    exit(1);
+
+if(!createInterfaces($manman, $nodeman))
     exit(1);
 
 exit(0);
