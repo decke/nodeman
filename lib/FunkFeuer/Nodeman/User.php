@@ -68,7 +68,12 @@ class User
 
     public function setPassword($password)
     {
-        $this->_data['password'] = password_hash($password, PASSWORD_DEFAULT, array('cost' => 11));
+        if (strlen($password) > 0) {
+            $this->_data['password'] = password_hash($password, PASSWORD_DEFAULT, array('cost' => 11));
+        }
+        else {
+            $this->_data['password'] = '';
+        }
 
         return true;
     }
