@@ -70,8 +70,7 @@ class User
     {
         if (strlen($password) > 0) {
             $this->_data['password'] = password_hash($password, PASSWORD_DEFAULT, array('cost' => 11));
-        }
-        else {
+        } else {
             $this->_data['password'] = '';
         }
 

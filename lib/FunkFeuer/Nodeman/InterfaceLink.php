@@ -92,7 +92,7 @@ class InterfaceLink
         return false;
     }
 
-    function getNetInterfaceByIP($ip)
+    public function getNetInterfaceByIP($ip)
     {
         $stmt = $this->_handle->prepare('SELECT interfaceid FROM interfaces WHERE address = ?');
         if (!$stmt->execute(array($ip))) {
@@ -102,7 +102,7 @@ class InterfaceLink
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             return new NetInterface($row['interfaceid']);
         }
-    
+
         return null;
     }
 }
