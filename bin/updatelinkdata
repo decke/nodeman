@@ -22,20 +22,6 @@ function logMsg($msg, $level = 'INFO')
     printf("[%s] [%5s] %s\n", date('H:i:s d.m.Y', time()), $level, $msg);
 }
 
-function getNetInterfaceIdByIP($handle, $ip)
-{
-    $stmt = $handle->prepare('SELECT interfaceid FROM interfaces WHERE address = ?');
-    if (!$stmt->execute(array($ip))) {
-        return null;
-    }
-
-    while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-        return $row['interfaceid'];
-    }
-
-    return null;
-}
-
 $json = @file_get_contents('http://localhost:9090/topology');
 if(!$json) {
     logMsg("Failed fetching topology info from olsrd", "ERROR");
@@ -70,23 +56,29 @@ for($i=0; $i < $linkcount; $i++)
 $handle = Config::getDbHandle();
 $handle->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 $handle->exec('DELETE FROM linkdata WHERE source = \'olsrd\'');
-$stmt = $handle->prepare('INSERT INTO linkdata (fromif, toif, quality, source) VALUES (?, ?, ?, ?)');
 
-foreach($links as $link)
+foreach($links as $linkdata)
 {
-    $fromIf = getNetInterfaceIdByIP($handle, $link['from']);
-    $toIf = getNetInterfaceIdByIP($handle, $link['to']);
+    $link = new InterfaceLink();
+    $link->quality = $linkdata['quality'];
+    $link->source = 'olsrd';
 
-    if (!$fromIf || !$toIf) {
-        logMsg('Unknown IP '.$link['from'].' or '.$link['to'], 'WARN');
+    $fromif = $link->getNetInterfaceByIP($linkdata['from']);
+    $toif = $link->getNetInterfaceByIP($linkdata['to']);
+
+    if (!$fromif || !$toif) {
+        logMsg('Unknown IP '.$linkdata['from'].' or '.$linkdata['to'], 'WARN');
         continue;
     }
 
-    if (!$stmt->execute(array($fromIf, $toIf, $link['quality'], 'olsrd'))) {
+    $link->fromif = $fromif->interfaceid;
+    $link->toif = $toif->interfaceid;
+
+    if (!$link->save()) {
         logMsg("Could not insert linkdata", "ERROR");
     }
 
-    printf("%s -> %s (%f)\n", $fromIf, $toIf, $link['quality']);
+    printf("%s -> %s (%f)\n", $linkdata['from'], $linkdata['to'], $linkdata['quality']);
 }
 
 exit(0);

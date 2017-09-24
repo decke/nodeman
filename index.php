@@ -134,6 +134,7 @@ $app->get('/map', function ($request, $response) use ($session) {
 });
 
 $app->get('/map.js', function ($request, $response) use ($session) {
+    $links = array();
     $location = new Location();
     $locations = array();
     $deflocation = array();
@@ -161,7 +162,7 @@ $app->get('/map.js', function ($request, $response) use ($session) {
     return $this->view->render($response, 'map.js', array(
         'deflocation' => $deflocation,
         'locations'   => $locations,
-        'links'       => array()
+        'links'       => $links
     ))->withHeader('Content-Type', 'application/javascript; charset=utf-8');
 });
 
