@@ -22,6 +22,19 @@ function logMsg($msg, $level = 'INFO')
     printf("[%s] [%5s] %s\n", date('H:i:s d.m.Y', time()), $level, $msg);
 }
 
+function getNetInterfaceIdByIP($handle, $ip)
+{
+    $stmt = $handle->prepare('SELECT interfaceid FROM interfaces WHERE address = ?');
+    if (!$stmt->execute(array($ip))) {
+        return null;
+    }
+
+    while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+        return $row['interfaceid'];
+    }
+
+    return null;
+}
 
 $json = @file_get_contents('http://localhost:9090/topology');
 if(!$json) {
@@ -35,13 +48,45 @@ if(!$data) {
     exit(1);
 }
 
+$links = array();
 $linkcount = count($data->{'topology'});
 
+/* Remove links and backlinks */
 for($i=0; $i < $linkcount; $i++)
 {
     $link = $data->{'topology'}[$i];
+    if (array_key_exists($link->lastHopIP.'-'.$link->destinationIP, $links) ||
+        array_key_exists($link->destinationIP.'-'.$link->lastHopIP, $links)) {
+        continue;
+    }
 
-    printf("#%d %s -> %s (%f)\n", $i, $link->lastHopIP, $link->destinationIP, $link->linkQuality);
+    $links[$link->lastHopIP.'-'.$link->destinationIP] = array(
+        'from' => $link->lastHopIP,
+        'to' => $link->destinationIP,
+        'quality' => $link->linkQuality
+    );
+}
+
+$handle = Config::getDbHandle();
+$handle->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+$handle->exec('DELETE FROM linkdata WHERE source = \'olsrd\'');
+$stmt = $handle->prepare('INSERT INTO linkdata (fromif, toif, quality, source) VALUES (?, ?, ?, ?)');
+
+foreach($links as $link)
+{
+    $fromIf = getNetInterfaceIdByIP($handle, $link['from']);
+    $toIf = getNetInterfaceIdByIP($handle, $link['to']);
+
+    if (!$fromIf || !$toIf) {
+        logMsg('Unknown IP '.$link['from'].' or '.$link['to'], 'WARN');
+        continue;
+    }
+
+    if (!$stmt->execute(array($fromIf, $toIf, $link['quality'], 'olsrd'))) {
+        logMsg("Could not insert linkdata", "ERROR");
+    }
+
+    printf("%s -> %s (%f)\n", $fromIf, $toIf, $link['quality']);
 }
 
 exit(0);
