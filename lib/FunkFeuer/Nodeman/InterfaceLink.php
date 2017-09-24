@@ -105,4 +105,46 @@ class InterfaceLink
 
         return null;
     }
+
+    public function getAllLinks()
+    {
+        $data = array();
+     
+        $stmt = $this->_handle->prepare('SELECT linkid FROM linkdata WHERE 1=1');
+        if (!$stmt->execute(array())) {
+            return $data;
+        }
+         
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $data[] = new self($row['linkid']);
+        }
+         
+        return $data;
+    }
+
+    public function getFromInterface()
+    {
+        return new NetInterface($this->fromif);
+    }
+
+    public function getToInterface()
+    {
+        return new NetInterface($this->toif);
+    }
+
+    public function getFromLocation()
+    {
+        $fromif = new NetInterface($this->fromif);
+        $node = new Node($fromif->node);
+
+        return new Location($node->location);
+    }
+
+    public function getToLocation()
+    {
+        $toif = new NetInterface($this->toif);
+        $node = new Node($toif->node);
+
+        return new Location($node->location);
+    }
 }

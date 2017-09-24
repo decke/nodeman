@@ -159,6 +159,19 @@ $app->get('/map.js', function ($request, $response) use ($session) {
         );
     }
 
+    $link = new InterfaceLink();
+
+    foreach ($link->getAllLinks() as $link) {
+        $fromloc = $link->getFromLocation();
+        $toloc = $link->getToLocation();
+
+        $links[] = array(
+            'from' => $fromloc->getLongLat(),
+            'to' => $toloc->getLongLat(),
+            'quality' => $link->quality
+        );
+    }
+
     return $this->view->render($response, 'map.js', array(
         'deflocation' => $deflocation,
         'locations'   => $locations,
