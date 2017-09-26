@@ -109,16 +109,16 @@ class InterfaceLink
     public function getAllLinks()
     {
         $data = array();
-     
+
         $stmt = $this->_handle->prepare('SELECT linkid FROM linkdata WHERE 1=1');
         if (!$stmt->execute(array())) {
             return $data;
         }
-         
+
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $data[] = new self($row['linkid']);
         }
-         
+
         return $data;
     }
 

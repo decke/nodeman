@@ -166,8 +166,8 @@ $app->get('/map.js', function ($request, $response) use ($session) {
         $toloc = $link->getToLocation();
 
         $links[] = array(
-            'from' => $fromloc->getLongLat(),
-            'to' => $toloc->getLongLat(),
+            'from'    => $fromloc->getLongLat(),
+            'to'      => $toloc->getLongLat(),
             'quality' => $link->quality
         );
     }
