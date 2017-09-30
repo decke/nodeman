@@ -50,8 +50,16 @@ function initmap() {
       }
    });
 
+   var OfflineIcon = L.Icon.extend({
+      options: {
+         iconSize: [ 10, 10 ],
+         iconAnchor: [ 12, 20 ],
+         popupAnchor: [ 0, -12 ]
+      }
+   });
+
    var onlineIcon = new TowerIcon({iconUrl: '/images/tower-online.svg'});
-   var offlineIcon = new TowerIcon({iconUrl: '/images/tower-offline.svg'});
+   var offlineIcon = new OfflineIcon({iconUrl: '/images/tower-offline.svg'});
    var tunnelIcon = new TowerIcon({iconUrl: '/images/tower-tunnel.svg'});
 
    {% for loc in locations %}
