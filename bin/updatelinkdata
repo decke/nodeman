@@ -56,6 +56,8 @@ for($i=0; $i < $linkcount; $i++)
 $handle = Config::getDbHandle();
 $handle->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 $handle->exec('DELETE FROM linkdata WHERE source = \'olsrd\'');
+$handle->exec('UPDATE interfaces SET status = \'offline\' WHERE status = \'online\'');
+$handle->exec('UPDATE locations SET status = \'offline\' WHERE status = \'online\'');
 
 foreach($links as $linkdata)
 {
@@ -77,6 +79,12 @@ foreach($links as $linkdata)
     if (!$link->save()) {
         logMsg("Could not insert linkdata", "ERROR");
     }
+
+    $handle->exec('UPDATE interfaces SET status = \'online\' WHERE interfaceid = '.$link->fromif);
+    $handle->exec('UPDATE interfaces SET status = \'online\' WHERE interfaceid = '.$link->toif);
+
+    $handle->exec('UPDATE locations SET status = \'online\' WHERE locationid = '.$link->getFromLocation()->locationid);
+    $handle->exec('UPDATE locations SET status = \'online\' WHERE locationid = '.$link->getToLocation()->locationid);
 
     printf("%s -> %s (%f)\n", $linkdata['from'], $linkdata['to'], $linkdata['quality']);
 }
