@@ -80,11 +80,11 @@ foreach($links as $linkdata)
         logMsg("Could not insert linkdata", "ERROR");
     }
 
-    $handle->exec('UPDATE interfaces SET status = \'online\' WHERE interfaceid = '.$link->fromif);
-    $handle->exec('UPDATE interfaces SET status = \'online\' WHERE interfaceid = '.$link->toif);
+    $handle->exec('UPDATE interfaces SET status = \'online\' WHERE status = \'offline\' AND interfaceid = '.$link->fromif);
+    $handle->exec('UPDATE interfaces SET status = \'online\' WHERE status = \'offline\' AND interfaceid = '.$link->toif);
 
-    $handle->exec('UPDATE locations SET status = \'online\' WHERE locationid = '.$link->getFromLocation()->locationid);
-    $handle->exec('UPDATE locations SET status = \'online\' WHERE locationid = '.$link->getToLocation()->locationid);
+    $handle->exec('UPDATE locations SET status = \'online\' WHERE status = \'offline\' AND locationid = '.$link->getFromLocation()->locationid);
+    $handle->exec('UPDATE locations SET status = \'online\' WHERE status = \'offline\' AND locationid = '.$link->getToLocation()->locationid);
 
     printf("%s -> %s (%f)\n", $linkdata['from'], $linkdata['to'], $linkdata['quality']);
 }
