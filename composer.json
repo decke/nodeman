@@ -6,7 +6,7 @@
    "require": {
       "erusev/parsedown": "1.*",
       "slim/slim": "^3.0",
-      "slim/flash": "^0.2.0",
+      "slim/flash": "^0.4.0",
       "slim/php-view": "~2.0",
       "slim/twig-view": "~2.0",
       "php": ">=5.5.0"

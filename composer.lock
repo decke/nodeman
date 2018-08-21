@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "424e00446aae856d9b313003b561f793",
+    "content-hash": "596a926cbf519127526cf0fb3cd0269c",
     "packages": [
         {
             "name": "container-interop/container-interop",
@@ -280,16 +280,16 @@
         },
         {
             "name": "slim/flash",
-            "version": "0.2.0",
+            "version": "0.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/slimphp/Slim-Flash.git",
-                "reference": "3c9a26b3163820acc48080336c504d0a3cac6f30"
+                "reference": "9aaff5fded3b54f4e519ec3d4ac74d3d1f2cbbbc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/slimphp/Slim-Flash/zipball/3c9a26b3163820acc48080336c504d0a3cac6f30",
-                "reference": "3c9a26b3163820acc48080336c504d0a3cac6f30",
+                "url": "https://api.github.com/repos/slimphp/Slim-Flash/zipball/9aaff5fded3b54f4e519ec3d4ac74d3d1f2cbbbc",
+                "reference": "9aaff5fded3b54f4e519ec3d4ac74d3d1f2cbbbc",
                 "shasum": ""
             },
             "require": {
@@ -324,7 +324,7 @@
                 "provider",
                 "slim"
             ],
-            "time": "2016-11-11T16:29:19+00:00"
+            "time": "2017-10-22T10:35:05+00:00"
         },
         {
             "name": "slim/php-view",
