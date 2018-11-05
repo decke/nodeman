@@ -1,5 +1,3 @@
-![StyleCI Badge](https://styleci.io/repos/102716552/shield?branch=master)
-
 # nodeman
 FunkFeuer Node Manager
 
