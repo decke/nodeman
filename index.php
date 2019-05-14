@@ -60,7 +60,7 @@ $app->post('/login', function ($request, $response) use ($session) {
     return $response->withStatus(302)->withHeader('Location', '/');
 });
 
-$app->get('/logout', function ($request, $response, $args) use ($session) {
+$app->get('/logout', function ($request, $response) use ($session) {
     $session->logout();
 
     return $response->withStatus(302)->withHeader('Location', '/');
@@ -71,7 +71,7 @@ $app->get('/register', function ($request, $response) {
     return $this->view->render($response, 'register.html');
 });
 
-$app->post('/register', function ($request, $response) use ($session) {
+$app->post('/register', function ($request, $response) {
     if (!filter_var($request->getParam('email'), FILTER_VALIDATE_EMAIL)) {
         $this->flash->addMessage('error', 'EMail address invalid');
     }
@@ -120,7 +120,7 @@ $app->post('/register', function ($request, $response) use ($session) {
 });
 
 /* Map */
-$app->get('/map', function ($request, $response) use ($session) {
+$app->get('/map', function ($request, $response) {
     $query = '';
 
     if ($request->getParam('lat') && $request->getParam('lng')) {
@@ -133,7 +133,7 @@ $app->get('/map', function ($request, $response) use ($session) {
     ));
 });
 
-$app->get('/map.js', function ($request, $response) use ($session) {
+$app->get('/map.js', function ($request, $response) {
     $links = array();
     $location = new Location();
     $locations = array();
@@ -180,7 +180,7 @@ $app->get('/map.js', function ($request, $response) use ($session) {
 });
 
 /* Locations */
-$app->get('/locations', function ($request, $response) use ($session) {
+$app->get('/locations', function ($request, $response) {
     $loc = new Location();
 
     return $this->view->render($response, 'locations.html', array(
