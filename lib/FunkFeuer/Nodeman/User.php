@@ -111,7 +111,7 @@ class User
             return false;
         }
 
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+        if ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $this->_data = $row;
 
             return true;
@@ -128,7 +128,7 @@ class User
             return false;
         }
 
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+        if ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $this->_data = $row;
 
             return true;

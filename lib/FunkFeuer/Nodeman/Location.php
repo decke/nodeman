@@ -73,7 +73,7 @@ class Location
             return false;
         }
 
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+        if ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $this->_data = $row;
 
             return true;
@@ -90,7 +90,7 @@ class Location
             return false;
         }
 
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+        if ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $this->_data = $row;
 
             return true;

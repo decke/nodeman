@@ -63,7 +63,7 @@ class InterfaceLink
             return false;
         }
 
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+        if ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $this->_data = $row;
 
             return true;
@@ -99,7 +99,7 @@ class InterfaceLink
             return null;
         }
 
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+        if ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             return new NetInterface($row['interfaceid']);
         }
 
