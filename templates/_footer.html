@@ -1,10 +1,10 @@
   
     <!-- optional JavaScript for Bootstrap -->
-    <script src="/js/jquery.slim.min.js"></script>
-    <script src="/js/popper.min.js"></script>
-    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/jquery.slim.min.js" nonce="{{ nonce }}"></script>
+    <script src="/js/popper.min.js" nonce="{{ nonce }}"></script>
+    <script src="/js/bootstrap.min.js" nonce="{{ nonce }}"></script>
     {% for file in js %}
-        <script src="{{ file }}"></script>
+        <script src="{{ file }}" nonce="{{ nonce }}"></script>
     {% endfor %}
   </body>
 </html>

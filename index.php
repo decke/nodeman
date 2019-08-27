@@ -36,15 +36,34 @@ $container['view'] = function ($container) use ($session) {
 
     $env = $renderer->getEnvironment();
     $env->addExtension(new \Twig_Extension_Debug());
+    $env->addGlobal('nonce', bin2hex(random_bytes(5)));
     $env->addGlobal('session', $session);
     $env->addGlobal('config', new \FunkFeuer\Nodeman\Config());
     $env->addGlobal('flash', $container->get('flash'));
 
-    $basePath = rtrim(str_ireplace('index.php', '', $container['request']->getUri()->getBasePath()), '/');
-    $renderer->addExtension(new \Slim\Views\TwigExtension($container['router'], $basePath));
+    $router = $container->get('router');
+    $uri = \Slim\Http\Uri::createFromEnvironment(new \Slim\Http\Environment($_SERVER));
+
+    $renderer->addExtension(new \Slim\Views\TwigExtension($router, $uri));
 
     return $renderer;
 };
+
+/* Middlewares */
+$app->add(function ($request, $response, $next) {
+    /* CSP and other security headers */
+    if (!$response->hasHeader('Content-Security-Policy')) {
+        $globals = $this->view->getEnvironment()->getGlobals();
+
+        $response = $response->withHeader('Content-Security-Policy', "script-src 'strict-dynamic' 'nonce-".$globals['nonce']."' 'unsafe-inline' http: https:; object-src 'none'; font-src 'self'; base-uri 'none'; frame-ancestors 'none';");
+    }
+
+    if (!$response->hasHeader('X-Frame-Options')) {
+        $response = $response->withHeader('X-Frame-Options', 'DENY');
+    }
+
+    return $next($request, $response);
+});
 
 /* landing page */
 $app->get('/', function ($request, $response) {
