@@ -58,10 +58,6 @@ $app->add(function ($request, $response, $next) {
         $response = $response->withHeader('Content-Security-Policy', "script-src 'strict-dynamic' 'nonce-".$globals['nonce']."' 'unsafe-inline' http: https:; object-src 'none'; font-src 'self'; base-uri 'none'; frame-ancestors 'none';");
     }
 
-    if (!$response->hasHeader('X-Frame-Options')) {
-        $response = $response->withHeader('X-Frame-Options', 'DENY');
-    }
-
     return $next($request, $response);
 });
 

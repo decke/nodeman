@@ -110,7 +110,7 @@ CREATE INDEX linkdata_idx2 ON linkdata (toif);
 ---
 
 INSERT INTO "config" VALUES('cache.directory', 'tmp/');
-INSERT INTO "config" VALUES('security.https_only','false');
+INSERT INTO "config" VALUES('security.https_only','true');
 INSERT INTO "config" VALUES('title','FunkFeuer Graz');
 INSERT INTO "config" VALUES('title.url','https://graz.funkfeuer.at/');
 
