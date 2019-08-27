@@ -1,7 +1,7 @@
 {
    "name": "ffgraz/nodeman",
    "description": "FunkFeuer Node Manager",
-   "homepage": "https://github.com/decke/nodeman",
+   "homepage": "https://code.bluelife.at/decke/nodeman",
    "license": "BSD-2-Clause",
    "require": {
       "erusev/parsedown": "1.*",
@@ -16,5 +16,8 @@
          "FunkFeuer": "lib"
       },
       "files": ["lib/functions.php"]
+   },
+   "require-dev": {
+      "phpstan/phpstan": "^0.11.12"
    }
 }
