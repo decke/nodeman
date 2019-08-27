@@ -20,6 +20,13 @@ $app = new \Slim\App();
 
 /* init php-view */
 $container = $app->getContainer();
+
+/* init flash messages */
+$container['flash'] = function () {
+    return new \Slim\Flash\Messages();
+}
+
+/* init twig-view */
 $container['view'] = function ($container) use ($session) {
     $renderer = new \Slim\Views\Twig(__DIR__.'/templates/', array(
         'cache' => false,
@@ -31,17 +38,12 @@ $container['view'] = function ($container) use ($session) {
     $env->addExtension(new \Twig_Extension_Debug());
     $env->addGlobal('session', $session);
     $env->addGlobal('config', new \FunkFeuer\Nodeman\Config());
-    $env->addGlobal('flash', new \Slim\Flash\Messages());
+    $env->addGlobal('flash', $container->get('flash'));
 
     $basePath = rtrim(str_ireplace('index.php', '', $container['request']->getUri()->getBasePath()), '/');
     $renderer->addExtension(new \Slim\Views\TwigExtension($container['router'], $basePath));
 
     return $renderer;
-};
-
-/* init flash messages */
-$container['flash'] = function () {
-    return new \Slim\Flash\Messages();
 };
 
 /* landing page */
@@ -73,21 +75,21 @@ $app->get('/register', function ($request, $response) {
 
 $app->post('/register', function ($request, $response) {
     if (!filter_var($request->getParam('email'), FILTER_VALIDATE_EMAIL)) {
-        $this->flash->addMessage('error', 'EMail address invalid');
+        $this->flash->addMessageNow('error', 'EMail address invalid');
     }
     if (strlen($request->getParam('email')) > 50) {
-        $this->flash->addMessage('error', 'EMail address too short (max length 50)');
+        $this->flash->addMessageNow('error', 'EMail address too short (max length 50)');
     }
     if (strlen($request->getParam('password1')) < 6) {
-        $this->flash->addMessage('error', 'Password too short (min length 6)');
+        $this->flash->addMessageNow('error', 'Password too short (min length 6)');
     }
     if ($request->getParam('password1') != $request->getParam('password2')) {
-        $this->flash->addMessage('error', 'Passwords do not match');
+        $this->flash->addMessageNow('error', 'Passwords do not match');
     }
 
     $user = new User();
     if ($user->emailExists($request->getParam('email'))) {
-        $this->flash->addMessage('error', 'EMail address already in use');
+        $this->flash->addMessageNow('error', 'EMail address already in use');
     }
 
     /* HACK: Slim-Flash hasMessage('error') does not see messages for next request */
@@ -105,7 +107,7 @@ $app->post('/register', function ($request, $response) {
 
             return $response->withStatus(302)->withHeader('Location', '/');
         } else {
-            $this->flash->addMessage('error', 'Account creation failed');
+            $this->flash->addMessageNow('error', 'Account creation failed');
         }
     }
 
@@ -203,27 +205,27 @@ $app->get('/location/add', function ($request, $response) use ($session) {
 
 $app->post('/location/add', function ($request, $response) use ($session) {
     if (!$session->isAuthenticated()) {
-        $this->flash->addMessage('error', 'Please login first');
+        $this->flash->addMessageNow('error', 'Please login first');
 
         return $response->withStatus(302)->withHeader('Location', '/');
     }
 
     if (!preg_match('/^[0-9A-Za-z]{3,50}$/', $request->getParam('name'))) {
-        $this->flash->addMessage('error', 'Location name is invalid. Length from 3-50. Allowed characters only 0-9, A-Z, a-z');
+        $this->flash->addMessageNow('error', 'Location name is invalid. Length from 3-50. Allowed characters only 0-9, A-Z, a-z');
     }
     if (strlen($request->getParam('address')) < 5) {
-        $this->flash->addMessage('error', 'Address is invalid');
+        $this->flash->addMessageNow('error', 'Address is invalid');
     }
     if (strlen($request->getParam('address')) > 255) {
-        $this->flash->addMessage('error', 'Address too long (max length 255)');
+        $this->flash->addMessageNow('error', 'Address too long (max length 255)');
     }
     if (!$request->getParam('latitude') || !$request->getParam('longitude')) {
-        $this->flash->addMessage('error', 'Position on map is missing');
+        $this->flash->addMessageNow('error', 'Position on map is missing');
     }
 
     $location = new Location();
     if ($location->loadByName($request->getParam('name'))) {
-        $this->flash->addMessage('error', 'Location name already exists');
+        $this->flash->addMessageNow('error', 'Location name already exists');
     }
 
     /* HACK: Slim-Flash hasMessage('error') does not see messages for next request */
@@ -243,7 +245,7 @@ $app->post('/location/add', function ($request, $response) use ($session) {
 
             return $response->withStatus(302)->withHeader('Location', '/');
         } else {
-            $this->flash->addMessage('error', 'Location creation failed');
+            $this->flash->addMessageNow('error', 'Location creation failed');
         }
     }
 
@@ -287,15 +289,15 @@ $app->post('/location/{locationid}/add', function ($request, $response, $args) u
     }
 
     if (!preg_match('/^[0-9A-Za-z]{3,50}$/', $request->getParam('name'))) {
-        $this->flash->addMessage('error', 'Node name is invalid. Length from 3-50. Allowed characters only 0-9, A-Z, a-z');
+        $this->flash->addMessageNow('error', 'Node name is invalid. Length from 3-50. Allowed characters only 0-9, A-Z, a-z');
     }
     if (strlen($request->getParam('description')) > 16384) {
-        $this->flash->addMessage('error', 'Dscription is too long (max 16K)');
+        $this->flash->addMessageNow('error', 'Description is too long (max 16K)');
     }
 
     $location = new Location($args['locationid']);
     if ($location->nodeExists($request->getParam('name'))) {
-        $this->flash->addMessage('error', 'Node name already exists');
+        $this->flash->addMessageNow('error', 'Node name already exists');
     }
 
     /* HACK: Slim-Flash hasMessage('error') does not see messages for next request */
@@ -312,7 +314,7 @@ $app->post('/location/{locationid}/add', function ($request, $response, $args) u
 
             return $response->withStatus(302)->withHeader('Location', '/location/'.$node->location.'/node/'.$node->nodeid.'/');
         } else {
-            $this->flash->addMessage('error', 'Location creation failed');
+            $this->flash->addMessageNow('error', 'Location creation failed');
         }
     }
 
