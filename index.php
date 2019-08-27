@@ -126,7 +126,7 @@ $app->get('/map', function ($request, $response) {
     $query = '';
 
     if ($request->getParam('lat') && $request->getParam('lng')) {
-        $query = sprintf('?lat=%lf&lng=%lf', $request->getParam('lat'), $request->getParam('lng'));
+        $query = sprintf('?lat=%f&lng=%f', $request->getParam('lat'), $request->getParam('lng'));
     }
 
     return $this->view->render($response, 'map.html', array(
@@ -302,7 +302,7 @@ $app->post('/location/{locationid}/add', function ($request, $response, $args) u
 
     /* HACK: Slim-Flash hasMessage('error') does not see messages for next request */
     if (!isset($_SESSION['slimFlash']['error'])) {
-        $node = new node();
+        $node = new Node();
         $node->name = $request->getParam('name');
         $node->owner = $session->getUser()->userid;
         $node->location = $args['locationid'];

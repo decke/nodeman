@@ -1,0 +1,14 @@
+parameters:
+	inferPrivatePropertyTypeFromConstructor: true
+	ignoreErrors:
+		# does not support anonymous classes like Slim is using
+		-
+			message: '#Undefined variable: \$this#'
+			path: %currentWorkingDirectory%/index.php
+		-
+			message: '#Using \$this outside a class.#'
+			path: %currentWorkingDirectory%/index.php
+		# hack to shut up __get()/__set() usage
+		-
+			message: '#Access to an undefined property#'
+			path: %currentWorkingDirectory%
