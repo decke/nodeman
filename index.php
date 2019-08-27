@@ -24,7 +24,7 @@ $container = $app->getContainer();
 /* init flash messages */
 $container['flash'] = function () {
     return new \Slim\Flash\Messages();
-}
+};
 
 /* init twig-view */
 $container['view'] = function ($container) use ($session) {
