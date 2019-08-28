@@ -14,6 +14,23 @@ namespace FunkFeuer\Nodeman;
 
 require_once __DIR__.'/vendor/autoload.php';
 
+/* handle static files from php builtin webserver */
+if (php_sapi_name() == 'cli-server') {
+    $basedir = dirname(__FILE__);
+    $allowed_subdirs = array('/css/', '/js/', '/fonts/', '/images/');
+
+    $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+    $path = realpath($basedir.$uri);
+
+    if ($path !== false && strpos($path, $basedir) === 0) {
+        foreach ($allowed_subdirs as $dir) {
+            if (strpos($path, $basedir.$dir) === 0) {
+                return false;
+            }
+        }
+    }
+}
+
 $session = new Session();
 
 $app = new \Slim\App();
@@ -146,11 +163,11 @@ $app->get('/map', function ($request, $response) {
 
     return $this->view->render($response, 'map.html', array(
         'css' => array('/css/leaflet.css', '/css/map.css'),
-        'js'  => array('/js/leaflet.js', '/map.js'.$query)
+        'js'  => array('/js/leaflet.js', '/mapdata'.$query)
     ));
 });
 
-$app->get('/map.js', function ($request, $response) {
+$app->get('/mapdata', function ($request, $response) {
     $links = array();
     $location = new Location();
     $locations = array();
