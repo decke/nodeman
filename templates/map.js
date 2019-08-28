@@ -11,7 +11,7 @@ function initmap() {
    // create the tile layer with correct attribution
    var basemap = L.tileLayer('https://maps{s}.wien.gv.at/basemap/geolandbasemap/normal/google3857/{z}/{y}/{x}.{format}', {
       	maxZoom: 20,
-	attribution: 'Datenquelle: <a href="www.basemap.at">basemap.at</a>',
+	attribution: 'Datenquelle: <a href="https://www.basemap.at/">basemap.at</a>',
 	subdomains: ["", "1", "2", "3", "4"],
 	format: 'png',
 	bounds: [[46.35877, 8.782379], [49.037872, 17.189532]]
@@ -19,7 +19,7 @@ function initmap() {
 
    var orthomap = L.tileLayer('https://maps{s}.wien.gv.at/basemap/bmaporthofoto30cm/normal/google3857/{z}/{y}/{x}.{format}', {
       	maxZoom: 20,
-	attribution: 'Datenquelle: <a href="www.basemap.at">basemap.at</a>',
+	attribution: 'Datenquelle: <a href="https://www.basemap.at/">basemap.at</a>',
 	subdomains: ["", "1", "2", "3", "4"],
 	format: 'jpeg',
 	bounds: [[46.35877, 8.782379], [49.037872, 17.189532]]
