@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# change working directory
+cd ..
+rm -f share/nodeman.db
+
+# create new database and import initial schema
+sqlite3 share/nodeman.db < share/schema.sql
+
+# fix owner/group
+chown www:www share/nodeman.db
+
+# call our migration script
+bin/migratedb
+
