@@ -3,6 +3,6 @@ name: default
 
 steps:
 - name: test
-  image: php:alpine
+  image: php:zts-alpine
   commands:
   - make test
