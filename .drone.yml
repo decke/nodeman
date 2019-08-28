@@ -3,6 +3,6 @@ name: default
 
 steps:
 - name: test
-  image: php:zts-alpine
+  image: decke/alpine-php
   commands:
   - make test
