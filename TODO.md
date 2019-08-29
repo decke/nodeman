@@ -1,11 +1,9 @@
 ## TODO
 
-* Bootstrap updaten auf 4.3.1
-* Icons auf Material Design Icons umstellen (Apache 2.0 Lizenz)
-* Bulma CSS statt Bootstrap
-* Bundle CSS und JS
+* Tower SVGs wie feather icons integrieren
 
 high
+* Login eigene Maske
 * Interfaces anlegen
 * Location Details (Gallerylink, Smokeping, Link zur Karte)
 

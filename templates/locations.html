@@ -1,26 +1,37 @@
 {% include('_header.html') %}
 
-    <div class="container">
+<div class="container">
 
-      <h1>Locations</h1>
+  <h1 class="title is-2">Locations</h1>
 
-      <table class="table table-striped">
-        <thead><tr><th>Name</th><th style="width: 60%">Address</th><th>Status</th><th></th></tr></thead>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th style="width: 60%">Address</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
 
-        {% for loc in locations %}
-          <tr>
-            <td><a href="/location/{{ loc.locationid }}/">{{ loc.name }}</a></td>
-            <td>{{ loc.address }} <a href="/map?lat={{ loc.latitude }}&lng={{ loc.longitude }}" class="btn btn-outline-primary btn-sm">
-              <span class="oi oi-map-marker" title="icon map-marker" aria-hidden="true"></span>
-              </a>
-            </td>
-            <td><img src="/images/tower-{{ loc.status }}.svg" style="height: 2em" alt="{{ loc.status }}"></td>
-            <td><a href="/location/{{ loc.locationid }}" class="btn btn-primary btn-sm">Show</a></td>
-          </tr>
-        {% endfor %}
+    {% for loc in locations %}
+      <tr>
+        <td><a href="/location/{{ loc.locationid }}/">{{ loc.name }}</a></td>
+        <td>
+          {{ loc.address }}
+        </td>
+        <td>
+          <img src="/images/tower-{{ loc.status }}.svg" style="height: 2em" alt="{{ loc.status }}">
+        </td>
+        <td>
+          <a href="/map?lat={{ loc.latitude }}&lng={{ loc.longitude }}" class="button is-link is-outlined is-small">Map</a>
+          <a href="/location/{{ loc.locationid }}" class="button is-primary is-small">Show</a>
+        </td>
+      </tr>
+    {% endfor %}
 
-      </table>
+  </table>
 
-    </div>
+</div>
 
 {% include('_footer.html') %}

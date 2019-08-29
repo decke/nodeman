@@ -4,6 +4,7 @@ clean:
 	rm -f .php_cs.cache phive.xml
 	rm -rf vendor
 	rm -rf tools
+	make -C css clean
 
 tools:
 	phive --no-progress install --trust-gpg-keys E82B2FB314E9906E php-cs-fixer
@@ -13,6 +14,7 @@ vendor:
 	composer install
 
 build: vendor
+	make -C css
 
 test: tools vendor
 	tools/php-cs-fixer fix --dry-run --diff-format udiff index.php

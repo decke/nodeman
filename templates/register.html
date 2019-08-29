@@ -1,58 +1,76 @@
 {% include('_header.html') %}
 
-    <div class="container">
+<div class="container">
+  {% for msg in flash.getMessage('error') %}
+    <div class="notification is-danger"><strong>Sorry</strong> {{ msg }}</div>
+  {% endfor %}
 
-      <h1>Create new account</h1>
+  <div class="column is-6 is-offset-3">
+    <div class="card">
+      <div class="card-content">
+        <p class="title is-2">Create new account</p>
 
-      {% for msg in flash.getMessage('error') %}
-        <div class="alert alert-danger" role="alert"><strong>Sorry</strong> {{ msg }}</div>
-      {% endfor %}
-
-      <form action="/register" method="post">
-        <div class="form-group">
-          <label for="email">EMail</label>
-          <input type="text" id="email" name="email" class="form-control" aria-describedby="emailHelp" value="{{ data['email'] }}">
-          <small id="emailHelp" class="form-text text-muted">
-            This email will be visible for other users.
-          </small>
-        </div>
-
-        <div class="form-group">
-          <label for="password1">Password</label>
-          <input type="password" id="password1" name="password1" class="form-control" aria-describedby="password1Help">
-          <small id="password1Help" class="form-text text-muted">
-            Must be at least 6 characters long. Please use letters, numbers and special characters.
-          </small>
-        </div>
-        <div class="form-group">
-          <label for="password2">Password</label>
-          <input type="password" id="password2" name="password2" class="form-control" aria-describedby="password2Help">
-          <small id="password2Help" class="form-text text-muted">
-            Same password again as above. For verification against typing mistakes.
-          </small>
-        </div>
-
-        <div class="form-group row">
-          <div class="col">
-            <label for="firstname">Firstname</label>
-            <input type="text" id="firstname" name="firstname" class="form-control" placeholder="First name (optional)" value="{{ data['firstname'] }}">
+        <form action="/register" method="post">
+          <div class="field">
+            <label class="label">EMail</label>
+            <div class="control">
+              <input type="text" name="email" class="input" value="{{ data['email'] }}">
+            </div>
+            <p class="help">
+              This email will be visible for other users.
+            </p>
           </div>
-          <div class="col">
-            <label for="lastname">Lastname</label>
-            <input type="text" id="lastname" name="lastname" class="form-control" placeholder="Last name (optional)" value="{{ data['lastname'] }}">
+
+          <div class="field">
+            <label class="label">Password</label>
+            <div class="control">
+              <input type="password" name="password1" class="input">
+            </div>
+            <p class="help">
+              Must be at least 6 characters long. Please use letters, numbers and special characters.
+            </p>
           </div>
-        </div>
+          <div class="field">
+            <label class="label">Password</label>
+            <div class="control">
+              <input type="password" name="password2" class="input">
+            </div>
+            <p class="help">
+              Same password again as above. For verification against typing mistakes.
+            </p>
+          </div>
 
-        <div class="form-group">
-          <label for="phone">Phone</label>
-          <input type="text" id="phone" name="phone" class="form-control" aria-describedby="phoneHelp" placeholder="+43 664 000001 (optional)" value="{{ data['phone'] }}">
-          <small id="phoneHelp" class="form-text text-muted">
-            Telephone number will be visible for other users so they can contact you.
-          </small>
-        </div>
+          <div class="field is-horizontal">
+            <div class="field-body">
+              <div class="field">
+                <label class="label">Firstname</label>
+                <input type="text" name="firstname" class="input" placeholder="First name (optional)" value="{{ data['firstname'] }}">
+              </div>
+              <div class="field">
+                <label class="label">Lastname</label>
+                <input type="text" name="lastname" class="input" placeholder="Last name (optional)" value="{{ data['lastname'] }}">
+              </div>
+            </div>
+          </div>
 
-        <button type="submit" class="btn btn-primary">Register</button>
-      </form>
+          <div class="field">
+            <label class="label">Phone</label>
+            <div class="control">
+              <input type="text" name="phone" class="input" placeholder="+43 664 000001 (optional)" value="{{ data['phone'] }}">
+            </div>
+            <p class="help">
+              Telephone number will be visible for other users so they can contact you.
+            </p>
+          </div>
+
+          <div class="control">
+            <button class="button is-primary">Register</button>
+          </div>
+        </form>
+
+      </div>
     </div>
+  </div>
+</div>
 
 {% include('_footer.html') %}

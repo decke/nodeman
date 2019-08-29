@@ -17,7 +17,7 @@ require_once __DIR__.'/vendor/autoload.php';
 /* handle static files from php builtin webserver */
 if (php_sapi_name() == 'cli-server') {
     $basedir = dirname(__FILE__);
-    $allowed_subdirs = array('/css/', '/js/', '/fonts/', '/images/');
+    $allowed_subdirs = array('/css/', '/js/', '/images/');
 
     $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
     $path = realpath($basedir.$uri);
@@ -162,8 +162,8 @@ $app->get('/map', function ($request, $response) {
     }
 
     return $this->view->render($response, 'map.html', array(
-        'css' => array('/css/leaflet.css', '/css/map.css'),
-        'js'  => array('/js/leaflet.js', '/mapdata'.$query)
+        'css' => array('/css/leaflet.css'),
+        'js'  => array('/js/leaflet.min.js', '/mapdata'.$query)
     ));
 });
 
@@ -231,7 +231,7 @@ $app->get('/location/add', function ($request, $response) use ($session) {
 
     return $this->view->render($response, 'location/add.html', array(
         'css' => array('/css/leaflet.css'),
-        'js'  => array('/js/leaflet.js', '/js/grazmap.js')
+        'js'  => array('/js/leaflet.min.js', '/js/grazmap.js')
     ));
 });
 
@@ -289,7 +289,7 @@ $app->post('/location/add', function ($request, $response) use ($session) {
     return $this->view->render($response, 'location/add.html', array(
         'data' => $data,
         'css'  => array('/css/leaflet.css'),
-        'js'   => array('/js/leaflet.js', '/js/grazmap.js')
+        'js'   => array('/js/leaflet.min.js', '/js/grazmap.js')
     ));
 });
 
