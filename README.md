@@ -3,19 +3,24 @@ FunkFeuer Node Manager
 
 ## Setup
 
-Nodeman is using [composer](https://getcomposer.org/) for the
-PHP dependencies so it needs to be installed first.
+Nodeman needs some dependencies that are fairly common so they
+need to be installed first.
+
+* [composer](https://getcomposer.org/)
+* [make(1)](https://de.wikipedia.org/wiki/Make)
+* [sassc](https://github.com/sass/sassc)
+* [phive](https://phar.io/) (development only)
 
 There is a simple Makefile which will handle all of the
-required steps for you but this means you need to have `make`
-installed.
+required steps to download the PHP dependencies, generate
+the CSS files etc.
 
 ```
 make
 ```
 
-Then we also need to create the SQLite Database tables and
-add some configuration.
+The only thing left to do is to create the SQLite Database tables
+and add some configuration.
 
 ```
 sqlite share/nodeman.db
@@ -26,7 +31,7 @@ sqlite share/nodeman.db
 
 ## Development
 
-For development you also need [phive](https://phar.io/) which
+For development we use [phive](https://phar.io/) which
 can download some CI tools (php-cs-fixer and phpstan).
 
 There is a special make target which runs this CI tools.
