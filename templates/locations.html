@@ -4,7 +4,7 @@
 
   <h1 class="title is-2">Locations</h1>
 
-  <table class="table table-striped">
+  <table class="table is-striped is-bordered is-hoverable is-fullwidth">
     <thead>
       <tr>
         <th>Name</th>
@@ -13,23 +13,25 @@
         <th></th>
       </tr>
     </thead>
-
-    {% for loc in locations %}
-      <tr>
-        <td><a href="/location/{{ loc.locationid }}/">{{ loc.name }}</a></td>
-        <td>
-          {{ loc.address }}
-        </td>
-        <td>
-          <img src="/images/tower-{{ loc.status }}.svg" style="height: 2em" alt="{{ loc.status }}">
-        </td>
-        <td>
-          <a href="/map?lat={{ loc.latitude }}&lng={{ loc.longitude }}" class="button is-link is-outlined is-small">Map</a>
-          <a href="/location/{{ loc.locationid }}" class="button is-primary is-small">Show</a>
-        </td>
-      </tr>
-    {% endfor %}
-
+    <tbody>
+      {% for loc in locations %}
+        <tr>
+          <td>
+            <a href="/location/{{ loc.locationid }}/">{{ loc.name }}</a>
+          </td>
+          <td>
+            {{ loc.address }}
+          </td>
+          <td>
+            <img src="/images/tower-{{ loc.status }}.svg" style="height: 2em" alt="{{ loc.status }}">
+          </td>
+          <td>
+            <a href="/map?lat={{ loc.latitude }}&lng={{ loc.longitude }}" class="button is-link is-outlined is-small">Map</a>
+            <a href="/location/{{ loc.locationid }}" class="button is-primary is-small">Show</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
   </table>
 
 </div>

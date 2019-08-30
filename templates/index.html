@@ -14,8 +14,35 @@
     </div>
   {% endfor %}
 
-  <h1 class="title is-2">{{ config.get('title') }}</h1>
+  {% if not session.isAuthenticated() %}
+    <div class="column is-6 is-offset-3">
+      <div class="card">
+        <div class="card-content">
+          <p class="title is-2">Login</p>
 
+          <form action="/login" method="post">
+            <div class="field">
+              <label class="label">EMail</label>
+              <div class="control">
+                <input type="text" name="email" class="input" value="{{ data['email'] }}">
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label">Password</label>
+              <div class="control">
+                <input type="password" name="password" class="input">
+              </div>
+            </div>
+            <div class="control">
+              <button class="button is-primary">Sign in</button>
+            </div>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  {% endif %}
 </div>
 
-{{ include('_footer.html') }}
+{% include('_footer.html') %}
