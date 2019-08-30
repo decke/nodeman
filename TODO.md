@@ -24,6 +24,10 @@ low
 * private/hidden flag fuer Nodes und Links
 * PLZ und Ort automatisch setzen mit OSM Nominatim
 
+* Passwort vergessen
+* EMail verification bei Registrierung
+* DSGVO
+
 
 ## BUGS
 
