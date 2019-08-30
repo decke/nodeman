@@ -124,8 +124,7 @@ $app->post('/register', function ($request, $response) {
         $this->flash->addMessageNow('error', 'EMail address already in use');
     }
 
-    /* HACK: Slim-Flash hasMessage('error') does not see messages for next request */
-    if (!isset($_SESSION['slimFlash']['error'])) {
+    if (!$this->flash->hasMessage('error')) {
         $user = new User();
         $user->setPassword($request->getParam('password1'));
         $user->email = $request->getParam('email');
