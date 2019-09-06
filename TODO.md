@@ -22,6 +22,7 @@ low
 * editieren von User, Locations, Nodes, Interfaces
 * loeschen von Interfaces, Nodes, Locations, User
 * private/hidden flag fuer Nodes und Links
+* altitutde information pro Node
 * PLZ und Ort automatisch setzen mit OSM Nominatim
 
 * Passwort vergessen
