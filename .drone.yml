@@ -1,9 +1,0 @@
-kind: pipeline
-name: default
-
-steps:
-- name: build
-  image: decke/alpine-php
-  commands:
-  - make
-  - make test
