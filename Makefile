@@ -7,8 +7,8 @@ clean:
 	make -C css clean
 
 tools:
-	phive --no-progress install php-cs-fixer
-	phive --no-progress install phpstan
+	phive --no-progress install --trust-gpg-keys E82B2FB314E9906E php-cs-fixer
+	phive --no-progress install --trust-gpg-keys 8E730BA25823D8B5 phpstan
 
 vendor:
 	composer install
