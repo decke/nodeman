@@ -1,7 +1,7 @@
 {
    "name": "ffgraz/nodeman",
    "description": "FunkFeuer Node Manager",
-   "homepage": "https://code.bluelife.at/decke/nodeman",
+   "homepage": "https://github.com/decke/nodeman",
    "license": "BSD-2-Clause",
    "require": {
       "erusev/parsedown": "1.*",
