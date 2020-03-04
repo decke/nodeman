@@ -9,7 +9,6 @@ need to be installed first.
 * [composer](https://getcomposer.org/)
 * [make(1)](https://de.wikipedia.org/wiki/Make)
 * [sassc](https://github.com/sass/sassc)
-* [phive](https://phar.io/) (development only)
 
 There is a simple Makefile which will handle all of the
 required steps to download the PHP dependencies, generate
@@ -31,10 +30,9 @@ sqlite share/nodeman.db
 
 ## Development
 
-For development we use [phive](https://phar.io/) which
-can download some CI tools (php-cs-fixer and phpstan).
+For development we use the CI tools php-cs-fixer and phpstan.
 
-There is a special make target which runs this CI tools.
+There is a special make target which runs them.
 
 ```
 make test

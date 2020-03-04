@@ -1,14 +1,9 @@
 all: build
 
 clean:
-	rm -f .php_cs.cache phive.xml
+	rm -f .php_cs.cache
 	rm -rf vendor
-	rm -rf tools
 	make -C css clean
-
-tools:
-	phive --no-progress install --trust-gpg-keys E82B2FB314E9906E php-cs-fixer
-	phive --no-progress install --trust-gpg-keys 8E730BA25823D8B5 phpstan
 
 vendor:
 	composer install
@@ -16,13 +11,13 @@ vendor:
 build: vendor
 	make -C css
 
-test: tools vendor
-	tools/php-cs-fixer fix --dry-run --diff-format udiff index.php
-	tools/php-cs-fixer fix --dry-run --diff-format udiff lib
-	tools/phpstan analyse -l 5 -c phpstan.neon lib index.php
+test: vendor
+	php-cs-fixer fix --dry-run --diff-format udiff index.php
+	php-cs-fixer fix --dry-run --diff-format udiff lib
+	phpstan analyse -l 5 -c phpstan.neon lib index.php
 
-fix: tools
-	tools/php-cs-fixer fix index.php
-	tools/php-cs-fixer fix lib
+fix:
+	php-cs-fixer fix index.php
+	php-cs-fixer fix lib
 
 .PHONY: all clean build test fix

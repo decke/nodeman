@@ -16,7 +16,10 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php-versions }}
-        tools: php-cs-fixer, phpstan, phive
+        tools: php-cs-fixer, phpstan
+
+    - name: Setup sassc
+      run: sudo apt-get install -y sassc
 
     - name: Build
       run: make
