@@ -23,11 +23,11 @@ class Session
     public static function initialize()
     {
         // do not expose Cookie value to JavaScript (enforced by browser)
-        ini_set('session.cookie_httponly', true);
+        ini_set('session.cookie_httponly', 'true');
 
         if (Config::get('security.https_only') == true) {
             // only send cookie over https
-            ini_set('session.cookie_secure', true);
+            ini_set('session.cookie_secure', 'true');
         }
 
         // prevent caching by sending no-cache header
