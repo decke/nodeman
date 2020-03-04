@@ -16,4 +16,10 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php-versions }}
-        tools: php-cs-fixer, phpstan
+        tools: php-cs-fixer, phpstan, phive
+
+    - name: Build
+      run: make
+
+    - name: Test
+      run: make test
