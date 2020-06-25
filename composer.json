@@ -9,6 +9,7 @@
       "slim/flash": "^0.4.0",
       "slim/php-view": "~2.0",
       "slim/twig-view": "~2.0",
+      "twig/extensions": "*",
       "ext-filter": "*",
       "ext-hash": "*",
       "ext-PDO": "*",
