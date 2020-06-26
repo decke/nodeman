@@ -1,5 +1,6 @@
 ## TODO
 
+* slim auf 4.5 und twig auf 3.0.3 updaten
 * Tower SVGs wie feather icons integrieren
 
 high
