@@ -25,7 +25,7 @@ class Session
         // do not expose Cookie value to JavaScript (enforced by browser)
         ini_set('session.cookie_httponly', 'true');
 
-        if (Config::get('security.https_only') == true) {
+        if (Config::get('security.https_only') === true || (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on")) {
             // only send cookie over https
             ini_set('session.cookie_secure', 'true');
         }
