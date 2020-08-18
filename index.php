@@ -263,8 +263,7 @@ $app->post('/location/add', function ($request, $response) use ($session) {
     if (!isset($_SESSION['slimFlash']['error'])) {
         $location = new Location();
 
-        if(!$location->loadByName($request->getParam('name')))
-        {
+        if (!$location->loadByName($request->getParam('name'))) {
             $location->name = $request->getParam('name');
             $location->owner = $session->getUser()->userid;
             $location->address = $request->getParam('address');
