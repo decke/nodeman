@@ -262,21 +262,27 @@ $app->post('/location/add', function ($request, $response) use ($session) {
     /* HACK: Slim-Flash hasMessage('error') does not see messages for next request */
     if (!isset($_SESSION['slimFlash']['error'])) {
         $location = new Location();
-        $location->name = $request->getParam('name');
-        $location->owner = $session->getUser()->userid;
-        $location->address = $request->getParam('address');
-        $location->latitude = $request->getParam('latitude');
-        $location->longitude = $request->getParam('longitude');
-        $location->status = 'offline';
-        $location->gallerylink = '';
-        $location->description = '';
 
-        if ($location->save()) {
-            $this->flash->addMessage('success', 'Location created');
+        if(!$location->loadByName($request->getParam('name')))
+        {
+            $location->name = $request->getParam('name');
+            $location->owner = $session->getUser()->userid;
+            $location->address = $request->getParam('address');
+            $location->latitude = $request->getParam('latitude');
+            $location->longitude = $request->getParam('longitude');
+            $location->status = 'offline';
+            $location->gallerylink = '';
+            $location->description = '';
 
-            return $response->withStatus(302)->withHeader('Location', '/');
+            if ($location->save()) {
+                $this->flash->addMessage('success', 'Location created');
+
+                return $response->withStatus(302)->withHeader('Location', '/');
+            } else {
+                $this->flash->addMessageNow('error', 'Location creation failed');
+            }
         } else {
-            $this->flash->addMessageNow('error', 'Location creation failed');
+            $this->flash->addMessageNow('error', 'Location name already used');
         }
     }
 
