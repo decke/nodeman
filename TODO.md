@@ -13,7 +13,7 @@ medium
 * Map: Tunnel links in blau zeichnen
 * Admin Bereich aehnlich Datenbankbrowser
 
-low
+wishlist
 * Planned links hinzufuegen
 * Kommentare und Dokumentation (markdown)
 * IP Pools und Adresszuweisung
@@ -38,9 +38,12 @@ low
 
 ## QUESTIONS
 
-* Wie sind derzeit DNS, HTTP Proxy und Statistiken integriert?
+* Wenn neue Locations angelegt werden wie kriegen das die anderen mit
+  * DNS
+  * HTTP Proxy (*.ext.graz.funkfeuer.at)
+  * Statistiken
+  * OpenVPN Tunnel?
 * Wie soll die IP Adressvergabe funktionieren? automatisch|manuelle zuweisung, immer 1 IP|IP Block?
-* Wie soll OpenVPN integriert werden?
 
 
 ## Links
