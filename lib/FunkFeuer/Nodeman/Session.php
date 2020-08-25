@@ -22,19 +22,25 @@ class Session
 
     public static function initialize()
     {
+        // rename session
+        session_name('SESSIONID');
+
         // do not expose Cookie value to JavaScript (enforced by browser)
         ini_set('session.cookie_httponly', 'true');
 
-        if (Config::get('security.https_only') === true || (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on")) {
+        // avoid cross-origin leakage
+        ini_set('session.cookie_samesite', 'Strict');
+
+        if (Config::get('security.https_only') == "true" || (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on")) {
             // only send cookie over https
             ini_set('session.cookie_secure', 'true');
+
+            // rename session
+            session_name('__Secure-SESSIONID');
         }
 
         // prevent caching by sending no-cache header
         session_cache_limiter('nocache');
-
-        // rename session
-        session_name('SESSIONID');
     }
 
     public static function getSessionId()
