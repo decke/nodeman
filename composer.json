@@ -4,12 +4,14 @@
    "homepage": "https://github.com/decke/nodeman",
    "license": "BSD-2-Clause",
    "require": {
-      "erusev/parsedown": "1.*",
-      "slim/slim": "^3.0",
+      "slim/slim": "^4.0",
       "slim/flash": "^0.4.0",
-      "slim/php-view": "~2.0",
-      "slim/twig-view": "~2.0",
-      "twig/extensions": "*",
+      "slim/http": "^1.0",
+      "slim/psr7": "^1.1",
+      "slim/twig-view": "^3.0",
+      "erusev/parsedown": "^1.7",
+      "php-di/php-di": "^6.2",
+      "ext-fileinfo": "*",
       "ext-filter": "*",
       "ext-hash": "*",
       "ext-PDO": "*",
@@ -18,7 +20,7 @@
    },
    "autoload": {
       "psr-0": {
-         "FunkFeuer": "lib"
+         "FunkFeuer\\": "lib"
       }
    }
 }

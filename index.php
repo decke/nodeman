@@ -12,6 +12,13 @@
 
 namespace FunkFeuer\Nodeman;
 
+use DI\Container;
+use Slim\Exception\HttpNotFoundException;
+use Slim\Factory\AppFactory;
+use Slim\Views\Twig;
+use Slim\Views\TwigExtension;
+use Slim\Views\TwigMiddleware;
+
 require_once __DIR__.'/vendor/autoload.php';
 
 /* handle static files from php builtin webserver */
@@ -33,62 +40,59 @@ if (php_sapi_name() == 'cli-server') {
 
 $session = new Session();
 
-$app = new \Slim\App();
+// Create container
+$container = new Container();
+AppFactory::setContainer($container);
 
-/* init php-view */
-$container = $app->getContainer();
-
-/* init flash messages */
-$container['flash'] = function () {
+// init flash messages
+$container->set('flash', function () {
     return new \Slim\Flash\Messages();
-};
+});
 
-/* init twig-view */
-$container['view'] = function ($container) use ($session) {
-    $renderer = new \Slim\Views\Twig(__DIR__.'/templates/', array(
-        'cache' => false,
-        'debug' => true
-        // 'cache' => Config::get('cache.directory')
-    ));
+// Add twig-view Middleware
+$container->set('view', function () {
+    return Twig::create(__DIR__.'/templates/', ['cache' => false]);
+});
 
-    $env = $renderer->getEnvironment();
-    $env->addExtension(new \Twig_Extension_Debug());
-    $env->addGlobal('nonce', bin2hex(random_bytes(5)));
-    $env->addGlobal('session', $session);
-    $env->addGlobal('config', new \FunkFeuer\Nodeman\Config());
-    $env->addGlobal('flash', $container->get('flash'));
+// Create App
+$app = AppFactory::create();
 
-    $router = $container->get('router');
-    $uri = \Slim\Http\Uri::createFromEnvironment(new \Slim\Http\Environment($_SERVER));
+$app->add(TwigMiddleware::createFromContainer($app));
 
-    $renderer->addExtension(new \Slim\Views\TwigExtension($router, $uri));
+$view = $container->get('view');
 
-    return $renderer;
-};
+$env = $view->getEnvironment();
+$env->addGlobal('nonce', bin2hex(random_bytes(5)));
+$env->addGlobal('session', $session);
+$env->addGlobal('config', new \FunkFeuer\Nodeman\Config());
+$env->addGlobal('flash', $container->get('flash'));
+
 
 /* Middlewares */
-$app->add(function ($request, $response, $next) {
-    /* CSP and other security headers */
-    if (!$response->hasHeader('Content-Security-Policy')) {
-        $globals = $this->view->getEnvironment()->getGlobals();
+$app->add(function ($request, $handler) {
+    $response = $handler->handle($request);
 
-        $response = $response->withHeader('Content-Security-Policy', "script-src 'strict-dynamic' 'nonce-".$globals['nonce']."' 'unsafe-inline' http: https:; object-src 'none'; font-src 'self'; base-uri 'none'; frame-ancestors 'none';");
+    // CSP and other security headers
+    if (!$response->hasHeader('Content-Security-Policy')) {
+        $globals = $this->get('view')->getEnvironment()->getGlobals();
+
+        return $response->withHeader('Content-Security-Policy', "script-src 'strict-dynamic' 'nonce-".$globals['nonce']."' 'unsafe-inline' http: https:; object-src 'none'; font-src 'self'; base-uri 'none'; frame-ancestors 'none';");
     }
 
-    return $next($request, $response);
+    return $response;
 });
 
 /* landing page */
 $app->get('/', function ($request, $response) {
-    return $this->view->render($response, 'index.html');
+    return $this->get('view')->render($response, 'index.html');
 });
 
 /* Authentication - Login */
 $app->post('/login', function ($request, $response) use ($session) {
     if (!$request->getParam('email') || !$request->getParam('password')) {
-        $this->flash->addMessage('error', 'Authentication failed');
+        $this->get('flash')->addMessage('error', 'Authentication failed');
     } elseif (!$session->login($request->getParam('email'), $request->getParam('password'))) {
-        $this->flash->addMessage('error', 'Authentication failed');
+        $this->get('flash')->addMessage('error', 'Authentication failed');
     }
 
     return $response->withStatus(302)->withHeader('Location', '/');
@@ -102,29 +106,29 @@ $app->get('/logout', function ($request, $response) use ($session) {
 
 /* Registration */
 $app->get('/register', function ($request, $response) {
-    return $this->view->render($response, 'register.html');
+    return $this->get('view')->render($response, 'register.html');
 });
 
 $app->post('/register', function ($request, $response) {
     if (!filter_var($request->getParam('email'), FILTER_VALIDATE_EMAIL)) {
-        $this->flash->addMessageNow('error', 'EMail address invalid');
+        $this->get('flash')->addMessageNow('error', 'EMail address invalid');
     }
     if (strlen($request->getParam('email')) > 50) {
-        $this->flash->addMessageNow('error', 'EMail address too short (max length 50)');
+        $this->get('flash')->addMessageNow('error', 'EMail address too short (max length 50)');
     }
     if (strlen($request->getParam('password1')) < 6) {
-        $this->flash->addMessageNow('error', 'Password too short (min length 6)');
+        $this->get('flash')->addMessageNow('error', 'Password too short (min length 6)');
     }
     if ($request->getParam('password1') != $request->getParam('password2')) {
-        $this->flash->addMessageNow('error', 'Passwords do not match');
+        $this->get('flash')->addMessageNow('error', 'Passwords do not match');
     }
 
     $user = new User();
     if ($user->emailExists($request->getParam('email'))) {
-        $this->flash->addMessageNow('error', 'EMail address already in use');
+        $this->get('flash')->addMessageNow('error', 'EMail address already in use');
     }
 
-    if (!$this->flash->hasMessage('error')) {
+    if (!$this->get('flash')->hasMessage('error')) {
         $user = new User();
         $user->setPassword($request->getParam('password1'));
         $user->email = $request->getParam('email');
@@ -134,11 +138,11 @@ $app->post('/register', function ($request, $response) {
         $user->usergroup = 'user';
 
         if ($user->save()) {
-            $this->flash->addMessage('success', 'Account created');
+            $this->get('flash')->addMessage('success', 'Account created');
 
             return $response->withStatus(302)->withHeader('Location', '/');
         } else {
-            $this->flash->addMessageNow('error', 'Account creation failed');
+            $this->get('flash')->addMessageNow('error', 'Account creation failed');
         }
     }
 
@@ -149,7 +153,7 @@ $app->post('/register', function ($request, $response) {
         'phone'     => $request->getParam('phone')
     );
 
-    return $this->view->render($response, 'register.html', array('data' => $data));
+    return $this->get('view')->render($response, 'register.html', array('data' => $data));
 });
 
 /* Map */
@@ -160,7 +164,7 @@ $app->get('/map', function ($request, $response) {
         $query = sprintf('?lat=%f&lng=%f', $request->getParam('lat'), $request->getParam('lng'));
     }
 
-    return $this->view->render($response, 'map.html', array(
+    return $this->get('view')->render($response, 'map.html', array(
         'css' => array('/css/leaflet.css'),
         'js'  => array('/js/leaflet.min.js', '/mapdata'.$query)
     ));
@@ -205,7 +209,7 @@ $app->get('/mapdata', function ($request, $response) {
         );
     }
 
-    return $this->view->render($response, 'map.js', array(
+    return $this->get('view')->render($response, 'map.js', array(
         'deflocation' => $deflocation,
         'locations'   => $locations,
         'links'       => $links
@@ -216,19 +220,19 @@ $app->get('/mapdata', function ($request, $response) {
 $app->get('/locations', function ($request, $response) {
     $loc = new Location();
 
-    return $this->view->render($response, 'locations.html', array(
+    return $this->get('view')->render($response, 'locations.html', array(
         'locations' => $loc->getAllLocations(null, 0, 999999)
     ));
 });
 
 $app->get('/location/add', function ($request, $response) use ($session) {
     if (!$session->isAuthenticated()) {
-        $this->flash->addMessage('error', 'Please login first');
+        $this->get('flash')->addMessage('error', 'Please login first');
 
         return $response->withStatus(302)->withHeader('Location', '/');
     }
 
-    return $this->view->render($response, 'location/add.html', array(
+    return $this->get('view')->render($response, 'location/add.html', array(
         'css' => array('/css/leaflet.css'),
         'js'  => array('/js/leaflet.min.js', '/js/grazmap.js')
     ));
@@ -236,27 +240,27 @@ $app->get('/location/add', function ($request, $response) use ($session) {
 
 $app->post('/location/add', function ($request, $response) use ($session) {
     if (!$session->isAuthenticated()) {
-        $this->flash->addMessageNow('error', 'Please login first');
+        $this->get('flash')->addMessageNow('error', 'Please login first');
 
         return $response->withStatus(302)->withHeader('Location', '/');
     }
 
     if (!preg_match('/^[0-9A-Za-z]{3,50}$/', $request->getParam('name'))) {
-        $this->flash->addMessageNow('error', 'Location name is invalid. Length from 3-50. Allowed characters only 0-9, A-Z, a-z');
+        $this->get('flash')->addMessageNow('error', 'Location name is invalid. Length from 3-50. Allowed characters only 0-9, A-Z, a-z');
     }
     if (strlen($request->getParam('address')) < 5) {
-        $this->flash->addMessageNow('error', 'Address is invalid');
+        $this->get('flash')->addMessageNow('error', 'Address is invalid');
     }
     if (strlen($request->getParam('address')) > 255) {
-        $this->flash->addMessageNow('error', 'Address too long (max length 255)');
+        $this->get('flash')->addMessageNow('error', 'Address too long (max length 255)');
     }
     if (!$request->getParam('latitude') || !$request->getParam('longitude')) {
-        $this->flash->addMessageNow('error', 'Position on map is missing');
+        $this->get('flash')->addMessageNow('error', 'Position on map is missing');
     }
 
     $location = new Location();
     if ($location->loadByName($request->getParam('name'))) {
-        $this->flash->addMessageNow('error', 'Location name already exists');
+        $this->get('flash')->addMessageNow('error', 'Location name already exists');
     }
 
     /* HACK: Slim-Flash hasMessage('error') does not see messages for next request */
@@ -274,14 +278,14 @@ $app->post('/location/add', function ($request, $response) use ($session) {
             $location->description = '';
 
             if ($location->save()) {
-                $this->flash->addMessage('success', 'Location created');
+                $this->get('flash')->addMessage('success', 'Location created');
 
                 return $response->withStatus(302)->withHeader('Location', '/');
             } else {
-                $this->flash->addMessageNow('error', 'Location creation failed');
+                $this->get('flash')->addMessageNow('error', 'Location creation failed');
             }
         } else {
-            $this->flash->addMessageNow('error', 'Location name already used');
+            $this->get('flash')->addMessageNow('error', 'Location name already used');
         }
     }
 
@@ -290,7 +294,7 @@ $app->post('/location/add', function ($request, $response) use ($session) {
         'address' => $request->getParam('address')
     );
 
-    return $this->view->render($response, 'location/add.html', array(
+    return $this->get('view')->render($response, 'location/add.html', array(
         'data' => $data,
         'css'  => array('/css/leaflet.css'),
         'js'   => array('/js/leaflet.min.js', '/js/grazmap.js')
@@ -300,40 +304,40 @@ $app->post('/location/add', function ($request, $response) use ($session) {
 /* Nodes */
 $app->get('/location/{locationid}/add', function ($request, $response, $args) use ($session) {
     if (!$session->isAuthenticated()) {
-        $this->flash->addMessage('error', 'Please login first');
+        $this->get('flash')->addMessage('error', 'Please login first');
 
         return $response->withStatus(302)->withHeader('Location', '/');
     }
 
-    return $this->view->render($response, 'location/node/add.html', array(
+    return $this->get('view')->render($response, 'location/node/add.html', array(
         'data' => array('locationid' => $args['locationid'])
     ));
 });
 
 $app->post('/location/{locationid}/add', function ($request, $response, $args) use ($session) {
     if (!$session->isAuthenticated()) {
-        $this->flash->addMessage('error', 'Please login first');
+        $this->get('flash')->addMessage('error', 'Please login first');
 
         return $response->withStatus(302)->withHeader('Location', '/');
     }
 
     $location = new Location($args['locationid']);
     if ($location->owner != $session->getUser()->userid) {
-        $this->flash->addMessage('error', 'Permission denied');
+        $this->get('flash')->addMessage('error', 'Permission denied');
 
         return $response->withStatus(302)->withHeader('Location', '/');
     }
 
     if (!preg_match('/^[0-9A-Za-z]{3,50}$/', $request->getParam('name'))) {
-        $this->flash->addMessageNow('error', 'Node name is invalid. Length from 3-50. Allowed characters only 0-9, A-Z, a-z');
+        $this->get('flash')->addMessageNow('error', 'Node name is invalid. Length from 3-50. Allowed characters only 0-9, A-Z, a-z');
     }
     if (strlen($request->getParam('description')) > 16384) {
-        $this->flash->addMessageNow('error', 'Description is too long (max 16K)');
+        $this->get('flash')->addMessageNow('error', 'Description is too long (max 16K)');
     }
 
     $location = new Location($args['locationid']);
     if ($location->nodeExists($request->getParam('name'))) {
-        $this->flash->addMessageNow('error', 'Node name already exists');
+        $this->get('flash')->addMessageNow('error', 'Node name already exists');
     }
 
     /* HACK: Slim-Flash hasMessage('error') does not see messages for next request */
@@ -346,11 +350,11 @@ $app->post('/location/{locationid}/add', function ($request, $response, $args) u
         $node->description = $request->getParam('description');
 
         if ($node->save()) {
-            $this->flash->addMessage('success', 'Node created');
+            $this->get('flash')->addMessage('success', 'Node created');
 
             return $response->withStatus(302)->withHeader('Location', '/location/'.$node->location.'/node/'.$node->nodeid.'/');
         } else {
-            $this->flash->addMessageNow('error', 'Location creation failed');
+            $this->get('flash')->addMessageNow('error', 'Location creation failed');
         }
     }
 
@@ -360,7 +364,7 @@ $app->post('/location/{locationid}/add', function ($request, $response, $args) u
         'locationid'    => $args['locationid']
     );
 
-    return $this->view->render($response, 'location/node/add.html', array(
+    return $this->get('view')->render($response, 'location/node/add.html', array(
         'data' => $data
     ));
 });
@@ -368,17 +372,25 @@ $app->post('/location/{locationid}/add', function ($request, $response, $args) u
 /* User Area */
 $app->get('/user/home', function ($request, $response) use ($session) {
     if (!$session->isAuthenticated()) {
-        $this->flash->addMessage('error', 'Please login first');
+        $this->get('flash')->addMessage('error', 'Please login first');
 
         return $response->withStatus(302)->withHeader('Location', '/');
     }
 
     $loc = new Location();
 
-    return $this->view->render($response, 'user/home.html', array(
+    return $this->get('view')->render($response, 'user/home.html', array(
         'user'      => $session->getUser(),
         'locations' => $loc->getAllLocations($session->getUser()->userid, 0, 999999)
     ));
+});
+
+/**
+ * Catch-all route to serve a 404 Not Found page if none of the routes match
+ * NOTE: make sure this route is defined last
+ */
+$app->map(['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], '/{routes:.+}', function ($request, $response) {
+    throw new HttpNotFoundException($request);
 });
 
 $app->run();
