@@ -6,7 +6,7 @@ namespace FunkFeuer\Nodeman;
  * Link between two interfaces.
  *
  * @author     Bernhard Froehlich <decke@bluelife.at>
- * @copyright  2017 Bernhard Froehlich
+ * @copyright  2017-2020 Bernhard Froehlich
  * @license    BSD License (2 Clause)
  *
  * @link       https://github.com/decke/nodeman
