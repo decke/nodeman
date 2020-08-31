@@ -22,6 +22,9 @@ js/leaflet.min.js:
 vendor/erusev:
   "Parsedown" used under MIT License
 
+vendor/php-di:
+  "PHP-DI" used under MIT License
+
 vendor/slim:
   "Slim Framework" used under MIT License
 
@@ -29,3 +32,4 @@ vendor/twig:
   "Twig" used under BSD 3-clause License
    https://twig.symfony.com/
 
+for License details of indirect PHP dependencies please run "composer licenses"
