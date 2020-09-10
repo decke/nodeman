@@ -15,14 +15,6 @@ CREATE TABLE config (
 CREATE INDEX config_idx1 ON config (name);
 
 
-CREATE TABLE hardware (
-   hardwareid INTEGER PRIMARY KEY NOT NULL,
-   vendor VARCHAR(50) NOT NULL,
-   name VARCHAR(50) NOT NULL,
-   url VARCHAR(255) NOT NULL
-);
-
-
 CREATE TABLE users (
    userid INTEGER PRIMARY KEY NOT NULL,
    email VARCHAR(50) NOT NULL,
@@ -58,24 +50,31 @@ CREATE TABLE nodes (
    name VARCHAR(50) NOT NULL,
    owner INTEGER NOT NULL,
    location INTEGER NOT NULL,
-   hardware INTEGER NOT NULL,
    description TEXT,
    FOREIGN KEY(owner) REFERENCES users(userid),
-   FOREIGN KEY(location) REFERENCES locations(locationid),
-   FOREIGN KEY(hardware) REFERENCES hardware(hardwareid)
+   FOREIGN KEY(location) REFERENCES locations(locationid)
 );
 
 CREATE INDEX nodes_idx1 ON nodes (name);
 CREATE INDEX nodes_idx2 ON nodes (owner);
 CREATE INDEX nodes_idx3 ON nodes (location);
-CREATE INDEX nodes_idx4 ON nodes (hardware);
+
+
+CREATE TABLE nodeattributes (
+   node INTEGER KEY NOT NULL,
+   key VARCHAR(50) NOT NULL,
+   value VARCHAR(50) NOT NULL,
+   FOREIGN KEY(node) REFERENCES nodes(nodeid)
+);
+
+CREATE INDEX nodeattributes_idx1 ON nodeattributes (node);
 
 
 CREATE TABLE interfaces (
    interfaceid INTEGER PRIMARY KEY NOT NULL,
    name VARCHAR(50) NOT NULL,
    node INTEGER NOT NULL,
-   category VARCHAR(10) NOT NULL, -- interface category: [fiber|tunnel|wifi2.4|wifi5]
+   category VARCHAR(10) NOT NULL, -- interface category: [fiber|tunnel|wifi2.4|wifi5|wifi60]
    type VARCHAR(5) NOT NULL, -- interface type: [IPv4|IPv6]
    address VARCHAR(50) NOT NULL,
    status VARCHAR(10) NOT NULL, -- current OLSR status: [online|offline]
@@ -89,6 +88,16 @@ CREATE INDEX interfaces_idx2 ON interfaces (node);
 CREATE INDEX interfaces_idx3 ON interfaces (category);
 CREATE INDEX interfaces_idx4 ON interfaces (type);
 CREATE INDEX interfaces_idx5 ON interfaces (address);
+
+
+CREATE TABLE interfaceattributes (
+   interface INTEGER KEY NOT NULL,
+   key VARCHAR(50) NOT NULL,
+   value VARCHAR(50) NOT NULL,
+   FOREIGN KEY(interface) REFERENCES interfaces(interfaceid)
+);
+
+CREATE INDEX interfaceattributes_idx1 ON interfaceattributes (interface);
 
 
 CREATE TABLE linkdata (
@@ -117,7 +126,5 @@ INSERT INTO "config" VALUES('title.url','https://graz.funkfeuer.at/');
 --- default account
 --- email: admin@example.com, password: admin
 INSERT INTO "users" VALUES(1,'admin@example.com','$2y$11$mHyBgtw2Iu0JuUpAvr.ChekNkRZMsLzmoH0/rJJQUYxEJjii.CFjS','','','','admin');
-
-INSERT INTO "hardware" VALUES(1, 'unknown', 'unknown', '');
 
 COMMIT;

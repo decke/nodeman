@@ -249,7 +249,6 @@ function createNodes($manman, $nodeman)
         $newnode->name = $node['name'];
         $newnode->owner = $node['person_id'];
         $newnode->location = $node['location_id'];
-        $newnode->hardware = 1;
         $newnode->description = $node['comment'];
 
         try {

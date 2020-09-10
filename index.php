@@ -346,7 +346,6 @@ $app->post('/location/{locationid}/add', function ($request, $response, $args) u
         $node->name = $request->getParam('name');
         $node->owner = $session->getUser()->userid;
         $node->location = $args['locationid'];
-        $node->hardware = 0;
         $node->description = $request->getParam('description');
 
         if ($node->save()) {

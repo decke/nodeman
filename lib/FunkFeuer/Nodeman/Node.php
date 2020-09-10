@@ -19,7 +19,6 @@ class Node
         'name'          => null,
         'owner'         => null,
         'location'      => null,
-        'hardware'      => null,
         'description'   => null
     );
 
@@ -59,7 +58,7 @@ class Node
 
     public function load($id)
     {
-        $stmt = $this->_handle->prepare('SELECT nodeid, name, owner, location, hardware,
+        $stmt = $this->_handle->prepare('SELECT nodeid, name, owner, location,
             description FROM nodes WHERE nodeid = ?');
         if (!$stmt->execute(array($id))) {
             return false;
@@ -76,7 +75,7 @@ class Node
 
     public function loadByName($name)
     {
-        $stmt = $this->_handle->prepare('SELECT nodeid, name, owner, location, hardware,
+        $stmt = $this->_handle->prepare('SELECT nodeid, name, owner, location,
             description FROM nodes WHERE name = ?');
         if (!$stmt->execute(array($name))) {
             return false;
@@ -94,10 +93,10 @@ class Node
     public function save()
     {
         if (!$this->nodeid) {
-            $stmt = $this->_handle->prepare('INSERT INTO nodes (name, owner, location, hardware,
-                description) VALUES (?, ?, ?, ?, ?)');
+            $stmt = $this->_handle->prepare('INSERT INTO nodes (name, owner, location,
+                description) VALUES (?, ?, ?, ?)');
 
-            if ($stmt->execute(array($this->name, $this->owner, $this->location, $this->hardware,
+            if ($stmt->execute(array($this->name, $this->owner, $this->location,
                 $this->description))) {
                 $this->nodeid = $this->_handle->lastInsertId();
 
@@ -105,9 +104,9 @@ class Node
             }
         } else {
             $stmt = $this->_handle->prepare('UPDATE nodes SET name = ?, owner = ?, location = ?,
-                hardware = ?, description = ? WHERE nodeid = ?');
+                description = ? WHERE nodeid = ?');
 
-            return $stmt->execute(array($this->name, $this->owner, $this->location, $this->hardware,
+            return $stmt->execute(array($this->name, $this->owner, $this->location,
                 $this->description, $this->nodeid));
         }
 
