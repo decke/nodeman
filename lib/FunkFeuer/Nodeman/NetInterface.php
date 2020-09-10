@@ -116,4 +116,79 @@ class NetInterface
 
         return false;
     }
+
+    public function getAllAttributes()
+    {
+        if (!$this->interfaceid) {
+            throw new \Exception('NetInterface does not have an ID yet in class NetInterface');
+        }
+
+        $data = array();
+
+        $stmt = $this->_handle->prepare('SELECT key, value FROM interfaceattributes WHERE interface = ? ORDER BY key');
+        if (!$stmt->execute(array($this->interfaceid))) {
+            return $data;
+        }
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $data[$row['key']] = $row['value'];
+        }
+
+        return $data;
+    }
+
+    public function getAttribute($key)
+    {
+        if (!$this->interfaceid) {
+            throw new \Exception('NetInterface does not have an ID yet in class NetInterface');
+        }
+
+        $stmt = $this->_handle->prepare('SELECT value FROM interfaceattributes WHERE interface = ? AND key = ?');
+        if (!$stmt->execute(array($this->interfaceid, $key))) {
+            return false;
+        }
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            return $row['value'];
+        }
+
+        return false;
+    }
+
+    public function delAttribute($key)
+    {
+        if (!$this->interfaceid) {
+            throw new \Exception('NetInterface does not have an ID yet in class NetInterface');
+        }
+
+        $stmt = $this->_handle->prepare('DELETE FROM interfaceattributes WHERE interface = ? AND key = ?');
+
+        if ($stmt->execute(array($this->interfaceid, $key))) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function setAttribute($key, $value)
+    {
+        if (!$this->interfaceid) {
+            throw new \Exception('NetInterface does not have an ID yet in class NetInterface');
+        }
+
+        if ($this->getAttribute($key) === false) {
+            $stmt = $this->_handle->prepare('INSERT INTO interfaceattributes (interface, key, value)
+                VALUES (?, ?, ?)');
+
+            if ($stmt->execute(array($this->interfaceid, $key, $value))) {
+                return true;
+            }
+        } else {
+            $stmt = $this->_handle->prepare('UPDATE interfaceattributes SET value = ? WHERE interface = ? AND key = ?');
+
+            return $stmt->execute(array($value, $this->interfaceid, $key));
+        }
+
+        return false;
+    }
 }
