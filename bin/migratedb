@@ -143,7 +143,7 @@ function createUsers($manman, $nodeman)
         $user->firstname = $person['firstname'];
         $user->lastname = $person['lastname'];
         $user->phone = $person['tel'];
-        $user->usergroup = $person['admin'] == 1 ? 'admin' : 'user';
+        $user->usergroup = (isset($person['admin']) && $person['admin'] == 1) ? 'admin' : 'user';
 
         try {
             $user->save();
@@ -284,7 +284,7 @@ function createInterfaces($manman, $nodeman)
         }
 
         if(!$iface['name'])
-            $iface['name'] = '';
+            $iface['name'] = 'undefined';
 
         $newiface = new NetInterface();
         $newiface->name = $iface['name'];
