@@ -159,4 +159,79 @@ class User
 
         return false;
     }
+
+    public function getAllAttributes()
+    {
+        if (!$this->userid) {
+            throw new \Exception('User does not have an ID yet in class User');
+        }
+
+        $data = array();
+
+        $stmt = $this->_handle->prepare('SELECT key, value FROM userattributes WHERE userid = ? ORDER BY key');
+        if (!$stmt->execute(array($this->userid))) {
+            return $data;
+        }
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $data[$row['key']] = $row['value'];
+        }
+
+        return $data;
+    }
+
+    public function getAttribute($key)
+    {
+        if (!$this->userid) {
+            throw new \Exception('User does not have an ID yet in class User');
+        }
+
+        $stmt = $this->_handle->prepare('SELECT value FROM userattributes WHERE userid = ? AND key = ?');
+        if (!$stmt->execute(array($this->userid, $key))) {
+            return false;
+        }
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            return $row['value'];
+        }
+
+        return false;
+    }
+
+    public function delAttribute($key)
+    {
+        if (!$this->userid) {
+            throw new \Exception('User does not have an ID yet in class User');
+        }
+
+        $stmt = $this->_handle->prepare('DELETE FROM userattributes WHERE userid = ? AND key = ?');
+
+        if ($stmt->execute(array($this->userid, $key))) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function setAttribute($key, $value)
+    {
+        if (!$this->userid) {
+            throw new \Exception('Node does not have an ID yet in class Node');
+        }
+
+        if ($this->getAttribute($key) === false) {
+            $stmt = $this->_handle->prepare('INSERT INTO userattributes (userid, key, value)
+                VALUES (?, ?, ?)');
+
+            if ($stmt->execute(array($this->userid, $key, $value))) {
+                return true;
+            }
+        } else {
+            $stmt = $this->_handle->prepare('UPDATE userattributes SET value = ? WHERE userid = ? AND key = ?');
+
+            return $stmt->execute(array($value, $this->userid, $key));
+        }
+
+        return false;
+    }
 }

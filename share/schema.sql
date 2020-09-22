@@ -28,6 +28,16 @@ CREATE TABLE users (
 CREATE UNIQUE INDEX users_idx1 ON users (email);
 
 
+CREATE TABLE userattributes (
+   userid INTEGER KEY NOT NULL,
+   key VARCHAR(50) NOT NULL,
+   value VARCHAR(50) NOT NULL,
+   FOREIGN KEY(userid) REFERENCES user(userid)
+);
+
+CREATE INDEX userattributes_idx1 ON userattributes (userid);
+
+
 CREATE TABLE locations (
    locationid INTEGER PRIMARY KEY NOT NULL,
    name VARCHAR(50) NOT NULL,
