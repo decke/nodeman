@@ -151,7 +151,7 @@ class Location
     public function countNodes()
     {
         $stmt = $this->_handle->prepare('SELECT count(*) FROM nodes WHERE location = ?');
-        if (!$stmt->execute(array($this->location))) {
+        if (!$stmt->execute(array($this->locationid))) {
             return false;
         }
 
@@ -163,7 +163,7 @@ class Location
         $data = array();
 
         $stmt = $this->_handle->prepare('SELECT nodeid FROM nodes WHERE (location = ? OR ? IS NULL) ORDER BY nodeid');
-        if (!$stmt->execute(array($this->location, $this->location))) {
+        if (!$stmt->execute(array($this->locationid, $this->locationid))) {
             return $data;
         }
 
@@ -174,10 +174,24 @@ class Location
         return $data;
     }
 
+    public function getNodeByName($name)
+    {
+        $stmt = $this->_handle->prepare('SELECT nodeid FROM nodes WHERE location = ? AND name = ?');
+        if (!$stmt->execute(array($this->locationid, $name))) {
+            return null;
+        }
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            return new Node($row['nodeid']);
+        }
+
+        return null;
+    }
+
     public function nodeExists($name)
     {
         $stmt = $this->_handle->prepare('SELECT count(*) FROM nodes WHERE location = ? AND LOWER(name) = LOWER(?)');
-        if (!$stmt->execute(array($this->location, $name))) {
+        if (!$stmt->execute(array($this->locationid, $name))) {
             return false;
         }
 

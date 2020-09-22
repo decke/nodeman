@@ -77,23 +77,6 @@ class NetInterface
         return false;
     }
 
-    public function loadByName($name)
-    {
-        $stmt = $this->_handle->prepare('SELECT interfaceid, name, node, category, type, address,
-            status, ping, description FROM interfaces WHERE name = ?');
-        if (!$stmt->execute(array($name))) {
-            return false;
-        }
-
-        if ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $this->_data = $row;
-
-            return true;
-        }
-
-        return false;
-    }
-
     public function save()
     {
         if (!$this->interfaceid) {
@@ -115,6 +98,26 @@ class NetInterface
         }
 
         return false;
+    }
+
+    public function loadByPath($path)
+    {
+        $parts = explode('.', $path);
+        if (count($parts) != 3) {
+            throw new \Exception('Invalid NetInterface path '.$path);
+        }
+
+        $loc = new Location();
+        $loc->loadByName($parts[0]);
+        $node = $loc->getNodeByName($parts[1]);
+        $iface = $node->getInterfaceByName($parts[2]);
+
+        return $this->load($iface->interfaceid);
+    }
+
+    public function getNode()
+    {
+        return new Node($this->node);
     }
 
     public function getAllAttributes()

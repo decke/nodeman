@@ -73,23 +73,6 @@ class Node
         return false;
     }
 
-    public function loadByName($name)
-    {
-        $stmt = $this->_handle->prepare('SELECT nodeid, name, owner, location,
-            description FROM nodes WHERE name = ?');
-        if (!$stmt->execute(array($name))) {
-            return false;
-        }
-
-        if ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $this->_data = $row;
-
-            return true;
-        }
-
-        return false;
-    }
-
     public function save()
     {
         if (!$this->nodeid) {
@@ -113,6 +96,20 @@ class Node
         return false;
     }
 
+    public function getInterfaceByName($name)
+    {
+        $stmt = $this->_handle->prepare('SELECT interfaceid FROM interfaces WHERE node = ? AND name = ?');
+        if (!$stmt->execute(array($this->nodeid, $name))) {
+            return null;
+        }
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            return new NetInterface($row['interfaceid']);
+        }
+
+        return null;
+    }
+
     public function getAllInterfaces()
     {
         if (!$this->nodeid) {
@@ -121,7 +118,7 @@ class Node
 
         $data = array();
 
-        $stmt = $this->_handle->prepare('SELECT interfaceid FROM interfaces WHERE (node = ? OR ? IS NULL) ORDER BY interfacid');
+        $stmt = $this->_handle->prepare('SELECT interfaceid FROM interfaces WHERE (node = ? OR ? IS NULL) ORDER BY interfaceid');
         if (!$stmt->execute(array($this->nodeid, $this->nodeid))) {
             return $data;
         }
