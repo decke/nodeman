@@ -124,14 +124,29 @@ function fetchInterfaces($handle)
     return $data;
 }
 
+function fetchBackboneLinks($handle)
+{
+    $data = array();
+    $stmt = $handle->prepare('SELECT id, name, node_a, node_b, type, state, attr, comment FROM backbone_links WHERE 1=1 ORDER BY id');
+    if (!$stmt->execute(array())) {
+        return false;
+    }
+
+    while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+        $data[] = $row;
+    }
+
+    return $data;
+}
+
 
 function createUsers($manman, $nodeman)
 {
     /* Create Users */
-    foreach(fetchPersons($manman) as $person)
-    {
-        if (!$person['tel'])
+    foreach (fetchPersons($manman) as $person) {
+        if (!$person['tel']) {
             $person['tel'] = '';
+        }
 
         if (!filter_var($person['email'], FILTER_VALIDATE_EMAIL)) {
             logMsg(sprintf("EMail %s is invalid!", $person['email']), 'WARN');
@@ -153,7 +168,7 @@ function createUsers($manman, $nodeman)
             $stmt->execute(array($person['id'], $person['password'], $user->userid));
 
             logMsg(sprintf("User %s created. ID %d", $user->email, $person['id']));
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             logMsg(sprintf("Creating user %s failed!", $person['email']), 'ERROR');
             logMsg($e->getMessage(), 'ERROR');
 
@@ -169,22 +184,22 @@ function createLocations($manman, $nodeman)
     $nodeman->exec('DELETE FROM locations');
 
     /* Create Locations */
-    foreach(fetchLocations($manman) as $loc)
-    {
+    foreach (fetchLocations($manman) as $loc) {
         /* convert from X/Y position to GPS coordinates */
         /* See: https://git.ffgraz.net/karte.git/tree/data.php */
         $loc['gps_lon'] = 15.43844103813 + ($loc['pixel_x'] - 4080) / 50675.5176;
         $loc['gps_lat'] = 47.07177327969 + (4806 - $loc['pixel_y']) / 75505.521;
 
-        if(!$loc['gallery_link'])
+        if (!$loc['gallery_link']) {
             $loc['gallery_link'] = '';
+        }
 
-        if($loc['person_id'] < 1) {
+        if ($loc['person_id'] < 1) {
             $loc['person_id'] = 6; /* default owner for not assigned locations */
             logMsg(sprintf("Location %s has no owner. Assigning default User ID %d", $loc['name'], $loc['person_id']), 'WARN');
         }
 
-        if(count(fetchPerson($manman, $loc['person_id'])) < 1) {
+        if (count(fetchPerson($manman, $loc['person_id'])) < 1) {
             $loc['person_id'] = 6; /* default owner */
             logMsg(sprintf("Location %s has invalid owner. Assigning default User ID %d", $loc['name'], $loc['person_id']), 'WARN');
         }
@@ -205,7 +220,7 @@ function createLocations($manman, $nodeman)
             $stmt = $nodeman->prepare('UPDATE locations SET locationid = ? WHERE locationid = ?');
             $stmt->execute(array($loc['id'], $location->locationid));
             logMsg(sprintf("Location %s created. ID %d", $location->name, $loc['id']));
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             logMsg(sprintf("Creating location %s failed!", $loc['name']), 'ERROR');
             logMsg($e->getMessage(), 'ERROR');
 
@@ -221,26 +236,26 @@ function createNodes($manman, $nodeman)
     $nodeman->exec('DELETE FROM nodes');
 
     /* Create Nodes */
-    foreach(fetchNodes($manman) as $node)
-    {
-        if($node['person_id'] < 1)
-            $node['person_id'] = 6; /* default owner for not assigned nodes */
+    foreach (fetchNodes($manman) as $node) {
+        if ($node['person_id'] < 1) {
+            $node['person_id'] = 6;
+        } /* default owner for not assigned nodes */
 
-        if($node['location_id'] < 1) {
+        if ($node['location_id'] < 1) {
             $node['location_id'] = 11; /* default location for not assigned nodes (nirwana) */
             logMsg(sprintf("Node %s has no location. Assigning default Location ID %d", $node['name'], $node['location_id']), 'WARN');
         }
 
         $person = fetchPerson($manman, $node['person_id']);
 
-        if(count($person) < 1) {
+        if (count($person) < 1) {
             logMsg(sprintf("Node %s has invalid owner %d. Assigning default User ID", $node['name'], $node['person_id']), 'WARN');
             $node['person_id'] = 6;
         }
 
         $location = fetchLocation($manman, $node['location_id']);
 
-        if(count($location) < 1) {
+        if (count($location) < 1) {
             logMsg(sprintf("Node %s has invalid location. Assigning default Location", $node['name']), 'WARN');
             $node['location_id'] = 11;
         }
@@ -257,7 +272,7 @@ function createNodes($manman, $nodeman)
             $stmt = $nodeman->prepare('UPDATE nodes SET nodeid = ? WHERE nodeid = ?');
             $stmt->execute(array($node['id'], $newnode->nodeid));
             logMsg(sprintf("Node %s created. ID %d", $newnode->name, $node['id']));
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             logMsg(sprintf("Creating node %s failed!", $node['name']), 'ERROR');
             logMsg($e->getMessage(), 'ERROR');
 
@@ -273,18 +288,18 @@ function createInterfaces($manman, $nodeman)
     $nodeman->exec('DELETE FROM interfaces');
 
     /* Create Interfaces */
-    foreach(fetchInterfaces($manman) as $iface)
-    {
+    foreach (fetchInterfaces($manman) as $iface) {
         $node = fetchNode($manman, $iface['node_id']);
 
-        if(count($node) < 1) {
+        if (count($node) < 1) {
             logMsg(sprintf("Interface %s has invalid node. Assigning default Node", $iface['name']), 'WARN');
             $iface['node_id'] = 0;
             continue; // TODO: default node definieren
         }
 
-        if(!$iface['name'])
+        if (!$iface['name']) {
             $iface['name'] = 'undefined';
+        }
 
         $newiface = new NetInterface();
         $newiface->name = $iface['name'];
@@ -300,7 +315,7 @@ function createInterfaces($manman, $nodeman)
             $newiface->save();
 
             logMsg(sprintf("Interface %s created. ID %d", $newiface->name, $iface['id']));
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             logMsg(sprintf("Creating interface %s for node %d failed!", $iface['name'], $iface['node_id']), 'ERROR');
             logMsg($e->getMessage(), 'ERROR');
 
@@ -311,7 +326,61 @@ function createInterfaces($manman, $nodeman)
     return true;
 }
 
+function createAttributes($manman, $nodeman)
+{
+    $fivebone = array(
+        'tub-cmb'       => array('tub.combinesch.lan', 'combinesch.tub.wifi'),
+        'zoes-windorf'  => array('zoesenberg40.agwindorf.lan', 'windorf.ag-zoes.lan'),
+        'dobl-rb109'    => array('bachstrasse.airgrid.wifi', 'rb109.ag-dobl.wifi'),
+        'wzr-neup'      => array('wzr14.airgrid-neup.wifi', 'neupauerweg18b.airgrid1.lan'),
+        'tub-sch24'     => array('tub.sch24.wifi', 'sch24.tub.lan'),
+        'neup-mcg'      => array('neupauerweg18b.airgrid1.lan', 'mcg.airgrid2.wifi')
+    );
 
+    $nodeman->exec('DELETE FROM nodeattributes');
+    $nodeman->exec('DELETE FROM interfaceattributes');
+
+    /* Create Node Attributes */
+    foreach (fetchBackboneLinks($manman) as $link) {
+        if (!isset($fivebone[$link['name']])) {
+            logMsg(sprintf("Ignoring unknown 5bone link %s", $link['name']));
+            continue;
+        }
+
+        logMsg(sprintf("Migrating Backbone Link %s", $link['name']));
+
+        $iface_a = new NetInterface();
+        $iface_a->loadByPath($fivebone[$link['name']][0]);
+        $node_a = $iface_a->getNode();
+
+        $iface_b = new NetInterface();
+        $iface_b->loadByPath($fivebone[$link['name']][1]);
+        $node_b = $iface_b->getNode();
+
+        if ($link['attr'] != "") {
+            foreach (explode(";", $link['attr']) as $attr) {
+                $parts = explode("=", $attr, 2);
+                $key = $parts[0];
+                $value = $parts[1];
+
+                try {
+                    logMsg(sprintf("Create Attribute for Node %s: %s => %s", $node_a->name, $key, $value));
+                    $node_a->setAttribute($key, $value);
+
+                    logMsg(sprintf("Create Attribute for Node %s: %s => %s", $node_b->name, $key, $value));
+                    $node_b->setAttribute($key, $value);
+                } catch (\Exception $e) {
+                    logMsg(sprintf("Creating Attribute for node failed!"), 'ERROR');
+                    logMsg($e->getMessage(), 'ERROR');
+
+                    return false;
+                }
+            }
+        }
+    }
+
+    return true;
+}
 
 $nodeman = Config::getDbHandle();
 $nodeman->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
@@ -331,5 +400,8 @@ if(!createNodes($manman, $nodeman))
 if(!createInterfaces($manman, $nodeman))
     exit(1);
 
-exit(0);
+if (!createAttributes($manman, $nodeman)) {
+    exit(1);
+}
 
+exit(0);
