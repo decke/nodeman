@@ -17,6 +17,15 @@ function onMapClick(e) {
 
 function initmap() {
    map = new L.map('map');
+
+   if(document.getElementById('latitude') && document.getElementById('latitude').value > 0) {
+      deflocation[0] = document.getElementById('latitude').value;
+   }
+
+   if(document.getElementById('longitude') && document.getElementById('longitude').value > 0) {
+      deflocation[1] = document.getElementById('longitude').value;
+   }
+
    marker = L.marker(deflocation).addTo(map);
 
    // create the tile layer with correct attribution

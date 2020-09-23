@@ -5,20 +5,21 @@
   <div class="column is-6 is-offset-3">
     <div class="card">
       <div class="card-content">
-        <p class="title is-2">Create new location</p>
+        <p class="title is-2">Update location</p>
 
         {% for msg in flash.getMessage('error') %}
           <div class="alert alert-danger" role="alert"><strong>Sorry</strong> {{ msg }}</div>
         {% endfor %}
 
-        <form action="/location/add" method="post">
+        <form action="/location/{{ data['locationid'] }}/edit" method="post">
           <input type="hidden" id="latitude" name="latitude" value="{{ data['latitude'] }}">
           <input type="hidden" id="longitude" name="longitude" value="{{ data['longitude'] }}">
+          <input type="hidden" id="name" name="name" value="{{ data['name'] }}">
 
           <div class="field">
             <label class="label">Location name</label>
             <div class="control">
-              <input type="text" id="name" name="name" class="input" value="{{ data['name'] }}">
+              <input type="text" class="input" value="{{ data['name'] }}" disabled>
             </div>
             <p class="help">
               Length from 3-50. Allowed characters only 0-9, A-Z, a-z.
@@ -39,8 +40,29 @@
             <div id="map" class="map"></div>
           </div>
 
+          <div class="field">
+            <label for="address">Gallery Link</label>
+            <div class="control">
+              <input type="text" id="gallerylink" name="gallerylink" class="input" placeholder="http://" value="{{ data['gallerylink'] }}">
+              <p class="help">
+                Link to a gallery with pictures from that location (panorama, equipment ...)
+              </p>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="address">Description</label>
+            <div class="control">
+              <textarea id="description" name="description" class="textarea" rows="5">{{ data['description'] }}</textarea>
+              <p class="help">
+                Plans and possibilities for that location (you can use Markdown Syntax).
+                <a href="https://daringfireball.net/projects/markdown/basics" target="_blank">Markdown examples</a>
+              </p>
+            </div>
+          </div>
+
           <div class="control">
-            <button class="button is-primary">Create</button>
+            <button class="button is-primary">Update</button>
           </div>
         </form>
       </div>

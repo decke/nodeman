@@ -6,7 +6,8 @@
 * Tower SVGs wie feather icons integrieren
 
 high
-* Login eigene Maske
+* Locations anzeigen
+* Nodes anzeigen / anlegen / editieren
 * Interfaces anlegen
 * Location Details (Gallerylink, Smokeping, Link zur Karte)
 

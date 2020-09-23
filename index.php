@@ -410,7 +410,9 @@ $app->post('/location/add', function ($request, $response) use ($session) {
 
     $data = array(
         'name'    => $request->getParam('name'),
-        'address' => $request->getParam('address')
+        'address' => $request->getParam('address'),
+        'latitude'    => $request->getParam('latitude'),
+        'longitude'   => $request->getParam('longitude')
     );
 
     return $this->get('view')->render($response, 'location/add.html', array(
@@ -419,6 +421,101 @@ $app->post('/location/add', function ($request, $response) use ($session) {
         'js'   => array('/js/leaflet.min.js', '/js/grazmap.js')
     ));
 });
+
+$app->get('/location/{locationid}/edit', function ($request, $response, $args) use ($session) {
+    if (!$session->isAuthenticated()) {
+        $this->get('flash')->addMessage('error', 'Please login first');
+
+        return $response->withStatus(302)->withHeader('Location', '/');
+    }
+
+    $location = new Location();
+
+    if (!$location->load($args['locationid'])) {
+        $this->get('flash')->addMessage('error', 'Invalid Location ID');
+
+        return $response->withStatus(302)->withHeader('Location', '/');
+    }
+
+    $data = array(
+        'locationid'    => $location->locationid,
+        'name'          => $location->name,
+        'address'       => $location->address,
+        'latitude'      => $location->latitude,
+        'longitude'     => $location->longitude,
+        'gallerylink'   => $location->gallerylink,
+        'description'   => $location->description
+    );
+
+    return $this->get('view')->render($response, 'location/edit.html', array(
+        'data' => $data,
+        'css'  => array('/css/leaflet.css'),
+        'js'   => array('/js/leaflet.min.js', '/js/grazmap.js')
+    ));
+});
+
+$app->post('/location/{locationid}/edit', function ($request, $response, $args) use ($session) {
+    if (!$session->isAuthenticated()) {
+        $this->get('flash')->addMessageNow('error', 'Please login first');
+
+        return $response->withStatus(302)->withHeader('Location', '/');
+    }
+
+    if (strlen($request->getParam('address')) < 5) {
+        $this->get('flash')->addMessageNow('error', 'Address is invalid');
+    }
+    if (strlen($request->getParam('address')) > 255) {
+        $this->get('flash')->addMessageNow('error', 'Address too long (max length 255)');
+    }
+    if (!$request->getParam('latitude') || !$request->getParam('longitude')) {
+        $this->get('flash')->addMessageNow('error', 'Position on map is missing');
+    }
+    if (strlen($request->getParam('gallerylink')) > 255) {
+        $this->get('flash')->addMessageNow('error', 'Gallerylink too long (max 255 chars)');
+    }
+    if (strlen($request->getParam('description')) > 16384) {
+        $this->get('flash')->addMessageNow('error', 'Description is too long (max 16K)');
+    }
+
+    if (!$this->get('flash')->hasMessage('error')) {
+        $location = new Location();
+
+        if ($location->load($args['locationid'])) {
+            $location->address = $request->getParam('address');
+            $location->latitude = $request->getParam('latitude');
+            $location->longitude = $request->getParam('longitude');
+            $location->gallerylink = $request->getParam('gallerylink');
+            $location->description = $request->getParam('description');
+
+            if ($location->save()) {
+                $this->get('flash')->addMessage('success', 'Location updated');
+
+                return $response->withStatus(302)->withHeader('Location', '/');
+            } else {
+                $this->get('flash')->addMessageNow('error', 'Location update failed');
+            }
+        } else {
+            $this->get('flash')->addMessageNow('error', 'Location not found');
+        }
+    }
+
+    $data = array(
+        'locationid'  => $args['locationid'],
+        'name'        => $request->getParam('name'),
+        'address'     => $request->getParam('address'),
+        'latitude'    => $request->getParam('latitude'),
+        'longitude'   => $request->getParam('longitude'),
+        'gallerylink' => $request->getParam('gallerylink'),
+        'description' => $request->getParam('description')
+    );
+
+    return $this->get('view')->render($response, 'location/edit.html', array(
+        'data' => $data,
+        'css'  => array('/css/leaflet.css'),
+        'js'   => array('/js/leaflet.min.js', '/js/grazmap.js')
+    ));
+});
+
 
 /* Nodes */
 $app->get('/location/{locationid}/add', function ($request, $response, $args) use ($session) {
