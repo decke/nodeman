@@ -14,10 +14,18 @@ build: vendor
 test: vendor
 	php-cs-fixer fix --dry-run --diff-format udiff index.php
 	php-cs-fixer fix --dry-run --diff-format udiff lib
-	phpstan analyse -l 5 -c phpstan.neon lib index.php
+	php-cs-fixer fix --dry-run --diff-format udiff bin/linksearch
+	php-cs-fixer fix --dry-run --diff-format udiff bin/migratedb
+	php-cs-fixer fix --dry-run --diff-format udiff bin/sendmails
+	php-cs-fixer fix --dry-run --diff-format udiff bin/updatelinkdata
+	phpstan analyse -l 5 -c phpstan.neon bin lib index.php
 
 fix:
 	php-cs-fixer fix index.php
 	php-cs-fixer fix lib
+	php-cs-fixer fix bin/linksearch
+	php-cs-fixer fix bin/migratedb
+	php-cs-fixer fix bin/sendmails
+	php-cs-fixer fix bin/updatelinkdata
 
 .PHONY: all clean build test fix
