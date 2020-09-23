@@ -11,6 +11,7 @@
       "slim/twig-view": "^3.0",
       "erusev/parsedown": "^1.7",
       "php-di/php-di": "^6.2",
+      "phpmailer/phpmailer": "~6.1",
       "ext-fileinfo": "*",
       "ext-filter": "*",
       "ext-hash": "*",

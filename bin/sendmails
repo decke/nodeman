@@ -1,0 +1,107 @@
+#!/usr/bin/env php
+<?php
+
+namespace FunkFeuer\Nodeman;
+
+use \FunkFeuer\Nodeman\Config;
+use \PHPMailer\PHPMailer\PHPMailer;
+use \PHPMailer\PHPMailer\SMTP;
+use \PHPMailer\PHPMailer\Exception;
+
+require_once __DIR__.'/../vendor/autoload.php';
+
+/* set working directory to root directory */
+chdir(dirname(__FILE__).'/../');
+
+/* set default timezone to UTC */
+date_default_timezone_set('UTC');
+
+function logMsg($msg, $level = 'INFO')
+{
+    printf("[%s] [%5s] %s\n", date('H:i:s d.m.Y', time()), $level, $msg);
+}
+
+$handle = Config::getDbHandle();
+$handle->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+$stmt = $handle->prepare('SELECT userid, value FROM userattributes WHERE key = \'sendmail\'');
+
+if (!$stmt->execute(array())) {
+    exit(1);
+}
+
+while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+    $user = new User($row['userid']);
+    $mailtype = $row['value'];
+
+    $user->setAttribute('emailtoken', bin2hex(random_bytes(6)));
+    $user->setAttribute('emailtokenvalid', time()+3600); // valid for 1h
+
+    $mail = new PHPMailer(true);
+    $mail->XMailer = ' ';
+
+    try {
+        //$mail->SMTPDebug = SMTP::DEBUG_SERVER;
+        $mail->isSMTP();
+        $mail->Host = Config::get('mail.smtp.host');
+        $mail->Port = (int)Config::get('mail.smtp.port');
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+
+        $mail->SMTPAuth = true;
+        $mail->Username = Config::get('mail.smtp.username');
+        $mail->Password = Config::get('mail.smtp.password');
+
+        foreach ($mail->parseAddresses(Config::get('mail.from')) as $addr) {
+            $mail->setFrom($addr['address'], $addr['name']);
+        }
+
+        $mail->addAddress($user->email, $user->firstname.' '.$user->lastname);
+
+        $mail->isHTML(true);
+
+
+        if ($mailtype == 'passwordreset') {
+            $mail->Subject = 'Passwort reset code';
+            $mail->Body = sprintf(
+                'Your Reset Code: %s<br><a href="%spasswordresetcode?email=%s&token=%s">Set your new password</a>',
+                $user->getAttribute('emailtoken'),
+                Config::get('title.url'),
+                $user->email,
+                $user->getAttribute('emailtoken')
+            );
+
+            $mail->AltBody = sprintf(
+                'Your Reset Code: %s\nSet your new password: %spasswordresetcode\n',
+                $user->getAttribute('emailtoken'),
+                Config::get('title.url')
+            );
+
+            $mail->send();
+        } elseif ($mailtype == 'verifyemail') {
+            $mail->Subject = 'Please verify your EMail';
+            $mail->Body = sprintf(
+                'Your Verification Code: %s<br><a href="%sverify?email=%s&token=%s">Please verify your EMail Address</a>',
+                $user->getAttribute('emailtoken'),
+                Config::get('title.url'),
+                $user->email,
+                $user->getAttribute('emailtoken')
+            );
+
+            $mail->AltBody = sprintf(
+                'Your Verification Code: %s\nVerify EMail: %sverify\n',
+                $user->getAttribute('emailtoken'),
+                Config::get('title.url')
+            );
+
+            $mail->send();
+        }
+
+        $user->delAttribute('sendmail');
+
+        logMsg(sprintf("%s [%s]", $user->email, $mailtype), "INFO");
+    } catch (Exception $e) {
+        logMsg(sprintf("%s [%s]", $user->email, $mailtype), "FAIL");
+        logMsg($mail->ErrorInfo, "FAIL");
+    }
+}
+
+exit(0);

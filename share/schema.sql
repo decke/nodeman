@@ -132,6 +132,11 @@ INSERT INTO "config" VALUES('cache.directory', 'tmp/');
 INSERT INTO "config" VALUES('security.https_only','true');
 INSERT INTO "config" VALUES('title','FunkFeuer Graz');
 INSERT INTO "config" VALUES('title.url','https://graz.funkfeuer.at/');
+INSERT INTO "config" VALUES('mail.from','Funkfeuer Graz <noreply@example.com>');
+INSERT INTO "config" VALUES('mail.smtp.host','smtp.gmail.com');
+INSERT INTO "config" VALUES('mail.smtp.port','587');
+INSERT INTO "config" VALUES('mail.smtp.username','');
+INSERT INTO "config" VALUES('mail.smtp.password','');
 
 --- default account
 --- email: admin@example.com, password: admin

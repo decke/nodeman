@@ -1,0 +1,44 @@
+{% include('_header.html') %}
+
+<div class="container">
+  {% for msg in flash.getMessage('error') %}
+    <div class="notification is-danger"><strong>Sorry</strong> {{ msg }}</div>
+  {% endfor %}
+
+  <div class="column is-6 is-offset-3">
+    <div class="card">
+      <div class="card-content">
+        <p class="title is-2">Reset Password</p>
+
+        <form action="/verify" method="post">
+          <div class="field">
+            <label class="label">EMail</label>
+            <div class="control">
+              <input type="text" name="email" class="input" value="{{ data['email'] }}">
+            </div>
+            <p class="help">
+              Please enter the EMail address.
+            </p>
+          </div>
+
+          <div class="field">
+            <label class="label">Code</label>
+            <div class="control">
+              <input type="text" name="token" class="input" value="{{ data['token'] }}">
+            </div>
+            <p class="help">
+              Please enter the Verification Code that we have send to you.
+            </p>
+          </div>
+
+          <div class="control">
+            <button class="button is-primary">Verify EMail</button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+{% include('_footer.html') %}

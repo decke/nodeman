@@ -138,7 +138,10 @@ $app->post('/register', function ($request, $response) {
         $user->usergroup = 'user';
 
         if ($user->save()) {
-            $this->get('flash')->addMessage('success', 'Account created');
+            $user->setAttribute('needsverification', 'true');
+            $user->setAttribute('sendmail', 'verifyemail');
+
+            $this->get('flash')->addMessage('success', 'Account created. Please check your EMails!');
 
             return $response->withStatus(302)->withHeader('Location', '/');
         } else {
@@ -155,6 +158,118 @@ $app->post('/register', function ($request, $response) {
 
     return $this->get('view')->render($response, 'register.html', array('data' => $data));
 });
+
+$app->get('/verify', function ($request, $response) {
+    $data = array(
+        'token' => '',
+        'email' => ''
+    );
+
+    if ($request->getParam('token')) {
+        $data['token'] = $request->getParam('token');
+    }
+    if ($request->getParam('email')) {
+        $data['email'] = $request->getParam('email');
+    }
+
+    return $this->get('view')->render($response, 'verify.html', array('data' => $data));
+});
+
+$app->post('/verify', function ($request, $response) {
+    $user = new User();
+
+    $data = array(
+        'token' => '',
+        'email' => ''
+    );
+
+    if ($user->loadByEMail($request->getParam('email'))) {
+        if ($user->getAttribute('emailtoken') != $request->getParam('token')) {
+            $this->get('flash')->addMessageNow('error', 'EMail verification failed');
+        } elseif ($user->getAttribute('emailtokenvalid') < time()) {
+            $this->get('flash')->addMessageNow('error', 'EMail verification failed');
+        } else {
+            $user->delAttribute('emailtoken');
+            $user->delAttribute('emailtokenvalid');
+            $user->delAttribute('needsverification');
+
+            $this->get('flash')->addMessage('success', 'EMail Address verified. You can login now!');
+
+            return $response->withStatus(302)->withHeader('Location', '/');
+        }
+    } else {
+        $this->get('flash')->addMessageNow('error', 'EMail verification failed');
+    }
+
+    return $this->get('view')->render($response, 'verify.html', array('data' => $data));
+});
+
+$app->get('/passwordreset', function ($request, $response) {
+    return $this->get('view')->render($response, 'passwordreset.html');
+});
+
+$app->post('/passwordreset', function ($request, $response) {
+    $user = new User();
+    if ($user->emailExists($request->getParam('email'))) {
+        $user->loadByEMail($request->getParam('email'));
+
+        $user->setAttribute('sendmail', 'passwordreset');
+    }
+    $this->get('flash')->addMessage('success', 'EMail was send');
+
+    return $response->withStatus(302)->withHeader('Location', '/passwordresetcode?email='.$user->email);
+});
+
+$app->get('/passwordresetcode', function ($request, $response) {
+    $data = array(
+        'token' => '',
+        'email' => ''
+    );
+
+    if ($request->getParam('token')) {
+        $data['token'] = $request->getParam('token');
+    }
+    if ($request->getParam('email')) {
+        $data['email'] = $request->getParam('email');
+    }
+
+    return $this->get('view')->render($response, 'passwordresetcode.html', array('data' => $data));
+});
+
+$app->post('/passwordresetcode', function ($request, $response) {
+    $user = new User();
+
+    if ($user->loadByEMail($request->getParam('email'))) {
+        if ($user->getAttribute('emailtoken') != $request->getParam('token')) {
+            $this->get('flash')->addMessageNow('error', 'Token is invalid');
+        } elseif ($user->getAttribute('emailtokenvalid') < time()) {
+            $this->get('flash')->addMessageNow('error', 'Token expired');
+        } elseif (strlen($request->getParam('password1')) < 6) {
+            $this->get('flash')->addMessageNow('error', 'Password too short (min length 6)');
+        } elseif ($request->getParam('password1') != $request->getParam('password2')) {
+            $this->get('flash')->addMessageNow('error', 'Passwords do not match');
+        } elseif (!$user->setPassword($request->getParam('password1'))) {
+            $this->get('flash')->addMessageNow('error', 'Password reset failed');
+        } elseif (!$user->save()) {
+            $this->get('flash')->addMessageNow('error', 'Password reset failed');
+        } else {
+            $user->delAttribute('emailtoken');
+            $user->delAttribute('emailtokenvalid');
+
+            $this->get('flash')->addMessage('success', 'New Password was set. You can login now!');
+            return $response->withStatus(302)->withHeader('Location', '/');
+        }
+    } else {
+        $this->get('flash')->addMessageNow('error', 'Password reset failed');
+    }
+
+    $data = array(
+        'email' => $request->getParam('email')
+    );
+
+    return $this->get('view')->render($response, 'passwordresetcode.html', array('data' => $data));
+});
+
 
 /* Map */
 $app->get('/map', function ($request, $response) {
