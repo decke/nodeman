@@ -93,6 +93,9 @@ $app->post('/login', function ($request, $response) use ($session) {
         $this->get('flash')->addMessage('error', 'Authentication failed');
     } elseif (!$session->login($request->getParam('email'), $request->getParam('password'))) {
         $this->get('flash')->addMessage('error', 'Authentication failed');
+    } elseif ($session->getUser()->getAttribute('needsverification')) {
+        $this->get('flash')->addMessage('error', 'EMail not verified yet');
+        $session->deauthenticate();
     }
 
     return $response->withStatus(302)->withHeader('Location', '/');

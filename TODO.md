@@ -4,7 +4,6 @@
 * Attribute in nodes einbauen (Hardware, Firmware, Altitude)
 * Attribute in interfaces einbauen (BSSID, Bandbreite, VLANID, Antenne, Antennengewinn)
 * Tower SVGs wie feather icons integrieren
-* Login verbieten wenn EMail nicht verifiziert ist
 
 high
 * Login eigene Maske

@@ -68,6 +68,13 @@ class Session
         return $user->save();
     }
 
+    public static function deauthenticate()
+    {
+        unset($_SESSION['authenticated']);
+        unset($_SESSION['userid']);
+        unset($_SESSION['loginip']);
+    }
+
     public static function getUser()
     {
         if (self::isAuthenticated()) {
