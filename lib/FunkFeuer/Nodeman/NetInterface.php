@@ -110,6 +110,11 @@ class NetInterface
         $loc = new Location();
         $loc->loadByName($parts[0]);
         $node = $loc->getNodeByName($parts[1]);
+
+        if($node === null) {
+            throw new \Exception('Invalid NetInterface path '.$path);
+        }
+
         $iface = $node->getInterfaceByName($parts[2]);
 
         return $this->load($iface->interfaceid);
