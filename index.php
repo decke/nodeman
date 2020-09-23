@@ -383,8 +383,7 @@ $app->post('/location/add', function ($request, $response) use ($session) {
         $this->get('flash')->addMessageNow('error', 'Location name already exists');
     }
 
-    /* HACK: Slim-Flash hasMessage('error') does not see messages for next request */
-    if (!isset($_SESSION['slimFlash']['error'])) {
+    if (!$this->get('flash')->hasMessage('error')) {
         $location = new Location();
 
         if (!$location->loadByName($request->getParam('name'))) {
@@ -460,8 +459,7 @@ $app->post('/location/{locationid}/add', function ($request, $response, $args) u
         $this->get('flash')->addMessageNow('error', 'Node name already exists');
     }
 
-    /* HACK: Slim-Flash hasMessage('error') does not see messages for next request */
-    if (!isset($_SESSION['slimFlash']['error'])) {
+    if (!$this->get('flash')->hasMessage('error')) {
         $node = new Node();
         $node->name = $request->getParam('name');
         $node->owner = $session->getUser()->userid;
