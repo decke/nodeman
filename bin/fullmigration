@@ -7,6 +7,10 @@ rm -f share/nodeman.db
 # create new database and import initial schema
 sqlite3 share/nodeman.db < share/schema.sql
 
+if [ -f share/overlay.sql ]; then
+  sqlite3 share/nodeman.db < share/overlay.sql
+fi
+
 # fix owner/group
 chown www:www share/nodeman.db
 
