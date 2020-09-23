@@ -111,7 +111,7 @@ class NetInterface
         $loc->loadByName($parts[0]);
         $node = $loc->getNodeByName($parts[1]);
 
-        if($node === null) {
+        if ($node === null) {
             throw new \Exception('Invalid NetInterface path '.$path);
         }
 

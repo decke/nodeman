@@ -390,17 +390,21 @@ $nodeman->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 $manman = new \PDO('sqlite:share/manman.db');
 $manman->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
-if(!createUsers($manman, $nodeman))
+if (!createUsers($manman, $nodeman)) {
     exit(1);
+}
 
-if(!createLocations($manman, $nodeman))
+if (!createLocations($manman, $nodeman)) {
     exit(1);
+}
 
-if(!createNodes($manman, $nodeman))
+if (!createNodes($manman, $nodeman)) {
     exit(1);
+}
 
-if(!createInterfaces($manman, $nodeman))
+if (!createInterfaces($manman, $nodeman)) {
     exit(1);
+}
 
 if (!createAttributes($manman, $nodeman)) {
     exit(1);
