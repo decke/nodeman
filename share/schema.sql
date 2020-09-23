@@ -32,7 +32,7 @@ CREATE TABLE userattributes (
    userid INTEGER KEY NOT NULL,
    key VARCHAR(50) NOT NULL,
    value VARCHAR(50) NOT NULL,
-   FOREIGN KEY(userid) REFERENCES user(userid)
+   FOREIGN KEY(userid) REFERENCES users(userid)
 );
 
 CREATE INDEX userattributes_idx1 ON userattributes (userid);
