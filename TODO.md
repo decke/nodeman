@@ -1,7 +1,5 @@
 ## TODO
 
-* Utility funktion: NetInterface::loadByPath("tub.combinesch.lan")
-* backbone_links in migration einbauen
 * Manuelles eintragen von Links (zB Fiber TU - Realraum)
 * Attribute in nodes einbauen (Hardware, Firmware, Altitude)
 * Attribute in interfaces einbauen (BSSID, Bandbreite, VLANID, Antenne, Antennengewinn)
@@ -33,11 +31,6 @@ wishlist
 * PLZ und Ort automatisch setzen mit OSM Nominatim
 
 * DSGVO
-
-
-## BUGS
-
-* Konvertierung Umlaute sind kaputt (MySQL dump schon kaputt?)
 
 
 ## QUESTIONS
