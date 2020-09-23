@@ -23,13 +23,13 @@ function logMsg($msg, $level = 'INFO')
 }
 
 $json = @file_get_contents('http://localhost:9090/topology');
-if(!$json) {
+if (!$json) {
     logMsg("Failed fetching topology info from olsrd", "ERROR");
     exit(1);
 }
 
 $data = json_decode($json);
-if(!$data) {
+if (!$data) {
     logMsg("Failed parsing json content from olsrd", "ERROR");
     exit(1);
 }
@@ -38,8 +38,7 @@ $links = array();
 $linkcount = count($data->{'topology'});
 
 /* Remove links and backlinks */
-for($i=0; $i < $linkcount; $i++)
-{
+for ($i=0; $i < $linkcount; $i++) {
     $link = $data->{'topology'}[$i];
     if (array_key_exists($link->lastHopIP.'-'.$link->destinationIP, $links) ||
         array_key_exists($link->destinationIP.'-'.$link->lastHopIP, $links)) {
@@ -59,8 +58,7 @@ $handle->exec('DELETE FROM linkdata WHERE source = \'olsrd\'');
 $handle->exec('UPDATE interfaces SET status = \'offline\' WHERE status = \'online\'');
 $handle->exec('UPDATE locations SET status = \'offline\' WHERE status = \'online\'');
 
-foreach($links as $linkdata)
-{
+foreach ($links as $linkdata) {
     $link = new InterfaceLink();
     $link->quality = $linkdata['quality'];
     $link->source = 'olsrd';
@@ -90,4 +88,3 @@ foreach($links as $linkdata)
 }
 
 exit(0);
-
