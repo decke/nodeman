@@ -136,6 +136,8 @@ $app->post('/register', function ($request, $response) {
         $user->lastname = $request->getParam('lastname');
         $user->phone = $request->getParam('phone');
         $user->usergroup = 'user';
+        $user->lastlogin = 0;
+        $user->regdate = time();
 
         if ($user->save()) {
             $user->setAttribute('needsverification', 'true');

@@ -22,7 +22,9 @@ CREATE TABLE users (
    firstname VARCHAR(50) NOT NULL,
    lastname VARCHAR(50) NOT NULL,
    phone VARCHAR(50) NOT NULL,
-   usergroup VARCHAR(10) NOT NULL -- permissions [user|admin]
+   usergroup VARCHAR(10) NOT NULL, -- permissions [user|admin]
+   lastlogin INTEGER NOT NULL,
+   regdate INTEGER NOT NULL
 );
 
 CREATE UNIQUE INDEX users_idx1 ON users (email);
@@ -140,8 +142,8 @@ INSERT INTO "config" VALUES('mail.smtp.password','');
 
 --- default account
 --- email: admin@example.com, password: admin
-INSERT INTO "users" VALUES(1,'admin@example.com','$2y$11$mHyBgtw2Iu0JuUpAvr.ChekNkRZMsLzmoH0/rJJQUYxEJjii.CFjS','','','','admin');
+INSERT INTO "users" VALUES(1,'admin@example.com','$2y$11$mHyBgtw2Iu0JuUpAvr.ChekNkRZMsLzmoH0/rJJQUYxEJjii.CFjS','','','','admin',0,0);
 --- email: test@example.com, password: test
-INSERT INTO "users" VALUES(2,'test@example.com','$2y$10$PeBgFl9OOW0BikAfo/EKPuw3GbEZaUH8oyKwg84ta23o.f.pCVZrW','','','','user');
+INSERT INTO "users" VALUES(2,'test@example.com','$2y$10$PeBgFl9OOW0BikAfo/EKPuw3GbEZaUH8oyKwg84ta23o.f.pCVZrW','','','','user',0,0);
 
 COMMIT;

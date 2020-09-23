@@ -64,7 +64,8 @@ class Session
         $_SESSION['userid'] = $user->userid;
         $_SESSION['loginip'] = $_SERVER['REMOTE_ADDR'];
 
-        return true;
+        $user->lastlogin = time();
+        return $user->save();
     }
 
     public static function getUser()

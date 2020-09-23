@@ -21,7 +21,9 @@ class User
         'firstname' => null,
         'lastname'  => null,
         'phone'     => null,
-        'usergroup' => null
+        'usergroup' => null,
+        'lastlogin' => null,
+        'regdate'   => null
     );
 
     public function __construct($userid = null)
@@ -106,7 +108,7 @@ class User
     public function load($userid)
     {
         $stmt = $this->_handle->prepare('SELECT userid, password, email, firstname,
-            lastname, phone, usergroup FROM users WHERE userid = ?');
+            lastname, phone, usergroup, lastlogin, regdate FROM users WHERE userid = ?');
         if (!$stmt->execute(array(strtolower($userid)))) {
             return false;
         }
@@ -123,7 +125,7 @@ class User
     public function loadByEMail($email)
     {
         $stmt = $this->_handle->prepare('SELECT userid, password, email, firstname,
-            lastname, phone, usergroup FROM users WHERE email = ?');
+            lastname, phone, usergroup, lastlogin, regdate FROM users WHERE email = ?');
         if (!$stmt->execute(array(strtolower($email)))) {
             return false;
         }
@@ -141,20 +143,20 @@ class User
     {
         if (!$this->userid) {
             $stmt = $this->_handle->prepare('INSERT INTO users (password, email, firstname,
-                lastname, phone, usergroup) VALUES (?, ?, ?, ?, ?, ?)');
+                lastname, phone, usergroup, lastlogin, regdate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
 
             if ($stmt->execute(array($this->password, $this->email, $this->firstname,
-                $this->lastname, $this->phone, $this->usergroup))) {
+                $this->lastname, $this->phone, $this->usergroup, $this->lastlogin, $this->regdate))) {
                 $this->userid = $this->_handle->lastInsertId();
 
                 return true;
             }
         } else {
             $stmt = $this->_handle->prepare('UPDATE users SET password = ?, email = ?,
-                firstname = ?, lastname = ?, phone = ?, usergroup = ? WHERE userid = ?');
+                firstname = ?, lastname = ?, phone = ?, usergroup = ?, lastlogin = ?, regdate = ? WHERE userid = ?');
 
             return $stmt->execute(array($this->password, $this->email, $this->firstname,
-                $this->lastname, $this->phone, $this->usergroup, $this->userid));
+                $this->lastname, $this->phone, $this->usergroup, $this->lastlogin, $this->regdate, $this->userid));
         }
 
         return false;

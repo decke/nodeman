@@ -159,6 +159,8 @@ function createUsers($manman, $nodeman)
         $user->lastname = $person['lastname'];
         $user->phone = $person['tel'];
         $user->usergroup = (isset($person['admin']) && $person['admin'] == 1) ? 'admin' : 'user';
+        $user->lastlogin = 0;
+        $user->regdate = 0;
 
         try {
             $user->save();
