@@ -8,7 +8,7 @@
         <div class="alert alert-danger" role="alert"><strong>Sorry</strong> {{ msg }}</div>
       {% endfor %}
 
-      <form action="/location/{{ data['locationid'] }}/add" method="post">
+      <form action="/location/{{ data['locationname'] }}/add" method="post">
         <div class="form-group">
           <label for="name">Node name</label>
           <input type="text" id="name" name="name" class="form-control" aria-describedby="nameHelp" value="{{ data['name'] }}">

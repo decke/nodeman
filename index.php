@@ -422,7 +422,7 @@ $app->post('/location/add', function ($request, $response) use ($session) {
     ));
 });
 
-$app->get('/location/{locationid}/edit', function ($request, $response, $args) use ($session) {
+$app->get('/location/{location}/edit', function ($request, $response, $args) use ($session) {
     if (!$session->isAuthenticated()) {
         $this->get('flash')->addMessage('error', 'Please login first');
 
@@ -431,8 +431,14 @@ $app->get('/location/{locationid}/edit', function ($request, $response, $args) u
 
     $location = new Location();
 
-    if (!$location->load($args['locationid'])) {
-        $this->get('flash')->addMessage('error', 'Invalid Location ID');
+    if (!$location->loadByName($args['location'])) {
+        $this->get('flash')->addMessage('error', 'Invalid Location');
+
+        return $response->withStatus(302)->withHeader('Location', '/');
+    }
+
+    if ($location->owner != $session->getUser()->userid) {
+        $this->get('flash')->addMessage('error', 'Permission denied');
 
         return $response->withStatus(302)->withHeader('Location', '/');
     }
@@ -454,7 +460,7 @@ $app->get('/location/{locationid}/edit', function ($request, $response, $args) u
     ));
 });
 
-$app->post('/location/{locationid}/edit', function ($request, $response, $args) use ($session) {
+$app->post('/location/{location}/edit', function ($request, $response, $args) use ($session) {
     if (!$session->isAuthenticated()) {
         $this->get('flash')->addMessageNow('error', 'Please login first');
 
@@ -480,7 +486,13 @@ $app->post('/location/{locationid}/edit', function ($request, $response, $args) 
     if (!$this->get('flash')->hasMessage('error')) {
         $location = new Location();
 
-        if ($location->load($args['locationid'])) {
+        if ($location->loadByName($args['location'])) {
+            if ($location->owner != $session->getUser()->userid) {
+                $this->get('flash')->addMessage('error', 'Permission denied');
+
+                return $response->withStatus(302)->withHeader('Location', '/');
+            }
+
             $location->address = $request->getParam('address');
             $location->latitude = $request->getParam('latitude');
             $location->longitude = $request->getParam('longitude');
@@ -500,7 +512,6 @@ $app->post('/location/{locationid}/edit', function ($request, $response, $args) 
     }
 
     $data = array(
-        'locationid'  => $args['locationid'],
         'name'        => $request->getParam('name'),
         'address'     => $request->getParam('address'),
         'latitude'    => $request->getParam('latitude'),
@@ -518,7 +529,7 @@ $app->post('/location/{locationid}/edit', function ($request, $response, $args) 
 
 
 /* Nodes */
-$app->get('/location/{locationid}/add', function ($request, $response, $args) use ($session) {
+$app->get('/location/{location}/add', function ($request, $response, $args) use ($session) {
     if (!$session->isAuthenticated()) {
         $this->get('flash')->addMessage('error', 'Please login first');
 
@@ -526,18 +537,23 @@ $app->get('/location/{locationid}/add', function ($request, $response, $args) us
     }
 
     return $this->get('view')->render($response, 'location/node/add.html', array(
-        'data' => array('locationid' => $args['locationid'])
+        'data' => array('location' => $args['location'])
     ));
 });
 
-$app->post('/location/{locationid}/add', function ($request, $response, $args) use ($session) {
+$app->post('/location/{location}/add', function ($request, $response, $args) use ($session) {
     if (!$session->isAuthenticated()) {
         $this->get('flash')->addMessage('error', 'Please login first');
 
         return $response->withStatus(302)->withHeader('Location', '/');
     }
 
-    $location = new Location($args['locationid']);
+    $location = new Location();
+    if (!$location->loadByName($args['location'])) {
+        $this->get('flash')->addMessage('error', 'Location not found');
+
+        return $response->withStatus(302)->withHeader('Location', '/');
+    }
     if ($location->owner != $session->getUser()->userid) {
         $this->get('flash')->addMessage('error', 'Permission denied');
 
@@ -551,7 +567,6 @@ $app->post('/location/{locationid}/add', function ($request, $response, $args) u
         $this->get('flash')->addMessageNow('error', 'Description is too long (max 16K)');
     }
 
-    $location = new Location($args['locationid']);
     if ($location->nodeExists($request->getParam('name'))) {
         $this->get('flash')->addMessageNow('error', 'Node name already exists');
     }
@@ -560,7 +575,7 @@ $app->post('/location/{locationid}/add', function ($request, $response, $args) u
         $node = new Node();
         $node->name = $request->getParam('name');
         $node->owner = $session->getUser()->userid;
-        $node->location = $args['locationid'];
+        $node->location = $location->locationid;
         $node->description = $request->getParam('description');
 
         if ($node->save()) {
@@ -575,7 +590,8 @@ $app->post('/location/{locationid}/add', function ($request, $response, $args) u
     $data = array(
         'name'          => $request->getParam('name'),
         'description'   => $request->getParam('description'),
-        'locationid'    => $args['locationid']
+        'locationid'    => $location->locationid,
+        'locationname'  => $location->name
     );
 
     return $this->get('view')->render($response, 'location/node/add.html', array(

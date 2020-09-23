@@ -17,7 +17,7 @@
       {% for loc in locations %}
         <tr>
           <td>
-            <a href="/location/{{ loc.locationid }}/">{{ loc.name }}</a>
+            <a href="/location/{{ loc.name }}/">{{ loc.name }}</a>
           </td>
           <td>
             {{ loc.address }}
@@ -27,7 +27,7 @@
           </td>
           <td>
             <a href="/map?lat={{ loc.latitude }}&lng={{ loc.longitude }}" class="button is-link is-outlined is-small">Map</a>
-            <a href="/location/{{ loc.locationid }}" class="button is-primary is-small">Show</a>
+            <a href="/location/{{ loc.name }}" class="button is-primary is-small">Show</a>
           </td>
         </tr>
       {% endfor %}
