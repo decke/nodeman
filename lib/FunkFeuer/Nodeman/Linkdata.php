@@ -14,6 +14,8 @@ namespace FunkFeuer\Nodeman;
 class Linkdata
 {
     private $_handle;
+    private $_switchfromto = false;
+
     private $_data = array(
         'linkid'  => null,
         'fromif'  => null,
@@ -54,6 +56,11 @@ class Linkdata
     public function __isset($name)
     {
         return array_key_exists($name, $this->_data);
+    }
+
+    public function switchFromTo($switch = true)
+    {
+        $this->_switchfromto = $switch;
     }
 
     public function load($id)
@@ -97,11 +104,15 @@ class Linkdata
 
     public function getFromInterface()
     {
-        return new NetInterface($this->fromif);
+        $iface = ($this->_switchfromto) ? $this->toif : $this->fromif;
+
+        return new NetInterface($iface);
     }
 
     public function getToInterface()
     {
-        return new NetInterface($this->toif);
+        $iface = ($this->_switchfromto) ? $this->fromif : $this->toif;
+
+        return new NetInterface($iface);
     }
 }

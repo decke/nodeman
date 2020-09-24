@@ -157,7 +157,13 @@ class Node
             }
 
             while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-                $data[] = new Linkdata($row['linkid']);
+                $link = new Linkdata($row['linkid']);
+
+                if ($link->fromif != $interface->interfaceid) {
+                    $link->switchFromTo();
+                }
+
+                $data[] = $link;
             }
         }
 
