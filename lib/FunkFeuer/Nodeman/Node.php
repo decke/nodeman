@@ -157,7 +157,7 @@ class Node
             }
 
             while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-                $link = new Linkdata($row['linkid']);
+                $link = new InterfaceLink($row['linkid']);
 
                 if ($link->fromif != $interface->interfaceid) {
                     $link->switchFromTo();

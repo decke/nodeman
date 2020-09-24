@@ -34,57 +34,111 @@ if (!$data) {
     exit(1);
 }
 
-$links = array();
-$linkcount = count($data->{'topology'});
-
-/* Remove links and backlinks */
-for ($i=0; $i < $linkcount; $i++) {
-    $link = $data->{'topology'}[$i];
-    if (array_key_exists($link->lastHopIP.'-'.$link->destinationIP, $links) ||
-        array_key_exists($link->destinationIP.'-'.$link->lastHopIP, $links)) {
-        continue;
-    }
-
-    $links[$link->lastHopIP.'-'.$link->destinationIP] = array(
-        'from' => $link->lastHopIP,
-        'to' => $link->destinationIP,
-        'quality' => $link->linkQuality
-    );
-}
-
 $handle = Config::getDbHandle();
 $handle->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-$handle->exec('DELETE FROM linkdata WHERE source = \'olsrd\'');
-$handle->exec('UPDATE interfaces SET status = \'offline\' WHERE status = \'online\'');
-$handle->exec('UPDATE locations SET status = \'offline\' WHERE status = \'online\'');
 
-foreach ($links as $linkdata) {
-    $link = new InterfaceLink();
-    $link->quality = $linkdata['quality'];
-    $link->source = 'olsrd';
+$iface = new NetInterface();
+$linkcount = count($data->{'topology'});
 
-    $fromif = $link->getNetInterfaceByIP($linkdata['from']);
-    $toif = $link->getNetInterfaceByIP($linkdata['to']);
+$recalcInterfaces = array();
 
-    if (!$fromif || !$toif) {
-        logMsg('Unknown IP '.$linkdata['from'].' or '.$linkdata['to'], 'WARN');
+logMsg("Analyzing ".$linkcount." active links", "INFO");
+
+for ($i=0; $i < $linkcount; $i++) {
+    $topodata = $data->{'topology'}[$i];
+
+    $ifaceFrom = new NetInterface();
+    if (!$ifaceFrom->loadByIPAddress($topodata->lastHopIP)) {
+        logMsg(sprintf("IP %s is not known!", $topodata->lastHopIP), "WARN");
         continue;
     }
 
-    $link->fromif = $fromif->interfaceid;
-    $link->toif = $toif->interfaceid;
-
-    if (!$link->save()) {
-        logMsg("Could not insert linkdata", "ERROR");
+    $ifaceTo = new NetInterface();
+    if (!$ifaceTo->loadByIPAddress($topodata->destinationIP)) {
+        logMsg(sprintf("IP %s not known!", $topodata->destinationIP), "WARN");
+        continue;
     }
 
-    $handle->exec('UPDATE interfaces SET status = \'online\' WHERE status = \'offline\' AND interfaceid = '.$link->fromif);
-    $handle->exec('UPDATE interfaces SET status = \'online\' WHERE status = \'offline\' AND interfaceid = '.$link->toif);
+    $link = new InterfaceLink();
+    if (!$link->loadLinkFromTo($ifaceFrom->interfaceid, $ifaceTo->interfaceid)) {
+        $link->fromif = $ifaceFrom->interfaceid;
+        $link->toif = $ifaceTo->interfaceid;
+    }
 
-    $handle->exec('UPDATE locations SET status = \'online\' WHERE status = \'offline\' AND locationid = '.$link->getFromLocation()->locationid);
-    $handle->exec('UPDATE locations SET status = \'online\' WHERE status = \'offline\' AND locationid = '.$link->getToLocation()->locationid);
+    $link->quality = $topodata->linkQuality;
+    $link->source = 'olsrd';
+    $link->status = 'up';
+    $link->lastup = $data->{'systemTime'};
 
-    printf("%s -> %s (%f)\n", $linkdata['from'], $linkdata['to'], $linkdata['quality']);
+    if (!in_array($link->fromif, $recalcInterfaces)) {
+        $recalcInterfaces[] = $link->fromif;
+    }
+
+    if (!in_array($link->toif, $recalcInterfaces)) {
+        $recalcInterfaces[] = $link->toif;
+    }
+
+    if (!$link->save()) {
+        logMsg("Could not update linkdata", "ERROR");
+        continue;
+    }
+
+    logMsg(sprintf("%05d IP %s - %s (%0.1f)", $link->linkid, $topodata->lastHopIP, $topodata->destinationIP, $topodata->linkQuality), "INFO");
+}
+
+// find and process outdated links
+logMsg("Finding outdated links", "INFO");
+
+$stmt = $handle->prepare('SELECT linkid FROM linkdata WHERE lastup < ?');
+
+if (!$stmt->execute(array($data->{'systemTime'}))) {
+    logMsg("Failed to find outdated links", "ERROR");
+    exit(1);
+}
+
+while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+    $link = new InterfaceLink($row['linkid']);
+    $link->quality = 0.0;
+    $link->status = 'down';
+
+    if (!in_array($link->fromif, $recalcInterfaces)) {
+        $recalcInterfaces[] = $link->fromif;
+    }
+
+    if (!in_array($link->toif, $recalcInterfaces)) {
+        $recalcInterfaces[] = $link->toif;
+    }
+
+    if (!$link->save()) {
+        logMsg("Could not update linkdata", "ERROR");
+        continue;
+    }
+
+    logMsg(sprintf("%05d IP %s - %s (%0.1f)", $link->linkid, $topodata->lastHopIP, $topodata->destinationIP, $topodata->linkQuality), "INFO");
+}
+
+// recalc Interface Status
+logMsg(sprintf("Recalculating Status for %d interfaces", count($recalcInterfaces)), "INFO");
+
+$recalcLocations = array();
+
+foreach ($recalcInterfaces as $interfaceid) {
+    $iface = new NetInterface($interfaceid);
+    $locationid = $iface->getNode()->getLocation()->locationid;
+
+    if (!in_array($locationid, $recalcLocations)) {
+        $recalcLocations[] = $locationid;
+    }
+
+    $iface->recalcStatus();
+}
+
+// recalc Location Status
+logMsg(sprintf("Recalculating Status for %d locations", count($recalcLocations)), "INFO");
+
+foreach ($recalcLocations as $locationid) {
+    $location = new Location($locationid);
+    $location->recalcStatus();
 }
 
 exit(0);

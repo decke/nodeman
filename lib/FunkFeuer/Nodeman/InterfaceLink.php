@@ -3,7 +3,7 @@
 namespace FunkFeuer\Nodeman;
 
 /**
- * Link between two interfaces.
+ * Data for Connections between two NetInterfaces
  *
  * @author     Bernhard Froehlich <decke@bluelife.at>
  * @copyright  2017-2020 Bernhard Froehlich
@@ -14,12 +14,16 @@ namespace FunkFeuer\Nodeman;
 class InterfaceLink
 {
     private $_handle;
+    private $_switchfromto = false;
+
     private $_data = array(
-        'linkid'     => null,
-        'fromif'     => null,
-        'toif'       => null,
-        'quality'    => null,
-        'source'     => null
+        'linkid'  => null,
+        'fromif'  => null,
+        'toif'    => null,
+        'quality' => null,
+        'source'  => null,
+        'status'  => null,
+        'lastup'  => null,
     );
 
     public function __construct($linkid = null)
@@ -56,9 +60,15 @@ class InterfaceLink
         return array_key_exists($name, $this->_data);
     }
 
+    public function switchFromTo($switch = true)
+    {
+        $this->_switchfromto = $switch;
+    }
+
     public function load($id)
     {
-        $stmt = $this->_handle->prepare('SELECT linkid, fromif, toif, quality, source FROM linkdata WHERE linkid = ?');
+        $stmt = $this->_handle->prepare('SELECT linkid, fromif, toif, quality, source, status,
+            lastup FROM linkdata WHERE linkid = ?');
         if (!$stmt->execute(array($id))) {
             return false;
         }
@@ -75,18 +85,44 @@ class InterfaceLink
     public function save()
     {
         if (!$this->linkid) {
-            $stmt = $this->_handle->prepare('INSERT INTO linkdata (fromif, toif, quality, source) VALUES (?, ?, ?, ?)');
+            $stmt = $this->_handle->prepare('INSERT INTO linkdata (fromif, toif, quality, source,
+               status, lastup) VALUES (?, ?, ?, ?, ?, ?)');
 
-            if ($stmt->execute(array($this->fromif, $this->toif, $this->quality, $this->source))) {
+            if ($stmt->execute(array($this->fromif, $this->toif, $this->quality, $this->source,
+                $this->status, $this->lastup))) {
                 $this->linkid = $this->_handle->lastInsertId();
 
                 return true;
             }
         } else {
             $stmt = $this->_handle->prepare('UPDATE linkdata SET fromif = ?, toif = ?, quality = ?,
-                source = ? WHERE linkid = ?');
+                source = ?, status = ?, lastup = ? WHERE linkid = ?');
 
-            return $stmt->execute(array($this->fromif, $this->toif, $this->quality, $this->source, $this->linkid));
+            return $stmt->execute(array($this->fromif, $this->toif, $this->quality, $this->source,
+                $this->status, $this->lastup, $this->linkid));
+        }
+
+        return false;
+    }
+
+    public function loadLinkFromTo($linkidfrom, $linkidto)
+    {
+        $stmt = $this->_handle->prepare('SELECT linkid, fromif, toif, quality, source, status,
+            lastup FROM linkdata WHERE (fromif = ? AND toif = ?) OR (fromif = ? AND toif = ?)');
+        if (!$stmt->execute(array($linkidfrom, $linkidto, $linkidto, $linkidfrom))) {
+            return false;
+        }
+
+        if ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $this->_data = $row;
+
+            if ($this->fromif != $linkidfrom) {
+                $this->switchFromTo();
+            } else {
+                $this->switchFromTo(false);
+            }
+
+            return true;
         }
 
         return false;
@@ -124,27 +160,25 @@ class InterfaceLink
 
     public function getFromInterface()
     {
-        return new NetInterface($this->fromif);
+        $iface = ($this->_switchfromto) ? $this->toif : $this->fromif;
+
+        return new NetInterface($iface);
     }
 
     public function getToInterface()
     {
-        return new NetInterface($this->toif);
+        $iface = ($this->_switchfromto) ? $this->fromif : $this->toif;
+
+        return new NetInterface($iface);
     }
 
     public function getFromLocation()
     {
-        $fromif = new NetInterface($this->fromif);
-        $node = new Node($fromif->node);
-
-        return new Location($node->location);
+        return $this->getFromInterface()->getNode()->getLocation();
     }
 
     public function getToLocation()
     {
-        $toif = new NetInterface($this->toif);
-        $node = new Node($toif->node);
-
-        return new Location($node->location);
+        return $this->getToInterface()->getNode()->getLocation();
     }
 }

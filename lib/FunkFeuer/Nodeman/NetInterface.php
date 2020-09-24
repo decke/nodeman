@@ -107,6 +107,23 @@ class NetInterface
         return false;
     }
 
+    public function loadByIPAddress($address)
+    {
+        $stmt = $this->_handle->prepare('SELECT interfaceid, name, node, category, type, address,
+            status, ping, description FROM interfaces WHERE address = ?');
+        if (!$stmt->execute(array($address))) {
+            return false;
+        }
+
+        if ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $this->_data = $row;
+
+            return true;
+        }
+
+        return false;
+    }
+
     public function loadByPath($path)
     {
         $parts = explode('.', $path);
@@ -135,6 +152,11 @@ class NetInterface
     public function getNode()
     {
         return new Node($this->node);
+    }
+
+    public function recalcStatus()
+    {
+        return false; // TODO
     }
 
     public function getAllAttributes()

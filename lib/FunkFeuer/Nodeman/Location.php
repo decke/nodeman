@@ -129,6 +129,11 @@ class Location
         return false;
     }
 
+    public function recalcStatus()
+    {
+        return false; // TODO
+    }
+
     public function getAllLocations($owner = null, $start = 0, $limit = 100)
     {
         $data = array();

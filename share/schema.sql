@@ -118,6 +118,8 @@ CREATE TABLE linkdata (
    toif INTEGER NOT NULL,
    quality REAL NOT NULL,
    source VARCHAR(10) NOT NULL, -- datasource: [olsrd|manual]
+   status VARCHAR(10) NOT NULL, -- [up|down]
+   lastup INTEGER NOT NULL,
    FOREIGN KEY(fromif) REFERENCES interfaces(interfaceid),
    FOREIGN KEY(toif) REFERENCES interfaces(interfaceid)
 );
