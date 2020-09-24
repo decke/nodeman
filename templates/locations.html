@@ -15,6 +15,7 @@
     </thead>
     <tbody>
       {% for loc in locations %}
+        {% if loc.status == "online" %}
         <tr>
           <td>
             <a href="/location/{{ loc.name }}/">{{ loc.name }}</a>
@@ -30,6 +31,7 @@
             <a href="/location/{{ loc.name }}/" class="button is-primary is-small">Show</a>
           </td>
         </tr>
+        {% endif %}
       {% endfor %}
     </tbody>
   </table>
