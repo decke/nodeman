@@ -60,6 +60,13 @@ class NetInterface
         return array_key_exists($name, $this->_data);
     }
 
+    public function renderDescription()
+    {
+        $parser = new \Parsedown();
+        $parser->setSafeMode(true);
+        return $parser->text(str_replace('\r\n', "\n\n", $this->description));
+    }
+
     public function load($id)
     {
         $stmt = $this->_handle->prepare('SELECT interfaceid, name, node, category, type, address,

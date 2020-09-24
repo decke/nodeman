@@ -65,6 +65,13 @@ class Location
         return sprintf('[%f, %f]', $this->latitude, $this->longitude);
     }
 
+    public function renderDescription()
+    {
+        $parser = new \Parsedown();
+        $parser->setSafeMode(true);
+        return $parser->text(str_replace('\r\n', "\n\n", $this->description));
+    }
+
     public function load($id)
     {
         $stmt = $this->_handle->prepare('SELECT locationid, name, owner, address,
