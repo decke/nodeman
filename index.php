@@ -527,6 +527,22 @@ $app->post('/location/{location}/edit', function ($request, $response, $args) us
     ));
 });
 
+$app->get('/location/{location}/', function ($request, $response, $args) {
+    $location = new Location();
+
+    if (!$location->loadByName($args['location'])) {
+        $this->get('flash')->addMessage('error', 'Invalid Location');
+
+        return $response->withStatus(302)->withHeader('Location', '/');
+    }
+
+    return $this->get('view')->render($response, 'location/overview.html', array(
+        'location' => $location,
+        'nodes'    => $location->getNodes()
+    ));
+});
+
+
 
 /* Nodes */
 $app->get('/location/{location}/add', function ($request, $response, $args) use ($session) {

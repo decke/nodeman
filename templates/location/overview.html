@@ -1,0 +1,131 @@
+{% include('_header.html') %}
+
+<div class="container">
+  <div class="columns is-marginless">
+    <div class="column">
+
+      <div class="block">
+        <span class="title">Location {{ location.name }}</span>
+
+        <div class="dropdown is-hoverable is-pulled-right">
+          <div class="dropdown-trigger">
+            <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
+              <span>Options</span>
+              <span class="icon icon-chevron-down is-small"></span>
+            </button>
+          </div>
+          <div class="dropdown-menu" id="dropdown-menu" role="menu">
+            <div class="dropdown-content">
+              <a href="/locations/{{ location.name }}/add" class="dropdown-item">Add Node</a>
+              <hr class="dropdown-divider">
+              <a href="/locations/{{ location.name }}/delete" class="dropdown-item has-text-danger">Delete Location</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      {% for node in nodes %}
+      <div class="card">
+        <header class="card-header">
+          <p class="card-header-title">{{ node.name }}</p>
+
+          <div class="card-header-icon dropdown is-hoverable is-small">
+            <div class="dropdown-trigger">
+              <button class="button is-white" aria-haspopup="true" aria-controls="dropdown-menu-{{ node.nodeid}}">
+                <span class="icon icon-chevron-down"></span>
+              </button>
+            </div>
+            <div class="dropdown-menu" id="dropdown-menu-{{ node.nodeid }}" role="menu">
+              <div class="dropdown-content">
+                <a href="/locations/{{ location.name }}/{{ node.name }}/edit" class="dropdown-item">Edit</a>
+                <hr class="dropdown-divider">
+                <a href="/locations/{{ location.name }}/{{ node.name }}/delete" class="dropdown-item has-text-danger">Delete Node</a>
+              </div>
+            </div>
+          </div>
+        </header>
+        <div class="card-content">
+          <div class="block">
+            <div class="field is-grouped is-grouped-multiline">
+              {% for key, value in node.getAllAttributes() %}
+                <div class="control">
+                  <div class="tags has-addons">
+                    <span class="tag is-light">{{ key }}</span>
+                    <span class="tag is-light is-info">{{ value }}</span>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <h5 class="title is-5">Description</h5>
+          <div class="block">
+            {{ node.description|replace({"\\r\\n": "\n"})|nl2br }}
+          </div>
+
+          <hr>
+          <h5 class="title is-5">Interfaces</h5>
+          <div class="block">
+            {% for interface in node.getAllInterfaces() %}
+              <div class="columns is-marginless">
+                <div class="column">
+                  <span class="tag is-medium {% if interface.status == "online" %}is-success{% else %}is-danger{% endif %}">
+                    {{ interface.getPath() }}
+                  </span>
+                  <span>
+                    {{ interface.description }}
+                  </span>
+                </div>
+                <div class="column">
+                  <strong>{{ interface.type }}:</strong> {{ interface.address }}<br />
+                  <strong>Category:</strong> {{ interface.category }}<br />
+                  <strong>SmokePing:</strong>
+                    <span class="tag is-small {% if interface.ping %}is-success{% else %}is-danger{% endif %}">
+                      {% if interface.ping %}enabled{% else %}disabled{% endif %}
+                    </span>
+
+                  {% for key, value in interface.getAllAttributes() %}
+                    <strong>{{ key }}:</strong> {{ value }}<br />
+                  {% endfor %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+
+          <hr>
+          <h5 class="title is-5">Links</h5>
+          <div class="block">
+            {% for link in node.getAllLinks() %}
+              <div class="columns is-marginless is-vcentered">
+                <div class="column">
+                  <span class="tag is-medium is-pulled-right {% if link.getFromInterface().status == "online" %}is-success{% else %}is-danger{% endif %}">
+                    {{ link.getFromInterface().getPath() }}
+                  </span>
+                </div>
+                <div class="column">
+                  <progress class="progress is-small {% if link.status == "up" %}is-success{% else %}is-danger{% endif %}" value="1" max="1"></progress>
+                </div>
+                <div class="column">
+                  <span class="tag is-medium {% if link.getToInterface().status == "online" %}is-success{% else %}is-danger{% endif %}">
+                    {{ link.getToInterface().getPath() }}
+                  </span>
+                </div>
+                <div class="column">
+                  TODO linkmonitoring
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+
+        </div>
+      </div>
+
+      <br />
+      {% endfor %}
+
+    </div>
+  </div>
+</div>
+
+{% include('_footer.html') %}

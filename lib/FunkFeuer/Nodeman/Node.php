@@ -96,6 +96,11 @@ class Node
         return false;
     }
 
+    public function getLocation()
+    {
+        return new Location($this->location);
+    }
+
     public function getInterfaceByName($name)
     {
         $stmt = $this->_handle->prepare('SELECT interfaceid FROM interfaces WHERE node = ? AND name = ?');
@@ -125,6 +130,28 @@ class Node
 
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $data[] = new NetInterface($row['interfaceid']);
+        }
+
+        return $data;
+    }
+
+    public function getAllLinks()
+    {
+        if (!$this->nodeid) {
+            throw new \Exception('Node does not have an ID yet in class Node');
+        }
+
+        $data = array();
+
+        foreach ($this->getAllInterfaces() as $interface) {
+            $stmt = $this->_handle->prepare('SELECT linkid FROM linkdata WHERE fromif = ? OR toif = ? ORDER BY linkid');
+            if (!$stmt->execute(array($interface->interfaceid, $interface->interfaceid))) {
+                return $data;
+            }
+
+            while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                $data[] = new Linkdata($row['linkid']);
+            }
         }
 
         return $data;
