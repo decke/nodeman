@@ -131,7 +131,23 @@ class Location
 
     public function recalcStatus()
     {
-        return false; // TODO
+        $stmt = $this->_handle->prepare('SELECT count(*) FROM interfaces WHERE node IN (SELECT nodeid FROM nodes WHERE location = ?) AND status = ?');
+        if (!$stmt->execute(array($this->locationid, 'online'))) {
+            return false;
+        }
+
+        if ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            if ($row['count(*)'] > 0) {
+                $this->status = 'online';
+            }
+            else {
+                $this->status = 'offline';
+            }
+
+            return $this->save();
+        }
+
+        return false;
     }
 
     public function getAllLocations($owner = null, $start = 0, $limit = 100)
