@@ -139,8 +139,7 @@ class Location
         if ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             if ($row['count(*)'] > 0) {
                 $this->status = 'online';
-            }
-            else {
+            } else {
                 $this->status = 'offline';
             }
 
