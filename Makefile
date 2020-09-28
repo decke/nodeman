@@ -18,6 +18,7 @@ test: vendor
 	php-cs-fixer fix --dry-run --diff-format udiff bin/migratedb
 	php-cs-fixer fix --dry-run --diff-format udiff bin/sendmails
 	php-cs-fixer fix --dry-run --diff-format udiff bin/updatelinkdata
+	php-cs-fixer fix --dry-run --diff-format udiff bin/olsrinfo
 	phpstan analyse -l 5 -c phpstan.neon bin lib index.php
 
 fix:
@@ -27,5 +28,6 @@ fix:
 	php-cs-fixer fix bin/migratedb
 	php-cs-fixer fix bin/sendmails
 	php-cs-fixer fix bin/updatelinkdata
+	php-cs-fixer fix bin/olsrinfo
 
 .PHONY: all clean build test fix

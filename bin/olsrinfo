@@ -1,0 +1,189 @@
+#!/usr/bin/env php
+<?php
+
+namespace FunkFeuer\Nodeman;
+
+use \FunkFeuer\Nodeman\Config;
+
+require_once __DIR__.'/../vendor/autoload.php';
+
+/* set working directory to root directory */
+chdir(dirname(__FILE__).'/../');
+
+/* set default timezone to UTC */
+date_default_timezone_set('UTC');
+
+/* allow fetching urls */
+ini_set("allow_url_fopen", 1);
+
+
+function logMsg($msg, $level = 'INFO')
+{
+    printf("[%s] [%5s] %s\n", date('H:i:s d.m.Y', time()), $level, $msg);
+}
+
+function TimeStrToInt($str)
+{
+    // Format: 2426 day(s) 14 hours 47 minutes 10 seconds
+    $seconds = 0;
+    $parts = explode(' ', $str);
+
+    for ($i=count($parts)-1; $i > 0; $i--) {
+        switch ($parts[$i]) {
+            case 'day(s)':
+                $seconds += ($parts[$i-1]*86400);
+                $i--;
+            break;
+            case 'hours':
+                $seconds += ($parts[$i-1]*3600);
+                $i--;
+            break;
+            case 'minutes':
+                $seconds += ($parts[$i-1]*60);
+                $i--;
+            break;
+            case 'seconds':
+                $seconds += $parts[$i-1];
+                $i--;
+            break;
+        }
+    }
+
+    return $seconds;
+}
+
+function formatTimeDiff($seconds)
+{
+    $str = '';
+
+    if ($seconds >= 86400) {
+        $str .= sprintf('%d days ', floor($seconds/86400));
+        $seconds %= 86400;
+    }
+
+    if ($seconds >= 3600) {
+        $str .= sprintf('%d hours ', floor($seconds/3600));
+        $seconds %= 3600;
+    }
+
+    if ($seconds >= 60) {
+        $str .= sprintf('%d minutes ', floor($seconds/60));
+        $seconds %= 60;
+    }
+
+    return rtrim($str);
+}
+
+function fetchOlsrData($ip)
+{
+    $data = array(
+        'source'  => 'FAIL',
+        'version' => '',
+        'uptime'  => 0,
+        'uptimeraw' => ''
+    );
+
+    $http_response_header = array();
+    $context = array(
+        'http' => array(
+            'timeout' => 1
+         )
+    );
+
+    // jsoninfo (Port 9090)
+    $response = @file_get_contents('http://'.$ip.':9090/version', false, stream_context_create($context));
+    if ($response) {
+        $json = json_decode($response);
+
+        $data['source'] = 'json';
+        $data['version'] = $json->{'version'}->{'releaseVersion'};
+        $data['uptime'] = (int)$json->{'timeSinceStartup'}/1000;
+
+        return $data;
+    }
+
+    // httpinfo (alternate Port 8000)
+    $response = @file_get_contents('http://'.$ip.':8000/config', false, stream_context_create($context));
+    if ($response) {
+        $data['source'] = 'http';
+
+        // Version: olsr.org - 0.5.6-r8 (built on 2010-03-23 18:13:09 on wrt1.marcant.net)
+        if (strpos($response, 'Version: olsr.org') !== false) {
+            $startpos = strpos($response, 'Version: olsr.org')+20;
+            $endpos = strpos($response, ' ', $startpos+1);
+            $str = trim(substr($response, $startpos, $endpos-$startpos));
+
+            if (strpos($str, '-git_') !== false) {
+                $str = substr($str, 0, strpos($str, '-git_'));
+            }
+
+            $data['version'] = $str;
+        }
+
+        // Olsrd uptime: <em>3 day(s) 22 hours 44 minutes 55 seconds</em>
+        if (strpos($response, 'Olsrd uptime: <em>') !== false) {
+            $startpos = strpos($response, 'Olsrd uptime: <em>')+18;
+            $tmpstr = trim(substr($response, $startpos, strpos($response, '</em>', $startpos)-$startpos));
+            $data['uptime'] = TimeStrToInt($tmpstr);
+        }
+
+        return $data;
+    }
+
+    // txtinfo (Port 2006)
+    $response = @file_get_contents('http://'.$ip.':2006/ver', false, stream_context_create($context));
+    if ($response) {
+        $data['source'] = 'txt';
+
+        if (strpos($response, 'Version: olsr.org') !== false) {
+            $startpos = strpos($response, 'Version: olsr.org')+20;
+            $endpos = strpos($response, ' ', $startpos+1);
+            $str = trim(substr($response, $startpos, $endpos-$startpos));
+
+            if (strpos($str, '-git_') !== false) {
+                $str = substr($str, 0, strpos($str, '-git_'));
+            }
+
+            $data['version'] = $str;
+        }
+
+        return $data;
+    }
+
+    return $data;
+}
+
+$handle = Config::getDbHandle();
+$handle->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+
+$stmt = $handle->prepare('SELECT MIN(interfaceid) FROM interfaces WHERE status = ? GROUP BY node');
+
+if (!$stmt->execute(array('online'))) {
+    logMsg("SQL Query failed", "ERROR");
+    exit(1);
+}
+
+while ($row = $stmt->fetch()) {
+    $iface = new NetInterface($row[0]);
+
+    $data = fetchOlsrData($iface->address);
+
+    if ($data['version']) {
+        $iface->getNode()->setAttribute('olsrd-version', $data['version']);
+    }
+
+    if ($data['uptime']) {
+        $iface->getNode()->setAttribute('olsrd-uptime', formatTimeDiff($data['uptime']));
+    }
+
+    logMsg(sprintf(
+        "%05d %15s %5s version: %10s uptime: %s",
+        $iface->interfaceid,
+        $iface->address,
+        $data['source'],
+        $data['version'],
+        formatTimeDiff($data['uptime'])
+    ), "INFO");
+}
+
+exit(0);
