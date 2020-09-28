@@ -1,39 +1,48 @@
 ## TODO
 
+* Location status erweitern: interested (keine nodes), planned (hat nodes), online, offline
+* Location status in map einbauen (wie wien)
+
+* Location Overview: lastonline anzeigen
+* Location Overview: Proxy links intern/extern anzeigen http://wan.unused.bluelife2.ext.graz.funkfeuer.at
+* Location Overview: Details von Location auch anzeigen: Description, Gallerylink, Smokeping, Link zur Karte
+
+* LinkMonitoring: eigene Tabelle (id, linkid, userid, lastnotified)
+* LinkMonitoring: anzeigen ob link monitored, hinzufuegen/loeschen von monitoring fuer link
+* LinkMonitoring: EMail Benachrichtigung wenn Link down geht
+
 * Manuelles eintragen von Links (zB Fiber TU - Realraum)
 * Attribute in nodes einbauen (Hardware, Firmware, Altitude)
 * Attribute in interfaces einbauen (BSSID, Bandbreite, VLANID, Antenne, Antennengewinn)
 * Tower SVGs wie feather icons integrieren
 
 high
-* Locations anzeigen
-* Nodes anzeigen / anlegen / editieren
+* Datumsspalte in alle Tabellen einfuegen
+* Nodes (Equipment) anzeigen / anlegen / editieren
 * Interfaces anlegen
-* Location Details (Gallerylink, Smokeping, Link zur Karte)
 
 medium
 * Tunnel erkennung einbauen (in migrations script)
 * Map: Tunnel links in blau zeichnen
 * Admin Bereich aehnlich Datenbankbrowser mit HTML5
     https://w3lessons.info/html5-inline-edit-with-php-mysql-jquery-ajax/
+* Admins duerfen auch Locations/Nodes/Interfaces editieren
 
 wishlist
-* Planned links hinzufuegen
-* Kommentare und Dokumentation (parsedown, setSafeMode(true))
 * IP Pools und Adresszuweisung
 * OpenVPN Zertifikat beantragen
 
-* SmokePing config export ala https://manman.graz.funkfeuer.at/export/smokeping
 * editieren von User, Locations, Nodes, Interfaces
 * loeschen von Interfaces, Nodes, Locations, User
-* private/hidden flag fuer Nodes und Links
-* altitutde information pro Node
 * PLZ und Ort automatisch setzen mit OSM Nominatim
 
 * DSGVO
 
 
 ## QUESTIONS
+
+* Statistics integrieren in nodeman? (olsrd versionen, #links)
+* Status Seite integrieren (monitored links down, ips die verwendet werden aber nicht alloziert sind)
 
 * Wenn neue Locations angelegt werden wie kriegen das die anderen mit
   * DNS
@@ -48,3 +57,5 @@ wishlist
 * https://github.com/ffgraz/manman
 * https://git.ffgraz.net/
 * http://nominatim.openstreetmap.org/search?q=Weizbachweg+40a&countrycodes=at&format=json&addressdetails=1
+
+* https://wiki.funkfeuer.at/wiki/Projekte/0xFF-NodeMap
