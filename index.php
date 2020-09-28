@@ -631,6 +631,15 @@ $app->get('/user/home', function ($request, $response) use ($session) {
     ));
 });
 
+/* Exports */
+$app->get('/export/smokeping', function ($request, $response) {
+    $loc = new Location();
+
+    return $this->get('view')->render($response, 'export/smokeping.txt', array(
+        'locations' => $loc->getAllLocations(null, 0, 999999)
+    ));
+});
+
 /**
  * Catch-all route to serve a 404 Not Found page if none of the routes match
  * NOTE: make sure this route is defined last

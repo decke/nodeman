@@ -1,0 +1,18 @@
+{% for loc in locations %}
+{% if loc.status == "online" or loc.status == "offline" %}
+++ {{ loc.name }}
+menu = {{ loc.name }}
+title = {{ loc.name }} connectivity
+{% for node in loc.getNodes() %}
++++ {{ node.name }}
+menu = {{ loc.name }}.{{ node.name }}
+title = {{ loc.name }}.{{ node.name }} connectivity
+{% for iface in node.getAllInterfaces() %}
+++++ {{ iface.name }}
+menu = {{ loc.name }}.{{ node.name }}.{{ iface.name}}
+title = {{ loc.name }}.{{ node.name }}.{{ iface.name }} connectivity
+host = {{ iface.address }}
+{% endfor %}
+{% endfor %}
+{% endif %}
+{% endfor %}
