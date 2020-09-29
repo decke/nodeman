@@ -35,40 +35,47 @@ function initmap() {
    map.setView(deflocation, defzoom);
    map.addLayer(basemap);
 
-   L.control.layers({ "Karte": basemap, "Satellit": orthomap, "Terrain": topomap }).addTo(map);
+   var layerControl = L.control.layers(
+   {
+      "Karte": basemap,
+      "Satellit": orthomap,
+      "Terrain": topomap
+   });
+
+   layerControl.addTo(map);
 
    {% if deflocation %}
    L.marker([{{ deflocation.lat }}, {{ deflocation.lng }}]).addTo(map);
    {% endif %}
 
-   // custom icons
-   var TowerIcon = L.Icon.extend({
-      options: {
-         iconSize: [ 24, 24 ],
-         iconAnchor: [ 12, 20 ],
-         popupAnchor: [ 0, -12 ]
-      }
-   });
+   var interestedIcon = L.divIcon({className: 'icon-map-pin-interested', iconSize: [12,12], iconAnchor: [6,12], popupAnchor: [0,-12]});
+   var plannedIcon = L.divIcon({className: 'icon-map-pin-planned', iconSize: [12,12], iconAnchor: [6,12], popupAnchor: [0,-12]});
+   var onlineIcon = L.divIcon({className: 'icon-map-pin-online', iconSize: [12,12], iconAnchor: [6,12], popupAnchor: [0,-12]});
+   var offlineIcon = L.divIcon({className: 'icon-map-pin-offline', iconSize: [12,12], iconAnchor: [6,12], popupAnchor: [0,-12]});
 
-   var OfflineIcon = L.Icon.extend({
-      options: {
-         iconSize: [ 10, 10 ],
-         iconAnchor: [ 12, 20 ],
-         popupAnchor: [ 0, -12 ]
-      }
-   });
-
-   var onlineIcon = new TowerIcon({iconUrl: '/images/tower-online.svg'});
-   var offlineIcon = new OfflineIcon({iconUrl: '/images/tower-offline.svg'});
-   var tunnelIcon = new TowerIcon({iconUrl: '/images/tower-tunnel.svg'});
+   var interestedLocations = new L.LayerGroup();
+   var plannedLocations = new L.LayerGroup();
+   var onlineLocations = new L.LayerGroup();
+   var offlineLocations = new L.LayerGroup();
 
    {% for loc in locations %}
-       L.marker({{ loc.location }}, {icon:{{ loc.type}}Icon}).addTo(map).bindPopup("{{ loc.popup|raw }}");
+       L.marker({{ loc.location }}, {icon:{{ loc.status}}Icon}).addTo({{ loc.status }}Locations).bindPopup("{{ loc.popup|raw }}");
    {% endfor %}
+
+   layerControl.addOverlay(interestedLocations, "Interested");
+   layerControl.addOverlay(plannedLocations, "Planned");
+   layerControl.addOverlay(onlineLocations, "Online");
+   layerControl.addOverlay(offlineLocations, "Offline");
+   layerControl.addTo(map);
+
+   map.addLayer(interestedLocations);
+   map.addLayer(onlineLocations);
+   map.addLayer(offlineLocations);
 
    var links = [
        {% for link in links %}
            [ {{ link.from }}, {{ link.to }} ]{% if not loop.last %},{% endif %}
+
        {% endfor %}
    ];
 

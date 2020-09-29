@@ -302,7 +302,7 @@ $app->get('/mapdata', function ($request, $response) {
     }
 
     foreach ($location->getAllLocations(null, 0, 999999) as $loc) {
-        $popup = sprintf('<b>%s</b><br>%s', $loc->name, $loc->address);
+        $popup = sprintf('<a href=\"/location/%s/\"><b>%s</b></a><br>%s', $loc->name, $loc->name, $loc->address);
 
         if (strlen($loc->gallerylink)) {
             $popup .= sprintf('<br><a href=\"%s\">Gallery</a>', $loc->gallerylink);
@@ -310,7 +310,7 @@ $app->get('/mapdata', function ($request, $response) {
 
         $locations[] = array(
             'name'     => $loc->name,
-            'type'     => $loc->status,
+            'status'   => $loc->status,
             'location' => $loc->getLongLat(),
             'popup'    => $popup
         );

@@ -212,7 +212,7 @@ function createLocations($manman, $nodeman)
         $location->address = sprintf("%s %d", $loc['street'], $loc['streetnr']);
         $location->latitude = $loc['gps_lat'];
         $location->longitude = $loc['gps_lon'];
-        $location->status = 'offline';
+        $location->status = 'interested';
         $location->gallerylink = $loc['gallery_link'];
         $location->description = $loc['comment'];
 
@@ -270,6 +270,10 @@ function createNodes($manman, $nodeman)
 
         try {
             $newnode->save();
+
+            $location = $newnode->getLocation();
+            $location->status = 'planned';
+            $location->save();
 
             $stmt = $nodeman->prepare('UPDATE nodes SET nodeid = ? WHERE nodeid = ?');
             $stmt->execute(array($node['id'], $newnode->nodeid));
