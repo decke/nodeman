@@ -136,6 +136,7 @@ foreach ($recalcInterfaces as $interfaceid) {
         $recalcLocations[] = $locationid;
     }
 
+    $iface->getNode()->delAttribute('olsrd-uptime');
     $iface->recalcStatus();
 }
 
