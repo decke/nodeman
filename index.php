@@ -296,10 +296,69 @@ $app->get('/map', function ($request, $response) {
 });
 
 $app->get('/mapdata', function ($request, $response) {
-    $links = array();
     $location = new Location();
-    $locations = array();
     $deflocation = array();
+
+    $locationdata = array(
+        'interested' => array(
+            'locations' => [],
+            'name' => 'Interested',
+            'icon' => 'icon-map-pin-interested',
+            'hide' => false
+        ),
+        'planned' => array(
+            'locations' => [],
+            'name' => 'Planned',
+            'icon' => 'icon-map-pin-planned',
+            'hide' => true
+        ),
+        'online' => array(
+            'locations' => [],
+            'name' => 'Online',
+            'icon' => 'icon-map-pin-online',
+            'hide' => false
+        ),
+        'offline' => array(
+            'locations' => [],
+            'name' => 'Offline',
+            'icon' => 'icon-map-pin-offline',
+            'hide' => false
+        ),
+        'obsolete' => array(
+            'locations' => [],
+            'name' => 'Obsolete',
+            'icon' => 'icon-map-pin-obsolete',
+            'hide' => true
+        ),
+    );
+
+    $linkdata = array(
+        'fiber' => array(
+            'links' => [],
+            'name'  => 'Fiber',
+            'color' => 'black'
+        ),
+        'tunnel' => array(
+            'links' => [],
+            'name'  => 'Tunnel',
+            'color' => 'blue'
+        ),
+        'wifi24' => array(
+            'links' => [],
+            'name'  => 'WiFi 2.4Ghz',
+            'color' => 'orange'
+        ),
+        'wifi5' => array(
+            'links' => [],
+            'name'  => 'WiFi 5Ghz',
+            'color' => 'green'
+        ),
+        'wifi60' => array(
+            'links' => [],
+            'name'  => 'WiFi 60Ghz',
+            'color' => 'darkgreen'
+        )
+    );
 
     if ($request->getParam('lat') && $request->getParam('lng')) {
         $deflocation['lat'] = $request->getParam('lat');
@@ -313,7 +372,7 @@ $app->get('/mapdata', function ($request, $response) {
             $popup .= sprintf('<br><a href=\"%s\">Gallery</a>', $loc->gallerylink);
         }
 
-        $locations[] = array(
+        $locationdata[$loc->status]['locations'][] = array(
             'name'     => $loc->name,
             'status'   => $loc->status,
             'location' => $loc->getLongLat(),
@@ -324,10 +383,28 @@ $app->get('/mapdata', function ($request, $response) {
     $link = new InterfaceLink();
 
     foreach ($link->getAllLinks() as $link) {
+        $type1 = $link->getFromInterface()->category;
+        $type2 = $link->getToInterface()->category;
+        $type = 'wifi5';
+
+        if ($type1 == $type2) {
+            $type = $type1;
+        } elseif ($type1 == 'tunnel' || $type2 == 'tunnel') {
+            $type = 'tunnel';
+        } elseif ($type1 == 'fiber' || $type2 == 'fiber') {
+            $type = 'fiber';
+        }
+
+        $type = preg_replace("/[^A-Za-z0-9 ]/", '', $type);
+
+        if (!isset($linkdata[$type])) {
+            continue;
+        }
+
         $fromloc = $link->getFromLocation();
         $toloc = $link->getToLocation();
 
-        $links[] = array(
+        $linkdata[$type]['links'][] = array(
             'from'    => $fromloc->getLongLat(),
             'to'      => $toloc->getLongLat(),
             'quality' => $link->quality
@@ -335,9 +412,9 @@ $app->get('/mapdata', function ($request, $response) {
     }
 
     return $this->get('view')->render($response, 'map.js', array(
-        'deflocation' => $deflocation,
-        'locations'   => $locations,
-        'links'       => $links
+        'deflocation'  => $deflocation,
+        'locationdata' => $locationdata,
+        'linkdata'     => $linkdata
     ))->withHeader('Content-Type', 'application/javascript; charset=utf-8');
 });
 

@@ -35,7 +35,7 @@ function initmap() {
    map.setView(deflocation, defzoom);
    map.addLayer(basemap);
 
-   var layerControl = L.control.layers(
+   layerControl = L.control.layers(
    {
       "Karte": basemap,
       "Satellit": orthomap,
@@ -48,41 +48,36 @@ function initmap() {
    L.marker([{{ deflocation.lat }}, {{ deflocation.lng }}]).addTo(map);
    {% endif %}
 
-   var interestedIcon = L.divIcon({className: 'icon-map-pin-interested', iconSize: [12,12], iconAnchor: [6,12], popupAnchor: [0,-12]});
-   var plannedIcon = L.divIcon({className: 'icon-map-pin-planned', iconSize: [12,12], iconAnchor: [6,12], popupAnchor: [0,-12]});
-   var onlineIcon = L.divIcon({className: 'icon-map-pin-online', iconSize: [12,12], iconAnchor: [6,12], popupAnchor: [0,-12]});
-   var offlineIcon = L.divIcon({className: 'icon-map-pin-offline', iconSize: [12,12], iconAnchor: [6,12], popupAnchor: [0,-12]});
-   var obsoleteIcon = L.divIcon({className: 'icon-map-pin-obsolete', iconSize: [12,12], iconAnchor: [6,12], popupAnchor: [0,-12]});
+   {% for loctype, data in locationdata %}
+      // {{ loctype }}
+      {{ loctype }}Grp = new L.LayerGroup();
+      {{ loctype }}Icon = L.divIcon({className: '{{ data.icon }}', iconSize: [12,12], iconAnchor: [6,12], popupAnchor: [0,-12]});
 
-   var interestedLocations = new L.LayerGroup();
-   var plannedLocations = new L.LayerGroup();
-   var onlineLocations = new L.LayerGroup();
-   var offlineLocations = new L.LayerGroup();
-   var obsoleteLocations = new L.LayerGroup();
+      {% for loc in data.locations %}
+          L.marker({{ loc.location }}, {icon:{{ loctype }}Icon}).addTo({{ loctype }}Grp).bindPopup("{{ loc.popup|raw }}");
+      {% endfor %}
 
-   {% for loc in locations %}
-       L.marker({{ loc.location }}, {icon:{{ loc.status}}Icon}).addTo({{ loc.status }}Locations).bindPopup("{{ loc.popup|raw }}");
+      layerControl.addOverlay({{ loctype }}Grp, "Location: {{ data.name }}");
+      {% if not data.hide %}
+         map.addLayer({{ loctype }}Grp);
+      {% endif %}
+
    {% endfor %}
 
-   layerControl.addOverlay(interestedLocations, "Interested");
-   layerControl.addOverlay(plannedLocations, "Planned");
-   layerControl.addOverlay(onlineLocations, "Online");
-   layerControl.addOverlay(offlineLocations, "Offline");
-   layerControl.addOverlay(obsoleteLocations, "Obsolete");
-   layerControl.addTo(map);
+   {% for linktype, data in linkdata %}
+       // {{ linktype }}
+       {{ linktype }}Links = [
+           {% for link in data.links %}
+               [ {{ link.from }}, {{ link.to }} ]{% if not loop.last %},{% endif %}
 
-   map.addLayer(interestedLocations);
-   map.addLayer(onlineLocations);
-   map.addLayer(offlineLocations);
+           {% endfor %}
+       ];
 
-   var links = [
-       {% for link in links %}
-           [ {{ link.from }}, {{ link.to }} ]{% if not loop.last %},{% endif %}
+       {{ linktype }}Poly = L.polyline({{ linktype }}Links, { color: '{{ data.color }}', weight: 3, opacity: 0.5 });
+       layerControl.addOverlay({{ linktype }}Poly, "Link: {{ data.name }}");
+       map.addLayer({{ linktype }}Poly);
 
-       {% endfor %}
-   ];
-
-   L.polyline(links, { color: 'green', weight: 3, opacity: 0.5 }).addTo(map);
+   {% endfor %}
 }
 
 initmap();
