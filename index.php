@@ -392,7 +392,7 @@ $app->post('/location/add', function ($request, $response) use ($session) {
             $location->address = $request->getParam('address');
             $location->latitude = $request->getParam('latitude');
             $location->longitude = $request->getParam('longitude');
-            $location->status = 'offline';
+            $location->status = 'interested';
             $location->gallerylink = '';
             $location->description = '';
 
@@ -593,6 +593,11 @@ $app->post('/location/{location}/add', function ($request, $response, $args) use
         $node->owner = $session->getUser()->userid;
         $node->location = $location->locationid;
         $node->description = $request->getParam('description');
+
+        if ($location->status == 'interested') {
+            $location->status = 'planned';
+            $location->save();
+        }
 
         if ($node->save()) {
             $this->get('flash')->addMessage('success', 'Node created');

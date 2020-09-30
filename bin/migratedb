@@ -272,7 +272,7 @@ function createNodes($manman, $nodeman)
             $newnode->save();
 
             $location = $newnode->getLocation();
-            $location->status = 'planned';
+            $location->status = 'obsolete';
             $location->save();
 
             $stmt = $nodeman->prepare('UPDATE nodes SET nodeid = ? WHERE nodeid = ?');

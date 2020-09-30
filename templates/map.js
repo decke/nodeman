@@ -52,11 +52,13 @@ function initmap() {
    var plannedIcon = L.divIcon({className: 'icon-map-pin-planned', iconSize: [12,12], iconAnchor: [6,12], popupAnchor: [0,-12]});
    var onlineIcon = L.divIcon({className: 'icon-map-pin-online', iconSize: [12,12], iconAnchor: [6,12], popupAnchor: [0,-12]});
    var offlineIcon = L.divIcon({className: 'icon-map-pin-offline', iconSize: [12,12], iconAnchor: [6,12], popupAnchor: [0,-12]});
+   var obsoleteIcon = L.divIcon({className: 'is-primary icon-map-pin-planned', iconSize: [12,12], iconAnchor: [6,12], popupAnchor: [0,-12]});
 
    var interestedLocations = new L.LayerGroup();
    var plannedLocations = new L.LayerGroup();
    var onlineLocations = new L.LayerGroup();
    var offlineLocations = new L.LayerGroup();
+   var obsoleteLocations = new L.LayerGroup();
 
    {% for loc in locations %}
        L.marker({{ loc.location }}, {icon:{{ loc.status}}Icon}).addTo({{ loc.status }}Locations).bindPopup("{{ loc.popup|raw }}");
@@ -66,6 +68,7 @@ function initmap() {
    layerControl.addOverlay(plannedLocations, "Planned");
    layerControl.addOverlay(onlineLocations, "Online");
    layerControl.addOverlay(offlineLocations, "Offline");
+   layerControl.addOverlay(obsoleteLocations, "Obsolete");
    layerControl.addTo(map);
 
    map.addLayer(interestedLocations);
