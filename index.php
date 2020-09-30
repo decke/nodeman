@@ -76,12 +76,12 @@ $app->add(function ($request, $handler) {
     if (!$response->hasHeader('Content-Security-Policy')) {
         $globals = $this->get('view')->getEnvironment()->getGlobals();
 
-        return $response->withHeader('Content-Security-Policy', "script-src 'strict-dynamic' 'nonce-".$globals['nonce']."' 'unsafe-inline' http: https:; object-src 'none'; font-src 'self'; base-uri 'none'; frame-ancestors 'none';");
+        $response = $response->withHeader('Content-Security-Policy', "script-src 'strict-dynamic' 'nonce-".$globals['nonce']."' 'unsafe-inline' http: https:; object-src 'none'; font-src 'self'; base-uri 'none'; frame-ancestors 'none';");
     }
 
     // Referrer Policy (Mozilla Web Security Guidelines)
     if (!$response->hasHeader('Referrer-Policy')) {
-        return $response->withHeader('Referrer-Policy', 'no-referrer');
+        $response = $response->withHeader('Referrer-Policy', 'no-referrer');
     }
 
     return $response;
