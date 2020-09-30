@@ -52,7 +52,7 @@ function initmap() {
    var plannedIcon = L.divIcon({className: 'icon-map-pin-planned', iconSize: [12,12], iconAnchor: [6,12], popupAnchor: [0,-12]});
    var onlineIcon = L.divIcon({className: 'icon-map-pin-online', iconSize: [12,12], iconAnchor: [6,12], popupAnchor: [0,-12]});
    var offlineIcon = L.divIcon({className: 'icon-map-pin-offline', iconSize: [12,12], iconAnchor: [6,12], popupAnchor: [0,-12]});
-   var obsoleteIcon = L.divIcon({className: 'is-primary icon-map-pin-planned', iconSize: [12,12], iconAnchor: [6,12], popupAnchor: [0,-12]});
+   var obsoleteIcon = L.divIcon({className: 'icon-map-pin-obsolete', iconSize: [12,12], iconAnchor: [6,12], popupAnchor: [0,-12]});
 
    var interestedLocations = new L.LayerGroup();
    var plannedLocations = new L.LayerGroup();

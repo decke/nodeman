@@ -24,10 +24,10 @@
             {{ loc.address }}
           </td>
           <td>
-            <img src="/images/tower-{{ loc.status }}.svg" style="height: 2em" alt="{{ loc.status }}">
+            <span class="icon icon-map-pin-{{ loc.status}}" aria-hidden="true"></span>
           </td>
           <td>
-            <a href="/map?lat={{ loc.latitude }}&lng={{ loc.longitude }}" class="button is-link is-outlined is-small">Map</a>
+            <a href="/map?lat={{ loc.latitude }}&amp;lng={{ loc.longitude }}" class="button is-link is-outlined is-small">Map</a>
             <a href="/location/{{ loc.name }}/" class="button is-primary is-small">Show</a>
           </td>
         </tr>
