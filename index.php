@@ -79,6 +79,11 @@ $app->add(function ($request, $handler) {
         return $response->withHeader('Content-Security-Policy', "script-src 'strict-dynamic' 'nonce-".$globals['nonce']."' 'unsafe-inline' http: https:; object-src 'none'; font-src 'self'; base-uri 'none'; frame-ancestors 'none';");
     }
 
+    // Referrer Policy (Mozilla Web Security Guidelines)
+    if (!$response->hasHeader('Referrer-Policy')) {
+        return $response->withHeader('Referrer-Policy', 'no-referrer');
+    }
+
     return $response;
 });
 
