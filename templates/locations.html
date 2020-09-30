@@ -15,7 +15,7 @@
     </thead>
     <tbody>
       {% for loc in locations %}
-        {% if loc.status == "online" %}
+        {% if loc.status == "online" or loc.status == "offline" %}
         <tr>
           <td>
             <a href="/location/{{ loc.name }}/">{{ loc.name }}</a>
