@@ -160,7 +160,7 @@ function createUsers($manman, $nodeman)
         $user->phone = $person['tel'];
         $user->usergroup = (isset($person['admin']) && $person['admin'] == 1) ? 'admin' : 'user';
         $user->lastlogin = 0;
-        $user->regdate = 0;
+        $user->regdate = time();
 
         try {
             $user->save();
@@ -214,6 +214,7 @@ function createLocations($manman, $nodeman)
         $location->longitude = $loc['gps_lon'];
         $location->status = 'interested';
         $location->gallerylink = $loc['gallery_link'];
+        $location->createdate = strtotime($loc['time']);
         $location->description = $loc['comment'];
 
         try {
@@ -266,6 +267,7 @@ function createNodes($manman, $nodeman)
         $newnode->name = $node['name'];
         $newnode->owner = $node['person_id'];
         $newnode->location = $node['location_id'];
+        $newnode->createdate = strtotime($node['time']);
         $newnode->description = $node['comment'];
 
         try {

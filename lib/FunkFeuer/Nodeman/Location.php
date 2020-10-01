@@ -23,6 +23,7 @@ class Location
         'longitude'   => null,
         'status'      => null,
         'gallerylink' => null,
+        'createdate'  => null,
         'description' => null
     );
 
@@ -75,7 +76,7 @@ class Location
     public function load($id)
     {
         $stmt = $this->_handle->prepare('SELECT locationid, name, owner, address,
-            latitude, longitude, status, gallerylink, description FROM locations WHERE locationid = ?');
+            latitude, longitude, status, gallerylink, createdate, description FROM locations WHERE locationid = ?');
         if (!$stmt->execute(array($id))) {
             return false;
         }
@@ -92,7 +93,7 @@ class Location
     public function loadByName($name)
     {
         $stmt = $this->_handle->prepare('SELECT locationid, name, owner, address,
-            latitude, longitude, status, gallerylink, description FROM locations WHERE name = ?');
+            latitude, longitude, status, gallerylink, createdate, description FROM locations WHERE name = ?');
         if (!$stmt->execute(array($name))) {
             return false;
         }
@@ -110,20 +111,20 @@ class Location
     {
         if (!$this->locationid) {
             $stmt = $this->_handle->prepare('INSERT INTO locations (name, owner, address,
-                longitude, latitude, status, gallerylink, description) VALUES (?, ?, ?, ?, ?, ?, ?,?)');
+                longitude, latitude, status, gallerylink, createdate, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)');
 
             if ($stmt->execute(array($this->name, $this->owner, $this->address,
-                $this->longitude, $this->latitude, $this->status, $this->gallerylink, $this->description))) {
+                $this->longitude, $this->latitude, $this->status, $this->gallerylink, $this->createdate, $this->description))) {
                 $this->locationid = $this->_handle->lastInsertId();
 
                 return true;
             }
         } else {
             $stmt = $this->_handle->prepare('UPDATE locations SET name = ?, owner = ?, address = ?,
-                longitude = ?, latitude = ?, status = ?, gallerylink = ?, description = ? WHERE locationid = ?');
+                longitude = ?, latitude = ?, status = ?, gallerylink = ?, createdate = ?, description = ? WHERE locationid = ?');
 
             return $stmt->execute(array($this->name, $this->owner, $this->address,
-                $this->longitude, $this->latitude, $this->status, $this->gallerylink, $this->description, $this->locationid));
+                $this->longitude, $this->latitude, $this->status, $this->gallerylink, $this->createdate, $this->description, $this->locationid));
         }
 
         return false;

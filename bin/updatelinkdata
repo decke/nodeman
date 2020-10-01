@@ -64,6 +64,7 @@ for ($i=0; $i < $linkcount; $i++) {
         $link->fromif = $ifaceFrom->interfaceid;
         $link->toif = $ifaceTo->interfaceid;
         $link->status = '';
+        $link->firstup = time();
     }
 
     if ($link->status != 'up') {

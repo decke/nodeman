@@ -23,6 +23,7 @@ class InterfaceLink
         'quality' => null,
         'source'  => null,
         'status'  => null,
+        'firstup' => null,
         'lastup'  => null,
     );
 
@@ -68,7 +69,7 @@ class InterfaceLink
     public function load($id)
     {
         $stmt = $this->_handle->prepare('SELECT linkid, fromif, toif, quality, source, status,
-            lastup FROM linkdata WHERE linkid = ?');
+            firstup, lastup FROM linkdata WHERE linkid = ?');
         if (!$stmt->execute(array($id))) {
             return false;
         }
@@ -86,20 +87,20 @@ class InterfaceLink
     {
         if (!$this->linkid) {
             $stmt = $this->_handle->prepare('INSERT INTO linkdata (fromif, toif, quality, source,
-               status, lastup) VALUES (?, ?, ?, ?, ?, ?)');
+               status, firstup, lastup) VALUES (?, ?, ?, ?, ?, ?, ?)');
 
             if ($stmt->execute(array($this->fromif, $this->toif, $this->quality, $this->source,
-                $this->status, $this->lastup))) {
+                $this->status, $this->firstup, $this->lastup))) {
                 $this->linkid = $this->_handle->lastInsertId();
 
                 return true;
             }
         } else {
             $stmt = $this->_handle->prepare('UPDATE linkdata SET fromif = ?, toif = ?, quality = ?,
-                source = ?, status = ?, lastup = ? WHERE linkid = ?');
+                source = ?, status = ?, firstup = ?, lastup = ? WHERE linkid = ?');
 
             return $stmt->execute(array($this->fromif, $this->toif, $this->quality, $this->source,
-                $this->status, $this->lastup, $this->linkid));
+                $this->status, $this->firstup, $this->lastup, $this->linkid));
         }
 
         return false;
@@ -108,7 +109,7 @@ class InterfaceLink
     public function loadLinkFromTo($linkidfrom, $linkidto)
     {
         $stmt = $this->_handle->prepare('SELECT linkid, fromif, toif, quality, source, status,
-            lastup FROM linkdata WHERE (fromif = ? AND toif = ?) OR (fromif = ? AND toif = ?)');
+            firstup, lastup FROM linkdata WHERE (fromif = ? AND toif = ?) OR (fromif = ? AND toif = ?)');
         if (!$stmt->execute(array($linkidfrom, $linkidto, $linkidto, $linkidfrom))) {
             return false;
         }

@@ -49,6 +49,7 @@ CREATE TABLE locations (
    longitude REAL NOT NULL,
    status VARCHAR(10) NOT NULL, -- current status: [interested|planned|online|offline|obsolete]
    gallerylink VARCHAR(255) NOT NULL,
+   createdate INTEGER NOT NULL,
    description TEXT,
    FOREIGN KEY(owner) REFERENCES users(userid)
 );
@@ -62,6 +63,7 @@ CREATE TABLE nodes (
    name VARCHAR(50) NOT NULL,
    owner INTEGER NOT NULL,
    location INTEGER NOT NULL,
+   createdate INTEGER NOT NULL,
    description TEXT,
    FOREIGN KEY(owner) REFERENCES users(userid),
    FOREIGN KEY(location) REFERENCES locations(locationid)
@@ -119,6 +121,7 @@ CREATE TABLE linkdata (
    quality REAL NOT NULL,
    source VARCHAR(10) NOT NULL, -- datasource: [olsrd|manual]
    status VARCHAR(10) NOT NULL, -- [up|down]
+   firstup INTEGER NOT NULL,
    lastup INTEGER NOT NULL,
    FOREIGN KEY(fromif) REFERENCES interfaces(interfaceid),
    FOREIGN KEY(toif) REFERENCES interfaces(interfaceid)
