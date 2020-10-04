@@ -1,35 +1,45 @@
 ## TODO
 
-* Location status erweitern: interested (keine nodes), planned (hat nodes), online, offline
-* Location status in map einbauen (wie wien)
+* PHP sourcecode linting tabs vs spaces
+* updatehnadata: wie setzen wir HNA interfaces down die nicht mehr in der Liste sind?
+* updatehnadata: ping test ob client erreichbar?
 
-* Location Overview: lastonline anzeigen
+* Location delete nur wenn keine nodes mehr
+* Location Overview: Details von Location ganz oben anzeigen: Description, Gallerylink, Smokeping, Kleine Karte mit  Location
+* Location Overview: linkdata lastup anzeigen wenn status down
 * Location Overview: Proxy links intern/extern anzeigen http://wan.unused.bluelife2.ext.graz.funkfeuer.at
-* Location Overview: Details von Location auch anzeigen: Description, Gallerylink, Smokeping, Link zur Karte
+* Locations: Spalte "links online / links gesamt"
 
 * LinkMonitoring: eigene Tabelle (id, linkid, userid, lastnotified)
 * LinkMonitoring: anzeigen ob link monitored, hinzufuegen/loeschen von monitoring fuer link
 * LinkMonitoring: EMail Benachrichtigung wenn Link down geht
 
+* Location status wenn offline und max(lastup) < 10tage -> obsolete
 * Manuelles eintragen von Links (zB Fiber TU - Realraum)
 * Attribute in nodes einbauen (Hardware, Firmware, Altitude)
 * Attribute in interfaces einbauen (BSSID, Bandbreite, VLANID, Antenne, Antennengewinn)
-* Tower SVGs wie feather icons integrieren
+
+* Kontaktdaten von Location maintainer (Name, Email, Telefonnummer) nur fuer
+    eingeloggte Benutzer anzeigen
 
 high
-* Datumsspalte in alle Tabellen einfuegen
 * Nodes (Equipment) anzeigen / anlegen / editieren
 * Interfaces anlegen
 
 medium
 * Tunnel erkennung einbauen (in migrations script)
-* Map: Tunnel links in blau zeichnen
 * Admin Bereich aehnlich Datenbankbrowser mit HTML5
     https://w3lessons.info/html5-inline-edit-with-php-mysql-jquery-ajax/
 * Admins duerfen auch Locations/Nodes/Interfaces editieren
 
+bugs
+* MAP: Icons auf Chrome reparieren
+* Layout mit Link anzeige auf smartphones kaputt
+
 wishlist
 * IP Pools und Adresszuweisung
+  * allocations tabelle die mit location verbunden ist
+  * self assignment durch user fuer interfaces und dann Eintrag der IP wie bisher
 * OpenVPN Zertifikat beantragen
 
 * editieren von User, Locations, Nodes, Interfaces
@@ -40,9 +50,11 @@ wishlist
 
 
 ## QUESTIONS
+* Aktueller manman Datenbankabzug (aj)
+* EMail an alle Knotenbetreiber die jsoninfo/httpinfo/txtinfo nicht aktiviert haben?
 
 * Statistics integrieren in nodeman? (olsrd versionen, #links)
-* Status Seite integrieren (monitored links down, ips die verwendet werden aber nicht alloziert sind)
+* Status Seite integrieren (monitored links down, ips die verwendet werden aber nicht alloziert sind, inkonsistente links (fiber zu wifi5))
 
 * Wenn neue Locations angelegt werden wie kriegen das die anderen mit
   * DNS
@@ -59,3 +71,4 @@ wishlist
 * http://nominatim.openstreetmap.org/search?q=Weizbachweg+40a&countrycodes=at&format=json&addressdetails=1
 
 * https://wiki.funkfeuer.at/wiki/Projekte/0xFF-NodeMap
+* https://github.com/freifunk-gluon/packages/tree/master/net/respondd
