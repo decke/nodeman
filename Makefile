@@ -17,6 +17,7 @@ test: vendor
 	php-cs-fixer fix --dry-run --diff-format udiff bin/linksearch
 	php-cs-fixer fix --dry-run --diff-format udiff bin/migratedb
 	php-cs-fixer fix --dry-run --diff-format udiff bin/sendmails
+	php-cs-fixer fix --dry-run --diff-format udiff bin/updatehnadata
 	php-cs-fixer fix --dry-run --diff-format udiff bin/updatelinkdata
 	php-cs-fixer fix --dry-run --diff-format udiff bin/olsrinfo
 	phpstan analyse -l 5 -c phpstan.neon bin lib index.php
@@ -27,6 +28,7 @@ fix:
 	php-cs-fixer fix bin/linksearch
 	php-cs-fixer fix bin/migratedb
 	php-cs-fixer fix bin/sendmails
+	php-cs-fixer fix bin/updatehnadata
 	php-cs-fixer fix bin/updatelinkdata
 	php-cs-fixer fix bin/olsrinfo
 

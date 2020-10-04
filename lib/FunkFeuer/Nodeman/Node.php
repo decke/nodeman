@@ -109,6 +109,11 @@ class Node
         return new Location($this->location);
     }
 
+    public function getPath()
+    {
+        return sprintf("%s.%s", $this->getLocation()->name, $this->name);
+    }
+
     public function getInterfaceByName($name)
     {
         $stmt = $this->_handle->prepare('SELECT interfaceid FROM interfaces WHERE node = ? AND name = ?');

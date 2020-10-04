@@ -1,0 +1,83 @@
+#!/usr/bin/env php
+<?php
+
+namespace FunkFeuer\Nodeman;
+
+use \FunkFeuer\Nodeman\Config;
+use \Longman\IPTools\Ip;
+
+require_once __DIR__.'/../vendor/autoload.php';
+
+/* set working directory to root directory */
+chdir(dirname(__FILE__).'/../');
+
+/* set default timezone to UTC */
+date_default_timezone_set('UTC');
+
+/* allow fetching urls */
+ini_set("allow_url_fopen", 1);
+
+
+function logMsg($msg, $level = 'INFO')
+{
+    printf("[%s] [%5s] %s\n", date('H:i:s d.m.Y', time()), $level, $msg);
+}
+
+$json = @file_get_contents('http://localhost:9090/hna');
+if (!$json) {
+    logMsg("Failed fetching hna info from olsrd", "ERROR");
+    exit(1);
+}
+
+$data = json_decode($json);
+if (!$data) {
+    logMsg("Failed parsing json content from olsrd", "ERROR");
+    exit(1);
+}
+
+$handle = Config::getDbHandle();
+$handle->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+
+$interfaces = array();
+
+$stmt = $handle->prepare('SELECT interfaceid FROM interfaces WHERE 1 = 1');
+
+if (!$stmt->execute(array())) {
+    logMsg("Failed to find outdated links", "ERROR");
+    exit(1);
+}
+
+while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+    $interfaces[] = new NetInterface($row['interfaceid']);
+}
+
+$interfacescount = count($interfaces);
+
+$hnacount = count($data->{'hna'});
+
+logMsg("Analyzing ".$hnacount." HNA entries", "INFO");
+
+for ($i=0; $i < $hnacount; $i++) {
+    $hnadata = $data->{'hna'}[$i];
+
+    $gwiface = new NetInterface();
+    if (!$gwiface->loadByIPAddress($hnadata->gateway)) {
+        logMsg(sprintf("Gateway IP %s is not known!", $hnadata->gateway), "WARN");
+        continue;
+    }
+
+    logMsg(sprintf("%s/%d via %s (%s)", $hnadata->destination, $hnadata->genmask, $hnadata->gateway, $gwiface->status), "INFO");
+
+    for ($j=0; $j < $interfacescount; $j++) {
+        $iface = $interfaces[$j];
+        if ($iface->address != "" && Ip::match($iface->address, $hnadata->destination.'/'.$hnadata->genmask)) {
+            $iface->status = 'online';
+            $iface->save();
+            $iface->setAttribute('hna-gateway', $gwiface->getPath());
+
+            logMsg(sprintf("%s matched %s/%d", $iface->address, $hnadata->destination, $hnadata->genmask), "INFO");
+        }
+    }
+}
+
+exit(0);
