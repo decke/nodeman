@@ -29,8 +29,8 @@ function initmap() {
    marker = L.marker(deflocation).addTo(map);
 
    // create the tile layer with correct attribution
-   var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-   var osmAttrib='\u00a9  <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
+   var osmUrl='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+   var osmAttrib='\u00a9  <a href="https://openstreetmap.org">OpenStreetMap</a> contributors';
    var osm = new L.TileLayer(osmUrl, {minZoom: 10, maxZoom: 19, attribution: osmAttrib});		
 
    // start the map in Graz
