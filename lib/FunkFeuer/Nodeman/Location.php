@@ -166,6 +166,11 @@ class Location
         return $data;
     }
 
+    public function getMaintainer()
+    {
+        return new User($this->owner);
+    }
+
     public function countAllLocations($owner = null)
     {
         $stmt = $this->_handle->prepare('SELECT count(*) FROM locations WHERE (owner = ? OR ? IS NULL)');

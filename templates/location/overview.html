@@ -6,7 +6,11 @@
 
       <div class="block">
         <span class="title">Location {{ location.name }}</span>
+        <span class="tag is-small {% if location.status == "online" %}is-success{% elseif location.status == "offline" %}is-danger{% else %}is-light{% endif %}">{{ location.status }}</span>
+        <br />
+        <span class="subtitle">{{ location.address }}</span>
 
+        {% if location.getMaintainer().userid == user.userid %}
         <div class="dropdown is-hoverable is-pulled-right">
           <div class="dropdown-trigger">
             <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
@@ -22,14 +26,78 @@
             </div>
           </div>
         </div>
+        {% endif %}
 
       </div>
+
+      <div class="card">
+        <div class="card-content">
+          <div class="block">
+            <div class="columns is-marginless">
+              <div class="column">
+                <div class="field is-grouped is-grouped-multiline">
+                  {% for key, value in location.getAllAttributes() %}
+                    <div class="control">
+                      <div class="tags has-addons">
+                        <span class="tag is-light">{{ key }}</span>
+                        <span class="tag is-light is-info">{{ value }}</span>
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+
+                <h5 class="title is-5">Description</h5>
+                <div class="block">
+                  {{ location.renderDescription()|raw }}
+                </div>
+
+                <hr>
+
+                <div class="block">
+                  <div class="field is-grouped is-grouped-multiline">
+                    {% if location.gallerylink != "" %}
+                    <a href="{{ location.gallerylink }}" class="tag is-light is-info">Gallery</a> &nbsp;
+                    {% endif %}
+
+                    <a href="http://stats.ffgraz.net/smokeping/index.cgi?target=Funkfeuer.{{ location.name }}" class="tag is-light is-info">SmokePing</a> &nbsp;
+                    <div class="control">
+                      <div class="tags has-addons">
+                        <span class="tag is-light">created</span>
+                        <span class="tag is-light is-info">{{ location.createdate|format_date() }}</span>
+                      </div>
+                    </div>
+
+                    {% if user %}
+                      <div class="control">
+                        <div class="tags has-addons">
+                          <span class="tag is-light">maintainer</span>
+                          <span class="tag is-light is-info">{{ location.getMaintainer().firstname }} {{ location.getMaintainer().lastname }} &lt;{{ location.getMaintainer().email }}&gt;</span>
+                        </div>
+                      </div>
+                    {% endif %}
+                  </div>
+                </div>
+
+              </div>
+              <div class="column">
+                <input type="hidden" id="latitude" name="latitude" value="{{ location.latitude }}">
+                <input type="hidden" id="longitude" name="longitude" value="{{ location.longitude }}">
+                <input type="hidden" id="mapimmutable" name="mapimmutable" value="true">
+                <div id="map" class="map"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <br />
 
       {% for node in nodes %}
       <div class="card">
         <header class="card-header">
           <p class="card-header-title">{{ node.name }}</p>
 
+          {% if location.getMaintainer().userid == user.userid %}
           <div class="card-header-icon dropdown is-hoverable is-small">
             <div class="dropdown-trigger">
               <button class="button is-white" aria-haspopup="true" aria-controls="dropdown-menu-{{ node.nodeid}}">
@@ -44,6 +112,7 @@
               </div>
             </div>
           </div>
+          {% endif %}
         </header>
         <div class="card-content">
           <div class="block">

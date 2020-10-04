@@ -18,6 +18,7 @@ use Slim\Factory\AppFactory;
 use Slim\Views\Twig;
 use Slim\Views\TwigExtension;
 use Slim\Views\TwigMiddleware;
+use Twig\Extra\Intl\IntlExtension;
 
 require_once __DIR__.'/vendor/autoload.php';
 
@@ -66,6 +67,7 @@ $env->addGlobal('nonce', bin2hex(random_bytes(5)));
 $env->addGlobal('session', $session);
 $env->addGlobal('config', new \FunkFeuer\Nodeman\Config());
 $env->addGlobal('flash', $container->get('flash'));
+$env->addExtension(new IntlExtension());
 
 
 /* Middlewares */
@@ -609,7 +611,7 @@ $app->post('/location/{location}/edit', function ($request, $response, $args) us
     ));
 });
 
-$app->get('/location/{location}/', function ($request, $response, $args) {
+$app->get('/location/{location}/', function ($request, $response, $args) use ($session) {
     $location = new Location();
 
     if (!$location->loadByName($args['location'])) {
@@ -619,8 +621,11 @@ $app->get('/location/{location}/', function ($request, $response, $args) {
     }
 
     return $this->get('view')->render($response, 'location/overview.html', array(
+        'css'      => array('/css/leaflet.css'),
+        'js'       => array('/js/leaflet.min.js', '/js/grazmap.js'),
         'location' => $location,
-        'nodes'    => $location->getNodes()
+        'nodes'    => $location->getNodes(),
+        'user'     => $session->getUser()
     ));
 });
 

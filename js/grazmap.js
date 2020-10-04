@@ -38,7 +38,9 @@ function initmap() {
    map.addLayer(osm);
 
    // add marker
-   map.on('click', onMapClick);
+   if(!document.getElementById('mapimmutable')){
+      map.on('click', onMapClick);
+   }
 }
 
 initmap();
