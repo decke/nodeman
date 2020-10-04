@@ -83,7 +83,7 @@
                   <strong>SmokePing:</strong>
                     <span class="tag is-small {% if interface.ping %}is-success{% else %}is-danger{% endif %}">
                       {% if interface.ping %}enabled{% else %}disabled{% endif %}
-                    </span>
+                    </span><br />
 
                   {% for key, value in interface.getAllAttributes() %}
                     <strong>{{ key }}:</strong> {{ value }}<br />
