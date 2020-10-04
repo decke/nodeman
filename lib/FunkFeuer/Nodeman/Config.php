@@ -26,7 +26,8 @@ class Config
         if (self::$handle === null) {
             self::$handle = new \PDO(self::$datasource);
             self::$handle->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-            self::$handle->exec('PRAGMA foreign_keys = ON');
+            self::$handle->exec('PRAGMA foreign_keys = ON;');
+            self::$handle->exec('PRAGMA encoding = "UTF-8";');
         }
 
         return self::$handle;

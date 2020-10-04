@@ -5,6 +5,8 @@
 ---    > .read schema.sql
 ---    > .q
 
+PRAGMA encoding = "UTF-8";
+
 BEGIN TRANSACTION;
 
 CREATE TABLE config (
