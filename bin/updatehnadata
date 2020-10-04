@@ -103,7 +103,7 @@ for ($i=0; $i < $hnacount; $i++) {
 // Removing outdated entries
 logMsg("Removing ".count($hnaifaces)." outdated HNA entries", "INFO");
 
-foreach($hnaifaces as $ifaceid => $ignore) {
+foreach ($hnaifaces as $ifaceid => $ignore) {
     $iface = new NetInterface($ifaceid);
     $iface->delAttribute('hna-router');
     $iface->status = 'offline';
