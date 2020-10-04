@@ -17,3 +17,7 @@ chown www:www share/nodeman.db
 # call our migration script
 bin/migratedb
 
+# gather current olsr data
+bin/updatelinkdata
+bin/updatehnadata
+bin/olsrinfo
