@@ -86,7 +86,7 @@ function fetchOlsrData($ip)
     $http_response_header = array();
     $context = array(
         'http' => array(
-            'timeout' => 1
+            'timeout' => 0.5
          )
     );
 
