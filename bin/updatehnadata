@@ -38,6 +38,21 @@ if (!$data) {
 $handle = Config::getDbHandle();
 $handle->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
+// all HNA interfaces currently up
+$hnaifaces = array();
+
+$stmt = $handle->prepare('SELECT interfaceid FROM interfaces, interfaceattributes WHERE interfaceid = interface AND key = "hna-router"');
+
+if (!$stmt->execute(array())) {
+    logMsg("Failed to find outdated links", "ERROR");
+    exit(1);
+}
+
+while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+    $hnaifaces[$row['interfaceid']] = true;
+}
+
+// all known interfaces
 $interfaces = array();
 
 $stmt = $handle->prepare('SELECT interfaceid FROM interfaces WHERE 1 = 1');
@@ -66,18 +81,35 @@ for ($i=0; $i < $hnacount; $i++) {
         continue;
     }
 
+    if (isset($hnaifaces[$hnadata->destination])) {
+        unset($hnaifaces[$hnadata->destination]);
+    }
+
     logMsg(sprintf("%s/%d via %s (%s)", $hnadata->destination, $hnadata->genmask, $hnadata->gateway, $gwiface->status), "INFO");
 
     for ($j=0; $j < $interfacescount; $j++) {
         $iface = $interfaces[$j];
         if ($iface->address != "" && Ip::match($iface->address, $hnadata->destination.'/'.$hnadata->genmask)) {
+            $iface->setAttribute('hna-router', $gwiface->getPath());
             $iface->status = 'online';
             $iface->save();
-            $iface->setAttribute('hna-gateway', $gwiface->getPath());
 
             logMsg(sprintf("%s matched %s/%d", $iface->address, $hnadata->destination, $hnadata->genmask), "INFO");
         }
     }
+}
+
+
+// Removing outdated entries
+logMsg("Removing ".count($hnaifaces)." outdated HNA entries", "INFO");
+
+foreach($hnaifaces as $ifaceid => $ignore) {
+    $iface = new NetInterface($ifaceid);
+    $iface->delAttribute('hna-router');
+    $iface->status = 'offline';
+    $iface->save();
+
+    logMsg(sprintf("%s now offline", $iface->address), "INFO");
 }
 
 exit(0);
