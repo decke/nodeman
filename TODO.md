@@ -1,13 +1,9 @@
 ## TODO
-
-* PHP sourcecode linting tabs vs spaces
-* updatehnadata: wie setzen wir HNA interfaces down die nicht mehr in der Liste sind?
-* updatehnadata: ping test ob client erreichbar?
-
-* Location delete nur wenn keine nodes mehr
-* Location Overview: Details von Location ganz oben anzeigen: Description, Gallerylink, Smokeping, Kleine Karte mit  Location
 * Location Overview: linkdata lastup anzeigen wenn status down
 * Location Overview: Proxy links intern/extern anzeigen http://wan.unused.bluelife2.ext.graz.funkfeuer.at
+
+* updatehnadata: ping test ob client erreichbar?
+* Location delete nur wenn keine nodes mehr
 * Locations: Spalte "links online / links gesamt"
 
 * LinkMonitoring: eigene Tabelle (id, linkid, userid, lastnotified)
