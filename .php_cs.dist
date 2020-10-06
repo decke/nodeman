@@ -1,0 +1,15 @@
+<?php
+
+$finder = PhpCsFixer\Finder::create()
+    ->in(__DIR__)
+    ->name('*')
+;
+
+return PhpCsFixer\Config::create()
+    ->setFinder($finder)
+    ->setRules([
+    ])
+    ->setIndent("    ")
+    ->setLineEnding("\n")
+    ->setUsingCache(false)
+;
