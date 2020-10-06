@@ -37,7 +37,7 @@ class Location
         }
     }
 
-    public function __get(string $name): string
+    public function __get(string $name): ?string
     {
         if (array_key_exists($name, $this->_data)) {
             return $this->_data[$name];
@@ -161,7 +161,7 @@ class Location
         }
 
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $data[] = new self($row['locationid']);
+            $data[] = new self((int)$row['locationid']);
         }
 
         return $data;
@@ -169,7 +169,7 @@ class Location
 
     public function getMaintainer(): User
     {
-        return new User($this->owner);
+        return new User((int)$this->owner);
     }
 
     public function countAllLocations(int $owner = null): bool
@@ -202,7 +202,7 @@ class Location
         }
 
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $data[] = new Node($row['nodeid']);
+            $data[] = new Node((int)$row['nodeid']);
         }
 
         return $data;
@@ -216,7 +216,7 @@ class Location
         }
 
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            return new Node($row['nodeid']);
+            return new Node((int)$row['nodeid']);
         }
 
         return null;

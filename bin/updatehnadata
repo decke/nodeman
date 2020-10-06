@@ -63,7 +63,7 @@ if (!$stmt->execute(array())) {
 }
 
 while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-    $interfaces[] = new NetInterface($row['interfaceid']);
+    $interfaces[] = new NetInterface((int)$row['interfaceid']);
 }
 
 $interfacescount = count($interfaces);

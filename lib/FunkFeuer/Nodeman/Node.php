@@ -33,7 +33,7 @@ class Node
         }
     }
 
-    public function __get(string $name): string
+    public function __get(string $name): ?string
     {
         if (array_key_exists($name, $this->_data)) {
             return $this->_data[$name];
@@ -58,7 +58,7 @@ class Node
         return array_key_exists($name, $this->_data);
     }
 
-    public function renderDescription(): bool
+    public function renderDescription(): string
     {
         $parser = new \Parsedown();
         $parser->setSafeMode(true);
@@ -107,7 +107,7 @@ class Node
 
     public function getLocation(): Location
     {
-        return new Location($this->location);
+        return new Location((int)$this->location);
     }
 
     public function getPath(): string
@@ -123,7 +123,7 @@ class Node
         }
 
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            return new NetInterface($row['interfaceid']);
+            return new NetInterface((int)$row['interfaceid']);
         }
 
         return null;
@@ -143,7 +143,7 @@ class Node
         }
 
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $data[] = new NetInterface($row['interfaceid']);
+            $data[] = new NetInterface((int)$row['interfaceid']);
         }
 
         return $data;
@@ -164,7 +164,7 @@ class Node
             }
 
             while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-                $link = new InterfaceLink($row['linkid']);
+                $link = new InterfaceLink((int)$row['linkid']);
 
                 if ($link->fromif != $interface->interfaceid) {
                     $link->switchFromTo();

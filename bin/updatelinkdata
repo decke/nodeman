@@ -60,7 +60,7 @@ for ($i=0; $i < $linkcount; $i++) {
     }
 
     $link = new InterfaceLink();
-    if (!$link->loadLinkFromTo($ifaceFrom->interfaceid, $ifaceTo->interfaceid)) {
+    if (!$link->loadLinkFromTo((int)$ifaceFrom->interfaceid, (int)$ifaceTo->interfaceid)) {
         $link->fromif = $ifaceFrom->interfaceid;
         $link->toif = $ifaceTo->interfaceid;
         $link->status = '';
@@ -69,11 +69,11 @@ for ($i=0; $i < $linkcount; $i++) {
 
     if ($link->status != 'up') {
         if (!in_array($link->fromif, $recalcInterfaces)) {
-            $recalcInterfaces[] = $link->fromif;
+            $recalcInterfaces[] = (int)$link->fromif;
         }
 
         if (!in_array($link->toif, $recalcInterfaces)) {
-            $recalcInterfaces[] = $link->toif;
+            $recalcInterfaces[] = (int)$link->toif;
         }
     }
 
@@ -101,15 +101,15 @@ if (!$stmt->execute(array($data->{'systemTime'}))) {
 }
 
 while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-    $link = new InterfaceLink($row['linkid']);
+    $link = new InterfaceLink((int)$row['linkid']);
 
     if ($link->status != 'down') {
         if (!in_array($link->fromif, $recalcInterfaces)) {
-            $recalcInterfaces[] = $link->fromif;
+            $recalcInterfaces[] = (int)$link->fromif;
         }
 
         if (!in_array($link->toif, $recalcInterfaces)) {
-            $recalcInterfaces[] = $link->toif;
+            $recalcInterfaces[] = (int)$link->toif;
         }
     }
 
@@ -129,7 +129,7 @@ $recalcLocations = array();
 
 foreach ($recalcInterfaces as $interfaceid) {
     $iface = new NetInterface($interfaceid);
-    $locationid = $iface->getNode()->getLocation()->locationid;
+    $locationid = (int)$iface->getNode()->getLocation()->locationid;
 
     if (!in_array($locationid, $recalcLocations)) {
         $recalcLocations[] = $locationid;

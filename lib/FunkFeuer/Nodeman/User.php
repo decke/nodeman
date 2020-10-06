@@ -36,7 +36,7 @@ class User
         }
     }
 
-    public function __get(string $name): string
+    public function __get(string $name): ?string
     {
         if (array_key_exists($name, $this->_data)) {
             return $this->_data[$name];

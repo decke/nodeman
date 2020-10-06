@@ -37,7 +37,7 @@ class InterfaceLink
         }
     }
 
-    public function __get(string $name): string
+    public function __get(string $name): ?string
     {
         if (array_key_exists($name, $this->_data)) {
             return $this->_data[$name];
@@ -138,7 +138,7 @@ class InterfaceLink
         }
 
         if ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            return new NetInterface($row['interfaceid']);
+            return new NetInterface((int)$row['interfaceid']);
         }
 
         return null;
@@ -154,7 +154,7 @@ class InterfaceLink
         }
 
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $data[] = new self($row['linkid']);
+            $data[] = new self((int)$row['linkid']);
         }
 
         return $data;
@@ -164,14 +164,14 @@ class InterfaceLink
     {
         $iface = ($this->_switchfromto) ? $this->toif : $this->fromif;
 
-        return new NetInterface($iface);
+        return new NetInterface((int)$iface);
     }
 
     public function getToInterface(): NetInterface
     {
         $iface = ($this->_switchfromto) ? $this->fromif : $this->toif;
 
-        return new NetInterface($iface);
+        return new NetInterface((int)$iface);
     }
 
     public function getFromLocation(): Location

@@ -79,7 +79,7 @@ class Session
     public static function getUser(): User
     {
         if (self::isAuthenticated()) {
-            return new User($_SESSION['userid']);
+            return new User((int)$_SESSION['userid']);
         }
         return new User();
     }

@@ -36,7 +36,7 @@ class NetInterface
         }
     }
 
-    public function __get(string $name): string
+    public function __get(string $name): ?string
     {
         if (array_key_exists($name, $this->_data)) {
             return $this->_data[$name];
@@ -154,7 +154,7 @@ class NetInterface
 
     public function getNode(): Node
     {
-        return new Node($this->node);
+        return new Node((int)$this->node);
     }
 
     public function recalcStatus(): bool

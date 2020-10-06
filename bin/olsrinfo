@@ -97,7 +97,7 @@ function fetchOlsrData(string $ip): array
 
         $data['source'] = 'json';
         $data['version'] = $json->{'version'}->{'releaseVersion'};
-        $data['uptime'] = (int)$json->{'timeSinceStartup'}/1000;
+        $data['uptime'] = (int)($json->{'timeSinceStartup'}/1000);
 
         return $data;
     }
@@ -164,7 +164,7 @@ if (!$stmt->execute(array('online'))) {
 }
 
 while ($row = $stmt->fetch()) {
-    $iface = new NetInterface($row[0]);
+    $iface = new NetInterface((int)$row[0]);
 
     $data = fetchOlsrData($iface->address);
 
