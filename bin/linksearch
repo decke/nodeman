@@ -63,7 +63,7 @@ while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
     $loc_b = new Location($argv[2]);
     $iface_b = new NetInterface($row['toif']);
     $node_b = new Node($iface_b->node);
-    
+
     logMsg(sprintf("%s.%s.%s (%d) -> %s.%s.%s (%d)", $loc_a->name, $node_a->name, $iface_a->name, $row['fromif'], $loc_b->name, $node_b->name, $iface_b->name, $row['toif']));
 }
 
