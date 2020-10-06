@@ -30,7 +30,7 @@ if (!$stmt->execute(array())) {
 }
 
 while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-    $user = new User($row['userid']);
+    $user = new User((int)$row['userid']);
     $mailtype = $row['value'];
 
     $user->setAttribute('emailtoken', bin2hex(random_bytes(6)));

@@ -21,8 +21,8 @@ function logMsg(string $msg, string $level = 'INFO'): void
 $handle = Config::getDbHandle();
 $handle->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
-$loc_a = new Location($argv[1]);
-$loc_b = new Location($argv[2]);
+$loc_a = new Location((int)$argv[1]);
+$loc_b = new Location((int)$argv[2]);
 
 logMsg(sprintf('Finding links between %s and %s', $loc_a->name, $loc_b->name));
 
@@ -57,13 +57,13 @@ if (!$stmt->execute(array($argv[1], $argv[2], $argv[2], $argv[1]))) {
 }
 
 while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-    $loc_a = new Location($argv[1]);
-    $iface_a = new NetInterface($row['fromif']);
-    $node_a = new Node($iface_a->node);
+    $loc_a = new Location((int)$argv[1]);
+    $iface_a = new NetInterface((int)$row['fromif']);
+    $node_a = new Node((int)$iface_a->node);
 
-    $loc_b = new Location($argv[2]);
-    $iface_b = new NetInterface($row['toif']);
-    $node_b = new Node($iface_b->node);
+    $loc_b = new Location((int)$argv[2]);
+    $iface_b = new NetInterface((int)$row['toif']);
+    $node_b = new Node((int)$iface_b->node);
 
     logMsg(sprintf('%s.%s.%s (%d) -> %s.%s.%s (%d)', $loc_a->name, $node_a->name, $iface_a->name, $row['fromif'], $loc_b->name, $node_b->name, $iface_b->name, $row['toif']));
 }
