@@ -16,7 +16,6 @@ use DI\Container;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Factory\AppFactory;
 use Slim\Views\Twig;
-use Slim\Views\TwigExtension;
 use Slim\Views\TwigMiddleware;
 use Twig\Extra\Intl\IntlExtension;
 

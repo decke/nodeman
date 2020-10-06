@@ -3,7 +3,6 @@
 
 namespace FunkFeuer\Nodeman;
 
-use \FunkFeuer\Nodeman\Config;
 use \Longman\IPTools\Ip;
 
 require_once __DIR__.'/../vendor/autoload.php';

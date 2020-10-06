@@ -3,7 +3,6 @@
 
 namespace FunkFeuer\Nodeman;
 
-use \FunkFeuer\Nodeman\Config;
 use \PHPMailer\PHPMailer\PHPMailer;
 use \PHPMailer\PHPMailer\SMTP;
 use \PHPMailer\PHPMailer\Exception;

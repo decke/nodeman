@@ -8,6 +8,7 @@ $finder = PhpCsFixer\Finder::create()
 return PhpCsFixer\Config::create()
     ->setFinder($finder)
     ->setRules([
+        'no_unused_imports' => true
     ])
     ->setIndent("    ")
     ->setLineEnding("\n")
