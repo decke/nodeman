@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace FunkFeuer\Nodeman;
 
@@ -13,10 +14,10 @@ namespace FunkFeuer\Nodeman;
  */
 class InterfaceLink
 {
-    private $_handle;
-    private $_switchfromto = false;
+    private \PDO $_handle;
+    private bool $_switchfromto = false;
 
-    private $_data = array(
+    private array $_data = array(
         'linkid'  => null,
         'fromif'  => null,
         'toif'    => null,
@@ -27,7 +28,7 @@ class InterfaceLink
         'lastup'  => null,
     );
 
-    public function __construct($linkid = null)
+    public function __construct(int $linkid = null)
     {
         $this->_handle = Config::getDbHandle();
 
@@ -36,7 +37,7 @@ class InterfaceLink
         }
     }
 
-    public function __get($name)
+    public function __get(string $name): string
     {
         if (array_key_exists($name, $this->_data)) {
             return $this->_data[$name];
@@ -45,7 +46,7 @@ class InterfaceLink
         throw new \Exception('Undefined property '.$name.' in class '.__CLASS__);
     }
 
-    public function __set($name, $value)
+    public function __set(string $name, string $value): bool
     {
         if (array_key_exists($name, $this->_data)) {
             $this->_data[$name] = $value;
@@ -56,17 +57,17 @@ class InterfaceLink
         throw new \Exception('Undefined property '.$name.' in class '.__CLASS__);
     }
 
-    public function __isset($name)
+    public function __isset(string $name): bool
     {
         return array_key_exists($name, $this->_data);
     }
 
-    public function switchFromTo($switch = true)
+    public function switchFromTo(bool $switch = true): void
     {
         $this->_switchfromto = $switch;
     }
 
-    public function load($id)
+    public function load(int $id): bool
     {
         $stmt = $this->_handle->prepare('SELECT linkid, fromif, toif, quality, source, status,
             firstup, lastup FROM linkdata WHERE linkid = ?');
@@ -83,7 +84,7 @@ class InterfaceLink
         return false;
     }
 
-    public function save()
+    public function save(): bool
     {
         if (!$this->linkid) {
             $stmt = $this->_handle->prepare('INSERT INTO linkdata (fromif, toif, quality, source,
@@ -106,7 +107,7 @@ class InterfaceLink
         return false;
     }
 
-    public function loadLinkFromTo($linkidfrom, $linkidto)
+    public function loadLinkFromTo(int $linkidfrom, int $linkidto): bool
     {
         $stmt = $this->_handle->prepare('SELECT linkid, fromif, toif, quality, source, status,
             firstup, lastup FROM linkdata WHERE (fromif = ? AND toif = ?) OR (fromif = ? AND toif = ?)');
@@ -129,7 +130,7 @@ class InterfaceLink
         return false;
     }
 
-    public function getNetInterfaceByIP($ip)
+    public function getNetInterfaceByIP(string $ip): ?NetInterface
     {
         $stmt = $this->_handle->prepare('SELECT interfaceid FROM interfaces WHERE address = ?');
         if (!$stmt->execute(array($ip))) {
@@ -143,7 +144,7 @@ class InterfaceLink
         return null;
     }
 
-    public function getAllLinks()
+    public function getAllLinks(): array
     {
         $data = array();
 
@@ -159,26 +160,26 @@ class InterfaceLink
         return $data;
     }
 
-    public function getFromInterface()
+    public function getFromInterface(): NetInterface
     {
         $iface = ($this->_switchfromto) ? $this->toif : $this->fromif;
 
         return new NetInterface($iface);
     }
 
-    public function getToInterface()
+    public function getToInterface(): NetInterface
     {
         $iface = ($this->_switchfromto) ? $this->fromif : $this->toif;
 
         return new NetInterface($iface);
     }
 
-    public function getFromLocation()
+    public function getFromLocation(): Location
     {
         return $this->getFromInterface()->getNode()->getLocation();
     }
 
-    public function getToLocation()
+    public function getToLocation(): Location
     {
         return $this->getToInterface()->getNode()->getLocation();
     }

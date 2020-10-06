@@ -12,7 +12,7 @@ build: vendor
 
 test: vendor
 	php-cs-fixer fix --dry-run --diff-format udiff
-	phpstan analyse -l 5 -c phpstan.neon bin lib index.php
+	phpstan analyse -l max -c phpstan.neon bin/* lib index.php
 
 fix:
 	php-cs-fixer fix

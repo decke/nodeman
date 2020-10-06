@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace FunkFeuer\Nodeman;
 
@@ -13,8 +14,8 @@ namespace FunkFeuer\Nodeman;
  */
 class User
 {
-    private $_handle;
-    private $_data = array(
+    private \PDO $_handle;
+    private array $_data = array(
         'userid'    => null,
         'password'  => null,
         'email'     => null,
@@ -26,7 +27,7 @@ class User
         'regdate'   => null
     );
 
-    public function __construct($userid = null)
+    public function __construct(int $userid = null)
     {
         $this->_handle = Config::getDbHandle();
 
@@ -35,7 +36,7 @@ class User
         }
     }
 
-    public function __get($name)
+    public function __get(string $name): string
     {
         if (array_key_exists($name, $this->_data)) {
             return $this->_data[$name];
@@ -44,7 +45,7 @@ class User
         throw new \Exception('Undefined property '.$name.' in class User');
     }
 
-    public function __set($name, $value)
+    public function __set(string $name, string $value): bool
     {
         if ($name == 'password') {
             return $this->setPassword($value);
@@ -63,12 +64,12 @@ class User
         throw new \Exception('Undefined property '.$name.' in class User');
     }
 
-    public function __isset($name)
+    public function __isset(string $name): bool
     {
         return array_key_exists($name, $this->_data);
     }
 
-    public function setPassword($password)
+    public function setPassword(string $password): bool
     {
         if (strlen($password) > 0) {
             $this->_data['password'] = password_hash($password, PASSWORD_DEFAULT, array('cost' => 11));
@@ -79,7 +80,7 @@ class User
         return true;
     }
 
-    public function checkPassword($password)
+    public function checkPassword(string $password): bool
     {
         /* Support old MD5 hashes */
         if (strlen($this->password) == 32 && $this->password[0] != '$') {
@@ -96,20 +97,25 @@ class User
         return password_verify($password, $this->password);
     }
 
-    public function emailExists($email)
+    public function emailExists(string $email): bool
     {
         $stmt = $this->_handle->prepare('SELECT count(*) FROM users WHERE email = ?');
-        $stmt->execute(array(strtolower($email)));
-        $result = $stmt->fetchAll();
+        if (!$stmt->execute(array(strtolower($email)))) {
+            return true;
+        }
 
-        return $result[0][0] > 0;
+        if ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            return ((int)$row[0] > 0);
+        }
+
+        return true;
     }
 
-    public function load($userid)
+    public function load(int $userid): bool
     {
         $stmt = $this->_handle->prepare('SELECT userid, password, email, firstname,
             lastname, phone, usergroup, lastlogin, regdate FROM users WHERE userid = ?');
-        if (!$stmt->execute(array(strtolower($userid)))) {
+        if (!$stmt->execute(array($userid))) {
             return false;
         }
 
@@ -122,7 +128,7 @@ class User
         return false;
     }
 
-    public function loadByEMail($email)
+    public function loadByEMail(string $email): bool
     {
         $stmt = $this->_handle->prepare('SELECT userid, password, email, firstname,
             lastname, phone, usergroup, lastlogin, regdate FROM users WHERE email = ?');
@@ -139,7 +145,7 @@ class User
         return false;
     }
 
-    public function save()
+    public function save(): bool
     {
         if (!$this->userid) {
             $stmt = $this->_handle->prepare('INSERT INTO users (password, email, firstname,
@@ -162,7 +168,7 @@ class User
         return false;
     }
 
-    public function getAllAttributes()
+    public function getAllAttributes(): array
     {
         if (!$this->userid) {
             throw new \Exception('User does not have an ID yet in class User');
@@ -182,7 +188,7 @@ class User
         return $data;
     }
 
-    public function getAttribute($key)
+    public function getAttribute(string $key): ?string
     {
         if (!$this->userid) {
             throw new \Exception('User does not have an ID yet in class User');
@@ -190,17 +196,17 @@ class User
 
         $stmt = $this->_handle->prepare('SELECT value FROM userattributes WHERE userid = ? AND key = ?');
         if (!$stmt->execute(array($this->userid, $key))) {
-            return false;
+            return null;
         }
 
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             return $row['value'];
         }
 
-        return false;
+        return null;
     }
 
-    public function delAttribute($key)
+    public function delAttribute(string $key): bool
     {
         if (!$this->userid) {
             throw new \Exception('User does not have an ID yet in class User');
@@ -215,13 +221,13 @@ class User
         return false;
     }
 
-    public function setAttribute($key, $value)
+    public function setAttribute(string $key, string $value): bool
     {
         if (!$this->userid) {
             throw new \Exception('Node does not have an ID yet in class Node');
         }
 
-        if ($this->getAttribute($key) === false) {
+        if ($this->getAttribute($key) === null) {
             $stmt = $this->_handle->prepare('INSERT INTO userattributes (userid, key, value)
                 VALUES (?, ?, ?)');
 

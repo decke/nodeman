@@ -1,5 +1,6 @@
 #!/usr/bin/env php
 <?php
+declare(strict_types=1);
 
 namespace FunkFeuer\Nodeman;
 
@@ -15,7 +16,7 @@ chdir(dirname(__FILE__).'/../');
 /* set default timezone to UTC */
 date_default_timezone_set('UTC');
 
-function logMsg($msg, $level = 'INFO')
+function logMsg(string $msg, string $level = 'INFO'): void
 {
     printf("[%s] [%5s] %s\n", date('H:i:s d.m.Y', time()), $level, $msg);
 }
@@ -33,7 +34,7 @@ while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
     $mailtype = $row['value'];
 
     $user->setAttribute('emailtoken', bin2hex(random_bytes(6)));
-    $user->setAttribute('emailtokenvalid', time()+3600); // valid for 1h
+    $user->setAttribute('emailtokenvalid', (string)(time()+3600)); // valid for 1h
 
     $mail = new PHPMailer(true);
     $mail->XMailer = ' ';

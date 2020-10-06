@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace FunkFeuer\Nodeman;
 
@@ -13,8 +14,8 @@ namespace FunkFeuer\Nodeman;
  */
 class Node
 {
-    private $_handle;
-    private $_data = array(
+    private \PDO $_handle;
+    private array $_data = array(
         'nodeid'        => null,
         'name'          => null,
         'owner'         => null,
@@ -23,7 +24,7 @@ class Node
         'description'   => null
     );
 
-    public function __construct($nodeid = null)
+    public function __construct(int $nodeid = null)
     {
         $this->_handle = Config::getDbHandle();
 
@@ -32,7 +33,7 @@ class Node
         }
     }
 
-    public function __get($name)
+    public function __get(string $name): string
     {
         if (array_key_exists($name, $this->_data)) {
             return $this->_data[$name];
@@ -41,7 +42,7 @@ class Node
         throw new \Exception('Undefined property '.$name.' in class Node');
     }
 
-    public function __set($name, $value)
+    public function __set(string $name, string $value): bool
     {
         if (array_key_exists($name, $this->_data)) {
             $this->_data[$name] = $value;
@@ -52,19 +53,19 @@ class Node
         throw new \Exception('Undefined property '.$name.' in class Node');
     }
 
-    public function __isset($name)
+    public function __isset(string $name): bool
     {
         return array_key_exists($name, $this->_data);
     }
 
-    public function renderDescription()
+    public function renderDescription(): bool
     {
         $parser = new \Parsedown();
         $parser->setSafeMode(true);
         return $parser->text(str_replace('\r\n', "\n\n", $this->description));
     }
 
-    public function load($id)
+    public function load(int $id): bool
     {
         $stmt = $this->_handle->prepare('SELECT nodeid, name, owner, location, createdate,
             description FROM nodes WHERE nodeid = ?');
@@ -81,7 +82,7 @@ class Node
         return false;
     }
 
-    public function save()
+    public function save(): bool
     {
         if (!$this->nodeid) {
             $stmt = $this->_handle->prepare('INSERT INTO nodes (name, owner, location, createdate,
@@ -104,17 +105,17 @@ class Node
         return false;
     }
 
-    public function getLocation()
+    public function getLocation(): Location
     {
         return new Location($this->location);
     }
 
-    public function getPath()
+    public function getPath(): string
     {
         return sprintf('%s.%s', $this->getLocation()->name, $this->name);
     }
 
-    public function getInterfaceByName($name)
+    public function getInterfaceByName(string $name): ?NetInterface
     {
         $stmt = $this->_handle->prepare('SELECT interfaceid FROM interfaces WHERE node = ? AND name = ?');
         if (!$stmt->execute(array($this->nodeid, $name))) {
@@ -128,7 +129,7 @@ class Node
         return null;
     }
 
-    public function getAllInterfaces()
+    public function getAllInterfaces(): array
     {
         if (!$this->nodeid) {
             throw new \Exception('Node does not have an ID yet in class Node');
@@ -148,7 +149,7 @@ class Node
         return $data;
     }
 
-    public function getAllLinks()
+    public function getAllLinks(): array
     {
         if (!$this->nodeid) {
             throw new \Exception('Node does not have an ID yet in class Node');
@@ -176,7 +177,7 @@ class Node
         return $data;
     }
 
-    public function getAllAttributes()
+    public function getAllAttributes(): array
     {
         if (!$this->nodeid) {
             throw new \Exception('Node does not have an ID yet in class Node');
@@ -196,7 +197,7 @@ class Node
         return $data;
     }
 
-    public function getAttribute($key)
+    public function getAttribute(string $key): ?string
     {
         if (!$this->nodeid) {
             throw new \Exception('Node does not have an ID yet in class Node');
@@ -204,17 +205,17 @@ class Node
 
         $stmt = $this->_handle->prepare('SELECT value FROM nodeattributes WHERE node = ? AND key = ?');
         if (!$stmt->execute(array($this->nodeid, $key))) {
-            return false;
+            return null;
         }
 
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             return $row['value'];
         }
 
-        return false;
+        return null;
     }
 
-    public function delAttribute($key)
+    public function delAttribute(string $key): bool
     {
         if (!$this->nodeid) {
             throw new \Exception('Node does not have an ID yet in class Node');
@@ -229,13 +230,13 @@ class Node
         return false;
     }
 
-    public function setAttribute($key, $value)
+    public function setAttribute(string $key, string $value): bool
     {
         if (!$this->nodeid) {
             throw new \Exception('Node does not have an ID yet in class Node');
         }
 
-        if ($this->getAttribute($key) === false) {
+        if ($this->getAttribute($key) === null) {
             $stmt = $this->_handle->prepare('INSERT INTO nodeattributes (node, key, value)
                 VALUES (?, ?, ?)');
 

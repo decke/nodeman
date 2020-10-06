@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace FunkFeuer\Nodeman;
 
@@ -13,15 +14,15 @@ namespace FunkFeuer\Nodeman;
  */
 class Config
 {
-    protected static $datasource = 'sqlite:share/nodeman.db';
-    protected static $handle = null;
+    protected static string $datasource = 'sqlite:share/nodeman.db';
+    protected static ?\PDO $handle = null;
 
-    public static function getDataSource()
+    public static function getDataSource(): string
     {
         return self::$datasource;
     }
 
-    public static function getDbHandle()
+    public static function getDbHandle(): \PDO
     {
         if (self::$handle === null) {
             self::$handle = new \PDO(self::$datasource);
@@ -33,14 +34,11 @@ class Config
         return self::$handle;
     }
 
-    public static function exists($property)
+    public static function exists(string $property): bool
     {
         $handle = self::getDbHandle();
 
         $stmt = $handle->prepare('SELECT name, value FROM config WHERE name = ?');
-        if (!$stmt) {
-            return false;
-        }
 
         if (!$stmt->execute(array(strtolower($property)))) {
             return false;
@@ -54,14 +52,11 @@ class Config
         return true;
     }
 
-    public static function get($property)
+    public static function get(string $property): string
     {
         $handle = self::getDbHandle();
 
         $stmt = $handle->prepare('SELECT name, value FROM config WHERE name = ?');
-        if (!$stmt) {
-            return false;
-        }
 
         if (!$stmt->execute(array(strtolower($property)))) {
             throw new \Exception('Could not find config property '.$property);
@@ -75,7 +70,7 @@ class Config
         return $row['value'];
     }
 
-    public static function set($property, $value)
+    public static function set(string $property, string $value): bool
     {
         $handle = self::getDbHandle();
 

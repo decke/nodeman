@@ -1,5 +1,6 @@
 #!/usr/bin/env php
 <?php
+declare(strict_types=1);
 
 namespace FunkFeuer\Nodeman;
 
@@ -13,15 +14,15 @@ chdir(dirname(__FILE__).'/../');
 date_default_timezone_set('UTC');
 
 /* allow fetching urls */
-ini_set('allow_url_fopen', 1);
+ini_set('allow_url_fopen', '1');
 
 
-function logMsg($msg, $level = 'INFO')
+function logMsg(string $msg, string $level = 'INFO'): void
 {
     printf("[%s] [%5s] %s\n", date('H:i:s d.m.Y', time()), $level, $msg);
 }
 
-function TimeStrToInt($str)
+function TimeStrToInt(string $str): int
 {
     // Format: 2426 day(s) 14 hours 47 minutes 10 seconds
     $seconds = 0;
@@ -30,15 +31,15 @@ function TimeStrToInt($str)
     for ($i=count($parts)-1; $i > 0; $i--) {
         switch ($parts[$i]) {
             case 'day(s)':
-                $seconds += ($parts[$i-1]*86400);
+                $seconds += ((int)$parts[$i-1]*86400);
                 $i--;
             break;
             case 'hours':
-                $seconds += ($parts[$i-1]*3600);
+                $seconds += ((int)$parts[$i-1]*3600);
                 $i--;
             break;
             case 'minutes':
-                $seconds += ($parts[$i-1]*60);
+                $seconds += ((int)$parts[$i-1]*60);
                 $i--;
             break;
             case 'seconds':
@@ -51,7 +52,7 @@ function TimeStrToInt($str)
     return $seconds;
 }
 
-function formatTimeDiff($seconds)
+function formatTimeDiff(int $seconds): string
 {
     $str = '';
 
@@ -73,7 +74,7 @@ function formatTimeDiff($seconds)
     return rtrim($str);
 }
 
-function fetchOlsrData($ip)
+function fetchOlsrData(string $ip): array
 {
     $data = array(
         'source'  => 'FAIL',

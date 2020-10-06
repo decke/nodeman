@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * FunkFeuer Node Manager.
@@ -99,7 +100,7 @@ $app->post('/login', function ($request, $response) use ($session) {
         $this->get('flash')->addMessage('error', 'Authentication failed');
     } elseif (!$session->login($request->getParam('email'), $request->getParam('password'))) {
         $this->get('flash')->addMessage('error', 'Authentication failed');
-    } elseif ($session->getUser()->getAttribute('needsverification')) {
+    } elseif ($session->getUser() !== null && $session->getUser()->getAttribute('needsverification')) {
         $this->get('flash')->addMessage('error', 'EMail not verified yet');
         $session->deauthenticate();
     }
@@ -398,7 +399,7 @@ $app->get('/mapdata', function ($request, $response) {
 
         $type = preg_replace('/[^A-Za-z0-9 ]/', '', $type);
 
-        if (!isset($linkdata[$type])) {
+        if ($type === null || is_array($type) || !isset($linkdata[$type])) {
             continue;
         }
 

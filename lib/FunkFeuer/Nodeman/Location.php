@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace FunkFeuer\Nodeman;
 
@@ -13,8 +14,8 @@ namespace FunkFeuer\Nodeman;
  */
 class Location
 {
-    private $_handle;
-    private $_data = array(
+    private \PDO $_handle;
+    private array $_data = array(
         'locationid'  => null,
         'name'        => null,
         'owner'       => null,
@@ -27,7 +28,7 @@ class Location
         'description' => null
     );
 
-    public function __construct($locationid = null)
+    public function __construct(int $locationid = null)
     {
         $this->_handle = Config::getDbHandle();
 
@@ -36,7 +37,7 @@ class Location
         }
     }
 
-    public function __get($name)
+    public function __get(string $name): string
     {
         if (array_key_exists($name, $this->_data)) {
             return $this->_data[$name];
@@ -45,7 +46,7 @@ class Location
         throw new \Exception('Undefined property '.$name.' in class Location');
     }
 
-    public function __set($name, $value)
+    public function __set(string $name, string $value): bool
     {
         if (array_key_exists($name, $this->_data)) {
             $this->_data[$name] = $value;
@@ -56,24 +57,24 @@ class Location
         throw new \Exception('Undefined property '.$name.' in class Location');
     }
 
-    public function __isset($name)
+    public function __isset(string $name): bool
     {
         return array_key_exists($name, $this->_data);
     }
 
-    public function getLongLat()
+    public function getLongLat(): string
     {
         return sprintf('[%f, %f]', $this->latitude, $this->longitude);
     }
 
-    public function renderDescription()
+    public function renderDescription(): string
     {
         $parser = new \Parsedown();
         $parser->setSafeMode(true);
         return $parser->text(str_replace('\r\n', "\n\n", $this->description));
     }
 
-    public function load($id)
+    public function load(int $id): bool
     {
         $stmt = $this->_handle->prepare('SELECT locationid, name, owner, address,
             latitude, longitude, status, gallerylink, createdate, description FROM locations WHERE locationid = ?');
@@ -90,7 +91,7 @@ class Location
         return false;
     }
 
-    public function loadByName($name)
+    public function loadByName(string $name): bool
     {
         $stmt = $this->_handle->prepare('SELECT locationid, name, owner, address,
             latitude, longitude, status, gallerylink, createdate, description FROM locations WHERE name = ?');
@@ -107,7 +108,7 @@ class Location
         return false;
     }
 
-    public function save()
+    public function save(): bool
     {
         if (!$this->locationid) {
             $stmt = $this->_handle->prepare('INSERT INTO locations (name, owner, address,
@@ -130,7 +131,7 @@ class Location
         return false;
     }
 
-    public function recalcStatus()
+    public function recalcStatus(): bool
     {
         $stmt = $this->_handle->prepare('SELECT count(*) FROM interfaces WHERE node IN (SELECT nodeid FROM nodes WHERE location = ?) AND status = ?');
         if (!$stmt->execute(array($this->locationid, 'online'))) {
@@ -150,7 +151,7 @@ class Location
         return false;
     }
 
-    public function getAllLocations($owner = null, $start = 0, $limit = 100)
+    public function getAllLocations(int $owner = null, int $start = 0, int $limit = 100): array
     {
         $data = array();
 
@@ -166,12 +167,12 @@ class Location
         return $data;
     }
 
-    public function getMaintainer()
+    public function getMaintainer(): User
     {
         return new User($this->owner);
     }
 
-    public function countAllLocations($owner = null)
+    public function countAllLocations(int $owner = null): bool
     {
         $stmt = $this->_handle->prepare('SELECT count(*) FROM locations WHERE (owner = ? OR ? IS NULL)');
         if (!$stmt->execute(array($owner, $owner))) {
@@ -181,17 +182,17 @@ class Location
         return $stmt->fetch(\PDO::FETCH_BOTH)[0];
     }
 
-    public function countNodes()
+    public function countNodes(): int
     {
         $stmt = $this->_handle->prepare('SELECT count(*) FROM nodes WHERE location = ?');
         if (!$stmt->execute(array($this->locationid))) {
-            return false;
+            return 0;
         }
 
         return $stmt->fetch(\PDO::FETCH_BOTH)[0];
     }
 
-    public function getNodes()
+    public function getNodes(): array
     {
         $data = array();
 
@@ -207,7 +208,7 @@ class Location
         return $data;
     }
 
-    public function getNodeByName($name)
+    public function getNodeByName(string $name): ?Node
     {
         $stmt = $this->_handle->prepare('SELECT nodeid FROM nodes WHERE location = ? AND name = ?');
         if (!$stmt->execute(array($this->locationid, $name))) {
@@ -221,7 +222,7 @@ class Location
         return null;
     }
 
-    public function nodeExists($name)
+    public function nodeExists(string $name): bool
     {
         $stmt = $this->_handle->prepare('SELECT count(*) FROM nodes WHERE location = ? AND LOWER(name) = LOWER(?)');
         if (!$stmt->execute(array($this->locationid, $name))) {

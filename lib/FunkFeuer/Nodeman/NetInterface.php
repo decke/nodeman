@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace FunkFeuer\Nodeman;
 
@@ -13,8 +14,8 @@ namespace FunkFeuer\Nodeman;
  */
 class NetInterface
 {
-    private $_handle;
-    private $_data = array(
+    private \PDO $_handle;
+    private array $_data = array(
         'interfaceid'   => null,
         'name'          => null,
         'node'          => null,
@@ -26,7 +27,7 @@ class NetInterface
         'description'   => null
     );
 
-    public function __construct($interfaceid = null)
+    public function __construct(int $interfaceid = null)
     {
         $this->_handle = Config::getDbHandle();
 
@@ -35,7 +36,7 @@ class NetInterface
         }
     }
 
-    public function __get($name)
+    public function __get(string $name): string
     {
         if (array_key_exists($name, $this->_data)) {
             return $this->_data[$name];
@@ -44,7 +45,7 @@ class NetInterface
         throw new \Exception('Undefined property '.$name.' in class '.__CLASS__);
     }
 
-    public function __set($name, $value)
+    public function __set(string $name, string $value): bool
     {
         if (array_key_exists($name, $this->_data)) {
             $this->_data[$name] = $value;
@@ -55,19 +56,19 @@ class NetInterface
         throw new \Exception('Undefined property '.$name.' in class '.__CLASS__);
     }
 
-    public function __isset($name)
+    public function __isset(string $name): bool
     {
         return array_key_exists($name, $this->_data);
     }
 
-    public function renderDescription()
+    public function renderDescription(): string
     {
         $parser = new \Parsedown();
         $parser->setSafeMode(true);
         return $parser->text(str_replace('\r\n', "\n\n", $this->description));
     }
 
-    public function load($id)
+    public function load(int $id): bool
     {
         $stmt = $this->_handle->prepare('SELECT interfaceid, name, node, category, type, address,
             status, ping, description FROM interfaces WHERE interfaceid = ?');
@@ -84,7 +85,7 @@ class NetInterface
         return false;
     }
 
-    public function save()
+    public function save(): bool
     {
         if (!$this->interfaceid) {
             $stmt = $this->_handle->prepare('INSERT INTO interfaces (name, node, category, type, address,
@@ -107,7 +108,7 @@ class NetInterface
         return false;
     }
 
-    public function loadByIPAddress($address)
+    public function loadByIPAddress(string $address): bool
     {
         $stmt = $this->_handle->prepare('SELECT interfaceid, name, node, category, type, address,
             status, ping, description FROM interfaces WHERE address = ?');
@@ -124,7 +125,7 @@ class NetInterface
         return false;
     }
 
-    public function loadByPath($path)
+    public function loadByPath(string $path): bool
     {
         $parts = explode('.', $path);
         if (count($parts) != 3) {
@@ -134,27 +135,29 @@ class NetInterface
         $loc = new Location();
         $loc->loadByName($parts[0]);
         $node = $loc->getNodeByName($parts[1]);
-
         if ($node === null) {
             throw new \Exception('Invalid NetInterface path '.$path);
         }
 
         $iface = $node->getInterfaceByName($parts[2]);
+        if ($iface === null) {
+            throw new \Exception('Invalid NetInterface path '.$path);
+        }
 
         return $this->load($iface->interfaceid);
     }
 
-    public function getPath()
+    public function getPath(): string
     {
         return sprintf('%s.%s.%s', $this->getNode()->getLocation()->name, $this->getNode()->name, $this->name);
     }
 
-    public function getNode()
+    public function getNode(): Node
     {
         return new Node($this->node);
     }
 
-    public function recalcStatus()
+    public function recalcStatus(): bool
     {
         $stmt = $this->_handle->prepare('SELECT count(*) FROM linkdata WHERE (fromif = ? OR toif = ?) AND status = ?');
         if (!$stmt->execute(array($this->interfaceid, $this->interfaceid, 'up'))) {
@@ -174,7 +177,7 @@ class NetInterface
         return false;
     }
 
-    public function getAllAttributes()
+    public function getAllAttributes(): array
     {
         if (!$this->interfaceid) {
             throw new \Exception('NetInterface does not have an ID yet in class NetInterface');
@@ -194,7 +197,7 @@ class NetInterface
         return $data;
     }
 
-    public function getAttribute($key)
+    public function getAttribute(string $key): ?string
     {
         if (!$this->interfaceid) {
             throw new \Exception('NetInterface does not have an ID yet in class NetInterface');
@@ -202,17 +205,17 @@ class NetInterface
 
         $stmt = $this->_handle->prepare('SELECT value FROM interfaceattributes WHERE interface = ? AND key = ?');
         if (!$stmt->execute(array($this->interfaceid, $key))) {
-            return false;
+            return null;
         }
 
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             return $row['value'];
         }
 
-        return false;
+        return null;
     }
 
-    public function delAttribute($key)
+    public function delAttribute(string $key): bool
     {
         if (!$this->interfaceid) {
             throw new \Exception('NetInterface does not have an ID yet in class NetInterface');
@@ -227,13 +230,13 @@ class NetInterface
         return false;
     }
 
-    public function setAttribute($key, $value)
+    public function setAttribute(string $key, string $value): bool
     {
         if (!$this->interfaceid) {
             throw new \Exception('NetInterface does not have an ID yet in class NetInterface');
         }
 
-        if ($this->getAttribute($key) === false) {
+        if ($this->getAttribute($key) === null) {
             $stmt = $this->_handle->prepare('INSERT INTO interfaceattributes (interface, key, value)
                 VALUES (?, ?, ?)');
 

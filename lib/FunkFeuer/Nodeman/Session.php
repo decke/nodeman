@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace FunkFeuer\Nodeman;
 
@@ -20,7 +21,7 @@ class Session
         session_start();
     }
 
-    public static function initialize()
+    public static function initialize(): void
     {
         // rename session
         session_name('SESSIONID');
@@ -43,12 +44,12 @@ class Session
         session_cache_limiter('nocache');
     }
 
-    public static function getSessionId()
+    public static function getSessionId(): string
     {
         return session_id();
     }
 
-    public static function login($email, $password)
+    public static function login(string $email, string $password): bool
     {
         $user = new User();
         if (!$user->loadByEmail($email)) {
@@ -68,28 +69,27 @@ class Session
         return $user->save();
     }
 
-    public static function deauthenticate()
+    public static function deauthenticate(): void
     {
         unset($_SESSION['authenticated']);
         unset($_SESSION['userid']);
         unset($_SESSION['loginip']);
     }
 
-    public static function getUser()
+    public static function getUser(): User
     {
         if (self::isAuthenticated()) {
             return new User($_SESSION['userid']);
         }
-
-        return null;
+        return new User();
     }
 
-    public static function isAuthenticated()
+    public static function isAuthenticated(): bool
     {
         return isset($_SESSION['authenticated']);
     }
 
-    public static function logout()
+    public static function logout(): bool
     {
         $_SESSION = array();
 
