@@ -96,10 +96,10 @@ while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
 
         $user->delAttribute('sendmail');
 
-        logMsg(sprintf("%s [%s]", $user->email, $mailtype), "INFO");
+        logMsg(sprintf('%s [%s]', $user->email, $mailtype), 'INFO');
     } catch (Exception $e) {
-        logMsg(sprintf("%s [%s]", $user->email, $mailtype), "FAIL");
-        logMsg($mail->ErrorInfo, "FAIL");
+        logMsg(sprintf('%s [%s]', $user->email, $mailtype), 'FAIL');
+        logMsg($mail->ErrorInfo, 'FAIL');
     }
 }
 

@@ -31,7 +31,7 @@ class Session
         // avoid cross-origin leakage
         ini_set('session.cookie_samesite', 'Strict');
 
-        if (Config::get('security.https_only') == "true" || (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on")) {
+        if (Config::get('security.https_only') == 'true' || (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')) {
             // only send cookie over https
             ini_set('session.cookie_secure', 'true');
 

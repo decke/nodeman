@@ -396,7 +396,7 @@ $app->get('/mapdata', function ($request, $response) {
             $type = 'fiber';
         }
 
-        $type = preg_replace("/[^A-Za-z0-9 ]/", '', $type);
+        $type = preg_replace('/[^A-Za-z0-9 ]/', '', $type);
 
         if (!isset($linkdata[$type])) {
             continue;

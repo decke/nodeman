@@ -146,7 +146,7 @@ class NetInterface
 
     public function getPath()
     {
-        return sprintf("%s.%s.%s", $this->getNode()->getLocation()->name, $this->getNode()->name, $this->name);
+        return sprintf('%s.%s.%s', $this->getNode()->getLocation()->name, $this->getNode()->name, $this->name);
     }
 
     public function getNode()

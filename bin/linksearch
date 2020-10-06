@@ -23,32 +23,32 @@ $handle->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 $loc_a = new Location($argv[1]);
 $loc_b = new Location($argv[2]);
 
-logMsg(sprintf("Finding links between %s and %s", $loc_a->name, $loc_b->name));
+logMsg(sprintf('Finding links between %s and %s', $loc_a->name, $loc_b->name));
 
-logMsg("");
-logMsg(sprintf("Checking nodes on %s", $loc_a->name));
+logMsg('');
+logMsg(sprintf('Checking nodes on %s', $loc_a->name));
 
 foreach ($loc_a->getNodes() as $node) {
-    logMsg(sprintf("  %s %s", $node->name, $node->description));
+    logMsg(sprintf('  %s %s', $node->name, $node->description));
 
     foreach ($node->getAllInterfaces() as $iface) {
-        logMsg(sprintf("    %03d %s (%s) %s", $iface->interfaceid, $iface->name, $iface->status, $iface->description));
+        logMsg(sprintf('    %03d %s (%s) %s', $iface->interfaceid, $iface->name, $iface->status, $iface->description));
     }
 }
 
-logMsg("");
-logMsg(sprintf("Checking nodes on %s", $loc_b->name));
+logMsg('');
+logMsg(sprintf('Checking nodes on %s', $loc_b->name));
 
 foreach ($loc_b->getNodes() as $node) {
-    logMsg(sprintf("  %s %s", $node->name, $node->description));
+    logMsg(sprintf('  %s %s', $node->name, $node->description));
 
     foreach ($node->getAllInterfaces() as $iface) {
-        logMsg(sprintf("    %03d %s (%s) %s", $iface->interfaceid, $iface->name, $iface->status, $iface->description));
+        logMsg(sprintf('    %03d %s (%s) %s', $iface->interfaceid, $iface->name, $iface->status, $iface->description));
     }
 }
 
-logMsg("");
-logMsg(sprintf("Checking linkdata ..."));
+logMsg('');
+logMsg(sprintf('Checking linkdata ...'));
 
 $stmt = $handle->prepare('SELECT fromif, toif FROM linkdata WHERE (fromif IN (SELECT interfaceid FROM interfaces WHERE node IN (SELECT nodeid FROM nodes WHERE location = ?)) AND toif IN (SELECT interfaceid FROM interfaces WHERE node IN (SELECT nodeid FROM nodes WHERE location = ?))) OR (fromif IN (SELECT interfaceid FROM interfaces WHERE node IN (SELECT nodeid FROM nodes WHERE location = ?)) AND toif IN (SELECT interfaceid FROM interfaces WHERE node IN (SELECT nodeid FROM nodes WHERE location = ?)))');
 if (!$stmt->execute(array($argv[1], $argv[2], $argv[2], $argv[1]))) {
@@ -64,7 +64,7 @@ while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
     $iface_b = new NetInterface($row['toif']);
     $node_b = new Node($iface_b->node);
 
-    logMsg(sprintf("%s.%s.%s (%d) -> %s.%s.%s (%d)", $loc_a->name, $node_a->name, $iface_a->name, $row['fromif'], $loc_b->name, $node_b->name, $iface_b->name, $row['toif']));
+    logMsg(sprintf('%s.%s.%s (%d) -> %s.%s.%s (%d)', $loc_a->name, $node_a->name, $iface_a->name, $row['fromif'], $loc_b->name, $node_b->name, $iface_b->name, $row['toif']));
 }
 
 exit(0);

@@ -111,7 +111,7 @@ class Node
 
     public function getPath()
     {
-        return sprintf("%s.%s", $this->getLocation()->name, $this->name);
+        return sprintf('%s.%s', $this->getLocation()->name, $this->name);
     }
 
     public function getInterfaceByName($name)

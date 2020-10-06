@@ -13,7 +13,7 @@ chdir(dirname(__FILE__).'/../');
 date_default_timezone_set('UTC');
 
 /* allow fetching urls */
-ini_set("allow_url_fopen", 1);
+ini_set('allow_url_fopen', 1);
 
 
 function logMsg($msg, $level = 'INFO')
@@ -23,13 +23,13 @@ function logMsg($msg, $level = 'INFO')
 
 $json = @file_get_contents('http://localhost:9090/topology');
 if (!$json) {
-    logMsg("Failed fetching topology info from olsrd", "ERROR");
+    logMsg('Failed fetching topology info from olsrd', 'ERROR');
     exit(1);
 }
 
 $data = json_decode($json);
 if (!$data) {
-    logMsg("Failed parsing json content from olsrd", "ERROR");
+    logMsg('Failed parsing json content from olsrd', 'ERROR');
     exit(1);
 }
 
@@ -41,20 +41,20 @@ $linkcount = count($data->{'topology'});
 
 $recalcInterfaces = array();
 
-logMsg("Analyzing ".$linkcount." active links", "INFO");
+logMsg('Analyzing '.$linkcount.' active links', 'INFO');
 
 for ($i=0; $i < $linkcount; $i++) {
     $topodata = $data->{'topology'}[$i];
 
     $ifaceFrom = new NetInterface();
     if (!$ifaceFrom->loadByIPAddress($topodata->lastHopIP)) {
-        logMsg(sprintf("IP %s is not known!", $topodata->lastHopIP), "WARN");
+        logMsg(sprintf('IP %s is not known!', $topodata->lastHopIP), 'WARN');
         continue;
     }
 
     $ifaceTo = new NetInterface();
     if (!$ifaceTo->loadByIPAddress($topodata->destinationIP)) {
-        logMsg(sprintf("IP %s not known!", $topodata->destinationIP), "WARN");
+        logMsg(sprintf('IP %s not known!', $topodata->destinationIP), 'WARN');
         continue;
     }
 
@@ -82,20 +82,20 @@ for ($i=0; $i < $linkcount; $i++) {
     $link->lastup = $data->{'systemTime'};
 
     if (!$link->save()) {
-        logMsg("Could not update linkdata", "ERROR");
+        logMsg('Could not update linkdata', 'ERROR');
         continue;
     }
 
-    logMsg(sprintf("%05d IP %s - %s (%0.1f)", $link->linkid, $topodata->lastHopIP, $topodata->destinationIP, $topodata->linkQuality), "INFO");
+    logMsg(sprintf('%05d IP %s - %s (%0.1f)', $link->linkid, $topodata->lastHopIP, $topodata->destinationIP, $topodata->linkQuality), 'INFO');
 }
 
 // find and process outdated links
-logMsg("Finding outdated links", "INFO");
+logMsg('Finding outdated links', 'INFO');
 
 $stmt = $handle->prepare('SELECT linkid FROM linkdata WHERE lastup < ?');
 
 if (!$stmt->execute(array($data->{'systemTime'}))) {
-    logMsg("Failed to find outdated links", "ERROR");
+    logMsg('Failed to find outdated links', 'ERROR');
     exit(1);
 }
 
@@ -116,15 +116,15 @@ while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
     $link->status = 'down';
 
     if (!$link->save()) {
-        logMsg("Could not update linkdata", "ERROR");
+        logMsg('Could not update linkdata', 'ERROR');
         continue;
     }
 
-    logMsg(sprintf("%05d IP %s - %s (%0.1f)", $link->linkid, $topodata->lastHopIP, $topodata->destinationIP, $topodata->linkQuality), "INFO");
+    logMsg(sprintf('%05d IP %s - %s (%0.1f)', $link->linkid, $topodata->lastHopIP, $topodata->destinationIP, $topodata->linkQuality), 'INFO');
 }
 
 // recalc Interface Status
-logMsg(sprintf("Recalculating Status for %d interfaces", count($recalcInterfaces)), "INFO");
+logMsg(sprintf('Recalculating Status for %d interfaces', count($recalcInterfaces)), 'INFO');
 
 $recalcLocations = array();
 
@@ -141,7 +141,7 @@ foreach ($recalcInterfaces as $interfaceid) {
 }
 
 // recalc Location Status
-logMsg(sprintf("Recalculating Status for %d locations", count($recalcLocations)), "INFO");
+logMsg(sprintf('Recalculating Status for %d locations', count($recalcLocations)), 'INFO');
 
 foreach ($recalcLocations as $locationid) {
     $location = new Location($locationid);

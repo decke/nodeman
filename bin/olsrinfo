@@ -13,7 +13,7 @@ chdir(dirname(__FILE__).'/../');
 date_default_timezone_set('UTC');
 
 /* allow fetching urls */
-ini_set("allow_url_fopen", 1);
+ini_set('allow_url_fopen', 1);
 
 
 function logMsg($msg, $level = 'INFO')
@@ -158,7 +158,7 @@ $handle->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 $stmt = $handle->prepare('SELECT MIN(interfaceid) FROM interfaces WHERE status = ? GROUP BY node');
 
 if (!$stmt->execute(array('online'))) {
-    logMsg("SQL Query failed", "ERROR");
+    logMsg('SQL Query failed', 'ERROR');
     exit(1);
 }
 
@@ -176,13 +176,13 @@ while ($row = $stmt->fetch()) {
     }
 
     logMsg(sprintf(
-        "%05d %15s %5s version: %10s uptime: %s",
+        '%05d %15s %5s version: %10s uptime: %s',
         $iface->interfaceid,
         $iface->address,
         $data['source'],
         $data['version'],
         formatTimeDiff($data['uptime'])
-    ), "INFO");
+    ), 'INFO');
 }
 
 exit(0);

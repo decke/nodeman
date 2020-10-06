@@ -14,7 +14,7 @@ chdir(dirname(__FILE__).'/../');
 date_default_timezone_set('UTC');
 
 /* allow fetching urls */
-ini_set("allow_url_fopen", 1);
+ini_set('allow_url_fopen', 1);
 
 
 function logMsg($msg, $level = 'INFO')
@@ -24,13 +24,13 @@ function logMsg($msg, $level = 'INFO')
 
 $json = @file_get_contents('http://localhost:9090/hna');
 if (!$json) {
-    logMsg("Failed fetching hna info from olsrd", "ERROR");
+    logMsg('Failed fetching hna info from olsrd', 'ERROR');
     exit(1);
 }
 
 $data = json_decode($json);
 if (!$data) {
-    logMsg("Failed parsing json content from olsrd", "ERROR");
+    logMsg('Failed parsing json content from olsrd', 'ERROR');
     exit(1);
 }
 
@@ -43,7 +43,7 @@ $hnaifaces = array();
 $stmt = $handle->prepare('SELECT interfaceid FROM interfaces, interfaceattributes WHERE interfaceid = interface AND key = "hna-router"');
 
 if (!$stmt->execute(array())) {
-    logMsg("Failed to find outdated links", "ERROR");
+    logMsg('Failed to find outdated links', 'ERROR');
     exit(1);
 }
 
@@ -57,7 +57,7 @@ $interfaces = array();
 $stmt = $handle->prepare('SELECT interfaceid FROM interfaces WHERE 1 = 1');
 
 if (!$stmt->execute(array())) {
-    logMsg("Failed to find outdated links", "ERROR");
+    logMsg('Failed to find outdated links', 'ERROR');
     exit(1);
 }
 
@@ -69,14 +69,14 @@ $interfacescount = count($interfaces);
 
 $hnacount = count($data->{'hna'});
 
-logMsg("Analyzing ".$hnacount." HNA entries", "INFO");
+logMsg('Analyzing '.$hnacount.' HNA entries', 'INFO');
 
 for ($i=0; $i < $hnacount; $i++) {
     $hnadata = $data->{'hna'}[$i];
 
     $gwiface = new NetInterface();
     if (!$gwiface->loadByIPAddress($hnadata->gateway)) {
-        logMsg(sprintf("Gateway IP %s is not known!", $hnadata->gateway), "WARN");
+        logMsg(sprintf('Gateway IP %s is not known!', $hnadata->gateway), 'WARN');
         continue;
     }
 
@@ -84,23 +84,23 @@ for ($i=0; $i < $hnacount; $i++) {
         unset($hnaifaces[$hnadata->destination]);
     }
 
-    logMsg(sprintf("%s/%d via %s (%s)", $hnadata->destination, $hnadata->genmask, $hnadata->gateway, $gwiface->status), "INFO");
+    logMsg(sprintf('%s/%d via %s (%s)', $hnadata->destination, $hnadata->genmask, $hnadata->gateway, $gwiface->status), 'INFO');
 
     for ($j=0; $j < $interfacescount; $j++) {
         $iface = $interfaces[$j];
-        if ($iface->address != "" && Ip::match($iface->address, $hnadata->destination.'/'.$hnadata->genmask)) {
+        if ($iface->address != '' && Ip::match($iface->address, $hnadata->destination.'/'.$hnadata->genmask)) {
             $iface->setAttribute('hna-router', $gwiface->getPath());
             $iface->status = 'online';
             $iface->save();
 
-            logMsg(sprintf("%s matched %s/%d", $iface->address, $hnadata->destination, $hnadata->genmask), "INFO");
+            logMsg(sprintf('%s matched %s/%d', $iface->address, $hnadata->destination, $hnadata->genmask), 'INFO');
         }
     }
 }
 
 
 // Removing outdated entries
-logMsg("Removing ".count($hnaifaces)." outdated HNA entries", "INFO");
+logMsg('Removing '.count($hnaifaces).' outdated HNA entries', 'INFO');
 
 foreach ($hnaifaces as $ifaceid => $ignore) {
     $iface = new NetInterface($ifaceid);
@@ -108,7 +108,7 @@ foreach ($hnaifaces as $ifaceid => $ignore) {
     $iface->status = 'offline';
     $iface->save();
 
-    logMsg(sprintf("%s now offline", $iface->address), "INFO");
+    logMsg(sprintf('%s now offline', $iface->address), 'INFO');
 }
 
 exit(0);
