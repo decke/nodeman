@@ -19,7 +19,8 @@
       "ext-hash": "*",
       "ext-PDO": "*",
       "ext-pdo_sqlite": "*",
-      "ext-session": "*"
+      "ext-session": "*",
+      "php": ">=7.4"
    },
    "autoload": {
       "psr-0": {
