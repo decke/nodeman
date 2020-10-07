@@ -15,18 +15,17 @@ namespace FunkFeuer\Nodeman;
 class Location
 {
     private \PDO $_handle;
-    private array $_data = array(
-        'locationid'  => null,
-        'name'        => null,
-        'owner'       => null,
-        'address'     => null,
-        'latitude'    => null,
-        'longitude'   => null,
-        'status'      => null,
-        'gallerylink' => null,
-        'createdate'  => null,
-        'description' => null
-    );
+
+    public int $locationid;
+    public string $name;
+    public int $owner;
+    public string $address;
+    public float $latitude;
+    public float $longitude;
+    public string $status;
+    public string $gallerylink;
+    public int $createdate;
+    public string $description;
 
     public function __construct(int $locationid = null)
     {
@@ -35,31 +34,6 @@ class Location
         if ($locationid !== null) {
             $this->load($locationid);
         }
-    }
-
-    public function __get(string $name): ?string
-    {
-        if (array_key_exists($name, $this->_data)) {
-            return $this->_data[$name];
-        }
-
-        throw new \Exception('Undefined property '.$name.' in class Location');
-    }
-
-    public function __set(string $name, string $value): bool
-    {
-        if (array_key_exists($name, $this->_data)) {
-            $this->_data[$name] = $value;
-
-            return true;
-        }
-
-        throw new \Exception('Undefined property '.$name.' in class Location');
-    }
-
-    public function __isset(string $name): bool
-    {
-        return array_key_exists($name, $this->_data);
     }
 
     public function getLongLat(): string
@@ -76,47 +50,45 @@ class Location
 
     public function load(int $id): bool
     {
-        $stmt = $this->_handle->prepare('SELECT locationid, name, owner, address,
-            latitude, longitude, status, gallerylink, createdate, description FROM locations WHERE locationid = ?');
+        $stmt = $this->_handle->prepare('SELECT * FROM locations WHERE locationid = ?');
+        $stmt->setFetchMode(\PDO::FETCH_INTO, $this);
+
         if (!$stmt->execute(array($id))) {
             return false;
         }
 
-        if ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $this->_data = $row;
-
-            return true;
+        if ($stmt->fetch(\PDO::FETCH_INTO) === false) {
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     public function loadByName(string $name): bool
     {
-        $stmt = $this->_handle->prepare('SELECT locationid, name, owner, address,
-            latitude, longitude, status, gallerylink, createdate, description FROM locations WHERE name = ?');
+        $stmt = $this->_handle->prepare('SELECT * FROM locations WHERE name = ?');
+        $stmt->setFetchMode(\PDO::FETCH_INTO, $this);
+
         if (!$stmt->execute(array($name))) {
             return false;
         }
 
-        if ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $this->_data = $row;
-
-            return true;
+        if ($stmt->fetch(\PDO::FETCH_INTO) === false) {
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     public function save(): bool
     {
-        if (!$this->locationid) {
+        if (!isset($this->locationid)) {
             $stmt = $this->_handle->prepare('INSERT INTO locations (name, owner, address,
                 longitude, latitude, status, gallerylink, createdate, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)');
 
             if ($stmt->execute(array($this->name, $this->owner, $this->address,
                 $this->longitude, $this->latitude, $this->status, $this->gallerylink, $this->createdate, $this->description))) {
-                $this->locationid = $this->_handle->lastInsertId();
+                $this->locationid = (int)$this->_handle->lastInsertId();
 
                 return true;
             }
@@ -138,8 +110,8 @@ class Location
             return false;
         }
 
-        if ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            if ($row['count(*)'] > 0) {
+        if ($row = $stmt->fetch(\PDO::FETCH_NUM)) {
+            if ($row[0] > 0) {
                 $this->status = 'online';
             } else {
                 $this->status = 'offline';
@@ -169,17 +141,17 @@ class Location
 
     public function getMaintainer(): User
     {
-        return new User((int)$this->owner);
+        return new User($this->owner);
     }
 
-    public function countAllLocations(int $owner = null): bool
+    public function countAllLocations(int $owner = null): int
     {
         $stmt = $this->_handle->prepare('SELECT count(*) FROM locations WHERE (owner = ? OR ? IS NULL)');
         if (!$stmt->execute(array($owner, $owner))) {
-            return false;
+            return 0;
         }
 
-        return $stmt->fetch(\PDO::FETCH_BOTH)[0];
+        return (int)$stmt->fetch(\PDO::FETCH_NUM)[0];
     }
 
     public function countNodes(): int
@@ -189,7 +161,7 @@ class Location
             return 0;
         }
 
-        return $stmt->fetch(\PDO::FETCH_BOTH)[0];
+        return (int)$stmt->fetch(\PDO::FETCH_NUM)[0];
     }
 
     public function getNodes(): array
@@ -229,6 +201,6 @@ class Location
             return false;
         }
 
-        return $stmt->fetch(\PDO::FETCH_BOTH)[0] > 0;
+        return (int)$stmt->fetch(\PDO::FETCH_NUM)[0] > 0;
     }
 }

@@ -6,7 +6,3 @@ parameters:
 		-
 			message: '#Undefined variable: \$this#'
 			path: %currentWorkingDirectory%/index.php
-		# hack to shut up __get()/__set() usage
-		-
-			message: '#Access to an undefined property#'
-			path: %currentWorkingDirectory%

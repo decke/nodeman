@@ -15,17 +15,16 @@ namespace FunkFeuer\Nodeman;
 class NetInterface
 {
     private \PDO $_handle;
-    private array $_data = array(
-        'interfaceid'   => null,
-        'name'          => null,
-        'node'          => null,
-        'category'      => null,
-        'type'          => null,
-        'address'       => null,
-        'status'        => null,
-        'ping'          => null,
-        'description'   => null
-    );
+
+    public int $interfaceid;
+    public string $name;
+    public int $node;
+    public string $category;
+    public string $type;
+    public string $address;
+    public string $status;
+    public int $ping;
+    public string $description;
 
     public function __construct(int $interfaceid = null)
     {
@@ -34,31 +33,6 @@ class NetInterface
         if ($interfaceid !== null) {
             $this->load($interfaceid);
         }
-    }
-
-    public function __get(string $name): ?string
-    {
-        if (array_key_exists($name, $this->_data)) {
-            return $this->_data[$name];
-        }
-
-        throw new \Exception('Undefined property '.$name.' in class '.__CLASS__);
-    }
-
-    public function __set(string $name, string $value): bool
-    {
-        if (array_key_exists($name, $this->_data)) {
-            $this->_data[$name] = $value;
-
-            return true;
-        }
-
-        throw new \Exception('Undefined property '.$name.' in class '.__CLASS__);
-    }
-
-    public function __isset(string $name): bool
-    {
-        return array_key_exists($name, $this->_data);
     }
 
     public function renderDescription(): string
@@ -70,30 +44,29 @@ class NetInterface
 
     public function load(int $id): bool
     {
-        $stmt = $this->_handle->prepare('SELECT interfaceid, name, node, category, type, address,
-            status, ping, description FROM interfaces WHERE interfaceid = ?');
+        $stmt = $this->_handle->prepare('SELECT * FROM interfaces WHERE interfaceid = ?');
+        $stmt->setFetchMode(\PDO::FETCH_INTO, $this);
+
         if (!$stmt->execute(array($id))) {
             return false;
         }
 
-        if ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $this->_data = $row;
-
-            return true;
+        if ($stmt->fetch(\PDO::FETCH_INTO) === false) {
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     public function save(): bool
     {
-        if (!$this->interfaceid) {
+        if (!isset($this->interfaceid)) {
             $stmt = $this->_handle->prepare('INSERT INTO interfaces (name, node, category, type, address,
                 status, ping, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
 
             if ($stmt->execute(array($this->name, $this->node, $this->category, $this->type,
                 $this->address, $this->status, $this->ping, $this->description))) {
-                $this->interfaceid = $this->_handle->lastInsertId();
+                $this->interfaceid = (int)$this->_handle->lastInsertId();
 
                 return true;
             }
@@ -110,19 +83,18 @@ class NetInterface
 
     public function loadByIPAddress(string $address): bool
     {
-        $stmt = $this->_handle->prepare('SELECT interfaceid, name, node, category, type, address,
-            status, ping, description FROM interfaces WHERE address = ?');
+        $stmt = $this->_handle->prepare('SELECT * FROM interfaces WHERE address = ?');
+        $stmt->setFetchMode(\PDO::FETCH_INTO, $this);
+
         if (!$stmt->execute(array($address))) {
             return false;
         }
 
-        if ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $this->_data = $row;
-
-            return true;
+        if ($stmt->fetch(\PDO::FETCH_INTO) === false){
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     public function loadByPath(string $path): bool
@@ -154,7 +126,7 @@ class NetInterface
 
     public function getNode(): Node
     {
-        return new Node((int)$this->node);
+        return new Node($this->node);
     }
 
     public function recalcStatus(): bool
@@ -164,8 +136,8 @@ class NetInterface
             return false;
         }
 
-        if ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            if ($row['count(*)'] > 0) {
+        if ($row = $stmt->fetch(\PDO::FETCH_NUM)) {
+            if ($row[0] > 0) {
                 $this->status = 'online';
             } else {
                 $this->status = 'offline';

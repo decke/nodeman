@@ -17,16 +17,14 @@ class InterfaceLink
     private \PDO $_handle;
     private bool $_switchfromto = false;
 
-    private array $_data = array(
-        'linkid'  => null,
-        'fromif'  => null,
-        'toif'    => null,
-        'quality' => null,
-        'source'  => null,
-        'status'  => null,
-        'firstup' => null,
-        'lastup'  => null,
-    );
+    public int $linkid;
+    public int $fromif;
+    public int $toif;
+    public float $quality;
+    public string $source;
+    public string $status;
+    public int $firstup;
+    public int $lastup;
 
     public function __construct(int $linkid = null)
     {
@@ -37,31 +35,6 @@ class InterfaceLink
         }
     }
 
-    public function __get(string $name): ?string
-    {
-        if (array_key_exists($name, $this->_data)) {
-            return $this->_data[$name];
-        }
-
-        throw new \Exception('Undefined property '.$name.' in class '.__CLASS__);
-    }
-
-    public function __set(string $name, string $value): bool
-    {
-        if (array_key_exists($name, $this->_data)) {
-            $this->_data[$name] = $value;
-
-            return true;
-        }
-
-        throw new \Exception('Undefined property '.$name.' in class '.__CLASS__);
-    }
-
-    public function __isset(string $name): bool
-    {
-        return array_key_exists($name, $this->_data);
-    }
-
     public function switchFromTo(bool $switch = true): void
     {
         $this->_switchfromto = $switch;
@@ -69,30 +42,29 @@ class InterfaceLink
 
     public function load(int $id): bool
     {
-        $stmt = $this->_handle->prepare('SELECT linkid, fromif, toif, quality, source, status,
-            firstup, lastup FROM linkdata WHERE linkid = ?');
+        $stmt = $this->_handle->prepare('SELECT * FROM linkdata WHERE linkid = ?');
+        $stmt->setFetchMode(\PDO::FETCH_INTO, $this);
+
         if (!$stmt->execute(array($id))) {
             return false;
         }
 
-        if ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $this->_data = $row;
-
-            return true;
+        if ($stmt->fetch(\PDO::FETCH_INTO) === false) {
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     public function save(): bool
     {
-        if (!$this->linkid) {
+        if (!isset($this->linkid)) {
             $stmt = $this->_handle->prepare('INSERT INTO linkdata (fromif, toif, quality, source,
                status, firstup, lastup) VALUES (?, ?, ?, ?, ?, ?, ?)');
 
             if ($stmt->execute(array($this->fromif, $this->toif, $this->quality, $this->source,
                 $this->status, $this->firstup, $this->lastup))) {
-                $this->linkid = $this->_handle->lastInsertId();
+                $this->linkid = (int)$this->_handle->lastInsertId();
 
                 return true;
             }
@@ -109,25 +81,24 @@ class InterfaceLink
 
     public function loadLinkFromTo(int $linkidfrom, int $linkidto): bool
     {
-        $stmt = $this->_handle->prepare('SELECT linkid, fromif, toif, quality, source, status,
-            firstup, lastup FROM linkdata WHERE (fromif = ? AND toif = ?) OR (fromif = ? AND toif = ?)');
+        $stmt = $this->_handle->prepare('SELECT * FROM linkdata WHERE (fromif = ? AND toif = ?) OR (fromif = ? AND toif = ?)');
+        $stmt->setFetchMode(\PDO::FETCH_INTO, $this);
+
         if (!$stmt->execute(array($linkidfrom, $linkidto, $linkidto, $linkidfrom))) {
             return false;
         }
 
-        if ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $this->_data = $row;
-
-            if ($this->fromif != $linkidfrom) {
-                $this->switchFromTo();
-            } else {
-                $this->switchFromTo(false);
-            }
-
-            return true;
+        if ($stmt->fetch(\PDO::FETCH_INTO) === false) {
+            return false;
         }
 
-        return false;
+        if ($this->fromif != $linkidfrom) {
+            $this->switchFromTo();
+        } else {
+            $this->switchFromTo(false);
+        }
+
+        return true;
     }
 
     public function getNetInterfaceByIP(string $ip): ?NetInterface

@@ -15,14 +15,13 @@ namespace FunkFeuer\Nodeman;
 class Node
 {
     private \PDO $_handle;
-    private array $_data = array(
-        'nodeid'        => null,
-        'name'          => null,
-        'owner'         => null,
-        'location'      => null,
-        'createdate'    => null,
-        'description'   => null
-    );
+
+    public int $nodeid;
+    public string $name;
+    public int $owner;
+    public int $location;
+    public int $createdate;
+    public string $description;
 
     public function __construct(int $nodeid = null)
     {
@@ -31,31 +30,6 @@ class Node
         if ($nodeid !== null) {
             $this->load($nodeid);
         }
-    }
-
-    public function __get(string $name): ?string
-    {
-        if (array_key_exists($name, $this->_data)) {
-            return $this->_data[$name];
-        }
-
-        throw new \Exception('Undefined property '.$name.' in class Node');
-    }
-
-    public function __set(string $name, string $value): bool
-    {
-        if (array_key_exists($name, $this->_data)) {
-            $this->_data[$name] = $value;
-
-            return true;
-        }
-
-        throw new \Exception('Undefined property '.$name.' in class Node');
-    }
-
-    public function __isset(string $name): bool
-    {
-        return array_key_exists($name, $this->_data);
     }
 
     public function renderDescription(): string
@@ -67,30 +41,29 @@ class Node
 
     public function load(int $id): bool
     {
-        $stmt = $this->_handle->prepare('SELECT nodeid, name, owner, location, createdate,
-            description FROM nodes WHERE nodeid = ?');
+        $stmt = $this->_handle->prepare('SELECT * FROM nodes WHERE nodeid = ?');
+        $stmt->setFetchMode(\PDO::FETCH_INTO, $this);
+
         if (!$stmt->execute(array($id))) {
             return false;
         }
 
-        if ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $this->_data = $row;
-
-            return true;
+        if ($stmt->fetch(\PDO::FETCH_INTO) === false) {
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     public function save(): bool
     {
-        if (!$this->nodeid) {
+        if (!isset($this->nodeid)) {
             $stmt = $this->_handle->prepare('INSERT INTO nodes (name, owner, location, createdate,
                 description) VALUES (?, ?, ?, ?, ?)');
 
             if ($stmt->execute(array($this->name, $this->owner, $this->location, $this->createdate,
                 $this->description))) {
-                $this->nodeid = $this->_handle->lastInsertId();
+                $this->nodeid = (int)$this->_handle->lastInsertId();
 
                 return true;
             }
@@ -107,7 +80,7 @@ class Node
 
     public function getLocation(): Location
     {
-        return new Location((int)$this->location);
+        return new Location($this->location);
     }
 
     public function getPath(): string

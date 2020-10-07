@@ -15,17 +15,16 @@ namespace FunkFeuer\Nodeman;
 class User
 {
     private \PDO $_handle;
-    private array $_data = array(
-        'userid'    => null,
-        'password'  => null,
-        'email'     => null,
-        'firstname' => null,
-        'lastname'  => null,
-        'phone'     => null,
-        'usergroup' => null,
-        'lastlogin' => null,
-        'regdate'   => null
-    );
+
+    public int $userid;
+    public string $password;
+    public string $email;
+    public string $firstname;
+    public string $lastname;
+    public string $phone;
+    public string $usergroup;
+    public int $lastlogin;
+    public int $regdate;
 
     public function __construct(int $userid = null)
     {
@@ -36,45 +35,24 @@ class User
         }
     }
 
-    public function __get(string $name): ?string
+    public function setEMail(string $email): bool
     {
-        if (array_key_exists($name, $this->_data)) {
-            return $this->_data[$name];
-        }
-
-        throw new \Exception('Undefined property '.$name.' in class User');
-    }
-
-    public function __set(string $name, string $value): bool
-    {
-        if ($name == 'password') {
-            return $this->setPassword($value);
-        }
-
-        if ($name == 'email') {
-            $value = strtolower($value);
-        }
-
-        if (array_key_exists($name, $this->_data)) {
-            $this->_data[$name] = $value;
-
-            return true;
-        }
-
-        throw new \Exception('Undefined property '.$name.' in class User');
-    }
-
-    public function __isset(string $name): bool
-    {
-        return array_key_exists($name, $this->_data);
+        $this->email = strtolower($email);
+        return true;
     }
 
     public function setPassword(string $password): bool
     {
         if (strlen($password) > 0) {
-            $this->_data['password'] = password_hash($password, PASSWORD_DEFAULT, array('cost' => 11));
+            $hash = password_hash($password, PASSWORD_DEFAULT, array('cost' => 11));
+
+            if ($hash === false) {
+                return false;
+            }
+
+            $this->password = $hash;
         } else {
-            $this->_data['password'] = '';
+            $this->password = '';
         }
 
         return true;
@@ -104,7 +82,7 @@ class User
             return true;
         }
 
-        if ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+        if ($row = $stmt->fetch(\PDO::FETCH_NUM)) {
             return ((int)$row[0] > 0);
         }
 
@@ -113,47 +91,45 @@ class User
 
     public function load(int $userid): bool
     {
-        $stmt = $this->_handle->prepare('SELECT userid, password, email, firstname,
-            lastname, phone, usergroup, lastlogin, regdate FROM users WHERE userid = ?');
+        $stmt = $this->_handle->prepare('SELECT * FROM users WHERE userid = ?');
+        $stmt->setFetchMode(\PDO::FETCH_INTO, $this);
+
         if (!$stmt->execute(array($userid))) {
             return false;
         }
 
-        if ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $this->_data = $row;
-
-            return true;
+        if ($stmt->fetch(\PDO::FETCH_INTO) === false) {
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     public function loadByEMail(string $email): bool
     {
-        $stmt = $this->_handle->prepare('SELECT userid, password, email, firstname,
-            lastname, phone, usergroup, lastlogin, regdate FROM users WHERE email = ?');
+        $stmt = $this->_handle->prepare('SELECT * FROM users WHERE email = ?');
+        $stmt->setFetchMode(\PDO::FETCH_INTO, $this);
+
         if (!$stmt->execute(array(strtolower($email)))) {
             return false;
         }
 
-        if ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $this->_data = $row;
-
-            return true;
+        if ($stmt->fetch(\PDO::FETCH_INTO) === false) {
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     public function save(): bool
     {
-        if (!$this->userid) {
+        if (!isset($this->userid)) {
             $stmt = $this->_handle->prepare('INSERT INTO users (password, email, firstname,
                 lastname, phone, usergroup, lastlogin, regdate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
 
             if ($stmt->execute(array($this->password, $this->email, $this->firstname,
                 $this->lastname, $this->phone, $this->usergroup, $this->lastlogin, $this->regdate))) {
-                $this->userid = $this->_handle->lastInsertId();
+                $this->userid = (int)$this->_handle->lastInsertId();
 
                 return true;
             }

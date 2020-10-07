@@ -81,8 +81,8 @@ for ($i=0; $i < $hnacount; $i++) {
         continue;
     }
 
-    if (isset($hnaifaces[(int)$hnadata->destination])) {
-        unset($hnaifaces[(int)$hnadata->destination]);
+    if (isset($hnaifaces[$hnadata->destination])) {
+        unset($hnaifaces[$hnadata->destination]);
     }
 
     logMsg(sprintf('%s/%d via %s (%s)', $hnadata->destination, $hnadata->genmask, $hnadata->gateway, $gwiface->status), 'INFO');

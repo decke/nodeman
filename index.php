@@ -222,13 +222,13 @@ $app->get('/passwordreset', function ($request, $response) {
 
 $app->post('/passwordreset', function ($request, $response) {
     $user = new User();
+    $user->email = $request->getParam('email');
     if ($user->emailExists($request->getParam('email'))) {
         $user->loadByEMail($request->getParam('email'));
 
         $user->setAttribute('sendmail', 'passwordreset');
     }
     $this->get('flash')->addMessage('success', 'EMail was send');
-
     return $response->withStatus(302)->withHeader('Location', '/passwordresetcode?email='.$user->email);
 });
 

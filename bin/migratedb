@@ -201,17 +201,17 @@ function createLocations(\PDO $manman, \PDO $nodeman): bool
             logMsg(sprintf('Location %s has no owner. Assigning default User ID %d', $loc['name'], $loc['person_id']), 'WARN');
         }
 
-        if (count(fetchPerson($manman, $loc['person_id'])) < 1) {
+        if (count(fetchPerson($manman, (int)$loc['person_id'])) < 1) {
             $loc['person_id'] = 6; /* default owner */
             logMsg(sprintf('Location %s has invalid owner. Assigning default User ID %d', $loc['name'], $loc['person_id']), 'WARN');
         }
 
         $location = new Location();
         $location->name = $loc['name'];
-        $location->owner = $loc['person_id'];
+        $location->owner = (int)$loc['person_id'];
         $location->address = sprintf('%s %d', $loc['street'], $loc['streetnr']);
-        $location->latitude = $loc['gps_lat'];
-        $location->longitude = $loc['gps_lon'];
+        $location->latitude = (float)$loc['gps_lat'];
+        $location->longitude = (float)$loc['gps_lon'];
         $location->status = 'interested';
         $location->gallerylink = $loc['gallery_link'];
         $location->createdate = strtotime($loc['time']);
@@ -249,14 +249,14 @@ function createNodes(\PDO $manman, \PDO $nodeman): bool
             logMsg(sprintf('Node %s has no location. Assigning default Location ID %d', $node['name'], $node['location_id']), 'WARN');
         }
 
-        $person = fetchPerson($manman, $node['person_id']);
+        $person = fetchPerson($manman, (int)$node['person_id']);
 
         if (count($person) < 1) {
             logMsg(sprintf('Node %s has invalid owner %d. Assigning default User ID', $node['name'], $node['person_id']), 'WARN');
             $node['person_id'] = 6;
         }
 
-        $location = fetchLocation($manman, $node['location_id']);
+        $location = fetchLocation($manman, (int)$node['location_id']);
 
         if (count($location) < 1) {
             logMsg(sprintf('Node %s has invalid location. Assigning default Location', $node['name']), 'WARN');
@@ -265,8 +265,8 @@ function createNodes(\PDO $manman, \PDO $nodeman): bool
 
         $newnode = new \FunkFeuer\Nodeman\Node();
         $newnode->name = $node['name'];
-        $newnode->owner = $node['person_id'];
-        $newnode->location = $node['location_id'];
+        $newnode->owner = (int)$node['person_id'];
+        $newnode->location = (int)$node['location_id'];
         $newnode->createdate = strtotime($node['time']);
         $newnode->description = $node['comment'];
 
@@ -297,7 +297,7 @@ function createInterfaces(\PDO $manman, \PDO $nodeman): bool
 
     /* Create Interfaces */
     foreach (fetchInterfaces($manman) as $iface) {
-        $node = fetchNode($manman, $iface['node_id']);
+        $node = fetchNode($manman, (int)$iface['node_id']);
 
         if (count($node) < 1) {
             logMsg(sprintf('Interface %s has invalid node. Assigning default Node', $iface['name']), 'WARN');
@@ -311,12 +311,12 @@ function createInterfaces(\PDO $manman, \PDO $nodeman): bool
 
         $newiface = new NetInterface();
         $newiface->name = $iface['name'];
-        $newiface->node = $iface['node_id'];
+        $newiface->node = (int)$iface['node_id'];
         $newiface->category = 'wifi5'; // TODO
         $newiface->type = 'IPv4';
         $newiface->address = $iface['ip'];
         $newiface->status = 'offline';
-        $newiface->ping = $node['smokeping'];
+        $newiface->ping = (int)$node['smokeping'];
         $newiface->description = '';
 
         try {
