@@ -1,0 +1,94 @@
+#!/usr/bin/env php
+<?php
+declare(strict_types=1);
+
+namespace FunkFeuer\Nodeman;
+
+
+require_once __DIR__.'/../vendor/autoload.php';
+
+/* set working directory to root directory */
+chdir(dirname(__FILE__).'/../');
+
+/* set default timezone to UTC */
+date_default_timezone_set('UTC');
+
+
+function logMsg(string $msg, string $level = 'INFO'): void
+{
+    printf("[%s] [%5s] %s\n", date('H:i:s d.m.Y', time()), $level, $msg);
+}
+
+function cleanupUsers(\PDO $handle): bool
+{
+    $limit = time()-(86400*365); // 1 year
+
+    $stmt = $handle->prepare('SELECT userid FROM users WHERE usergroup = \'user\' AND userid NOT IN (SELECT maintainer FROM locations) AND userid NOT IN (SELECT maintainer FROM nodes) AND regdate < ? AND lastlogin < ?');
+    if (!$stmt->execute([ $limit, $limit ])) {
+        return false;
+    }
+
+    while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+        $user = new User((int)$row['userid']);
+
+        $status = 'FAIL';
+
+        if ($user->delete()) {
+            $status = 'OK';
+        }
+
+        logMsg(sprintf('Deleting User %s %s', $user->email, $status), 'INFO');
+    }
+
+    return true;
+}
+
+function cleanupLocationsInterested(\PDO $handle): bool
+{
+    $limit = time()-(86400*365*5); // 5 years
+
+    $stmt = $handle->prepare('SELECT locationid FROM locations WHERE status = \'interested\' AND locationid NOT IN (SELECT location FROM nodes) AND createdate < ?');
+    if (!$stmt->execute([ $limit ])) {
+        return false;
+    }
+
+    while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+        $loc = new Location((int)$row['locationid']);
+
+        $status = 'FAIL';
+
+        if ($loc->delete()) {
+            $status = 'OK';
+        }
+
+        logMsg(sprintf('Deleting Location %s %s', $loc->name, $status), 'INFO');
+    }
+
+    return true;
+}
+
+function cleanupLocationsOffline(\PDO $handle): bool
+{
+    // TODO: locations wo alle knoten laenger als 1 jahr offline sind => obsolete setzen
+    return true;
+}
+
+function cleanupLocationsObsolete(\PDO $handle): bool
+{
+    // TODO: locations die obsolete sind und wo alle knoten laenger als 2 jahre offline sind => loeschen
+    return true;
+}
+
+
+$handle = Config::getDbHandle();
+$handle->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+
+if (!cleanupLocationsInterested($handle)) {
+    exit(1);
+}
+
+if (!cleanupUsers($handle)) {
+    exit(1);
+}
+
+exit(0);

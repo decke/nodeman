@@ -223,4 +223,25 @@ class NetInterface
 
         return false;
     }
+
+    public function delete(): bool
+    {
+        foreach($this->getAllAttributes() as $attr) {
+            if (!$this->delAttribute($attr)) {
+                return false;
+            }
+        }
+
+        $stmt = $this->_handle->prepare('DELETE FROM linkdata WHERE fromif = ? OR toif = ?');
+        if (!$stmt->execute(array($this->interfaceid, $this->interfaceid))) {
+            return false;
+        }
+
+        $stmt = $this->_handle->prepare('DELETE FROM interfaces WHERE interfaceid = ?');
+        if (!$stmt->execute(array($this->interfaceid))) {
+            return false;
+        }
+
+        return true;
+    }
 }

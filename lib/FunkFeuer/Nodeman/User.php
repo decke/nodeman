@@ -218,4 +218,29 @@ class User
 
         return false;
     }
+
+    public function delete(): bool
+    {
+        $stmt = $this->_handle->prepare('UPDATE locations SET maintainer = 0 WHERE maintainer = ?');
+        if (!$stmt->execute(array($this->userid))) {
+            return false;
+        }
+
+        $stmt = $this->_handle->prepare('UPDATE nodes SET maintainer = 0 WHERE maintainer = ?');
+        if (!$stmt->execute(array($this->userid))) {
+            return false;
+        }
+
+        $stmt = $this->_handle->prepare('DELETE FROM users WHERE userid = ?');
+        if (!$stmt->execute(array($this->userid))) {
+            return false;
+        }
+
+        $stmt = $this->_handle->prepare('DELETE FROM users WHERE userid = ?');
+        if (!$stmt->execute(array($this->userid))) {
+            return false;
+        }
+
+        return true;
+    }
 }

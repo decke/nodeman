@@ -224,4 +224,27 @@ class Node
 
         return false;
     }
+
+    public function delete(): bool
+    {
+        foreach($this->getAllInterfaces() as $iface) {
+            if (!$iface->delete()) {
+                return false;
+            }
+        }
+
+        foreach($this->getAllAttributes() as $attr) {
+            if (!$this->delAttribute($attr)) {
+                return false;
+            }
+        }
+
+        $stmt = $this->_handle->prepare('DELETE FROM nodes WHERE nodeid = ?');
+        if (!$stmt->execute(array($this->nodeid))) {
+            return false;
+        }
+
+        return true;
+    }
+
 }

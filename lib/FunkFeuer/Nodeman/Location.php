@@ -203,4 +203,24 @@ class Location
 
         return (int)$stmt->fetch(\PDO::FETCH_NUM)[0] > 0;
     }
+
+    public function delete(): bool
+    {
+        if ($this->countNodes() > 0 && $this->status != 'obsolete') {
+            return false;
+        }
+
+        foreach($this->getNodes() as $node) {
+            if (!$node->delete()) {
+                return false;
+            }
+        }
+
+        $stmt = $this->_handle->prepare('DELETE FROM locations WHERE locationid = ?');
+        if (!$stmt->execute(array($this->locationid))) {
+            return false;
+        }
+
+        return true;
+    }
 }
