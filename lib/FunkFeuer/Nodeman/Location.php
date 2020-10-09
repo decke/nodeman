@@ -18,7 +18,7 @@ class Location
 
     public int $locationid;
     public string $name;
-    public int $owner;
+    public int $maintainer;
     public string $address;
     public float $latitude;
     public float $longitude;
@@ -83,20 +83,20 @@ class Location
     public function save(): bool
     {
         if (!isset($this->locationid)) {
-            $stmt = $this->_handle->prepare('INSERT INTO locations (name, owner, address,
+            $stmt = $this->_handle->prepare('INSERT INTO locations (name, maintainer, address,
                 longitude, latitude, status, gallerylink, createdate, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)');
 
-            if ($stmt->execute(array($this->name, $this->owner, $this->address,
+            if ($stmt->execute(array($this->name, $this->maintainer, $this->address,
                 $this->longitude, $this->latitude, $this->status, $this->gallerylink, $this->createdate, $this->description))) {
                 $this->locationid = (int)$this->_handle->lastInsertId();
 
                 return true;
             }
         } else {
-            $stmt = $this->_handle->prepare('UPDATE locations SET name = ?, owner = ?, address = ?,
+            $stmt = $this->_handle->prepare('UPDATE locations SET name = ?, maintainer = ?, address = ?,
                 longitude = ?, latitude = ?, status = ?, gallerylink = ?, createdate = ?, description = ? WHERE locationid = ?');
 
-            return $stmt->execute(array($this->name, $this->owner, $this->address,
+            return $stmt->execute(array($this->name, $this->maintainer, $this->address,
                 $this->longitude, $this->latitude, $this->status, $this->gallerylink, $this->createdate, $this->description, $this->locationid));
         }
 
@@ -123,12 +123,12 @@ class Location
         return false;
     }
 
-    public function getAllLocations(int $owner = null, int $start = 0, int $limit = 100): array
+    public function getAllLocations(int $maintainer = null, int $start = 0, int $limit = 100): array
     {
         $data = array();
 
-        $stmt = $this->_handle->prepare('SELECT locationid FROM locations WHERE (owner = ? OR ? IS NULL) ORDER BY name LIMIT ?, ?');
-        if (!$stmt->execute(array($owner, $owner, $start, $limit))) {
+        $stmt = $this->_handle->prepare('SELECT locationid FROM locations WHERE (maintainer = ? OR ? IS NULL) ORDER BY name LIMIT ?, ?');
+        if (!$stmt->execute(array($maintainer, $maintainer, $start, $limit))) {
             return $data;
         }
 
@@ -141,13 +141,13 @@ class Location
 
     public function getMaintainer(): User
     {
-        return new User($this->owner);
+        return new User($this->maintainer);
     }
 
-    public function countAllLocations(int $owner = null): int
+    public function countAllLocations(int $maintainer = null): int
     {
-        $stmt = $this->_handle->prepare('SELECT count(*) FROM locations WHERE (owner = ? OR ? IS NULL)');
-        if (!$stmt->execute(array($owner, $owner))) {
+        $stmt = $this->_handle->prepare('SELECT count(*) FROM locations WHERE (maintainer = ? OR ? IS NULL)');
+        if (!$stmt->execute(array($maintainer, $maintainer))) {
             return 0;
         }
 

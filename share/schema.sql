@@ -45,7 +45,7 @@ CREATE INDEX userattributes_idx1 ON userattributes (userid);
 CREATE TABLE locations (
    locationid INTEGER PRIMARY KEY NOT NULL,
    name VARCHAR(50) NOT NULL,
-   owner INTEGER  NOT NULL,
+   maintainer INTEGER  NOT NULL,
    address VARCHAR(255) NOT NULL,
    latitude REAL NOT NULL,
    longitude REAL NOT NULL,
@@ -53,26 +53,26 @@ CREATE TABLE locations (
    gallerylink VARCHAR(255) NOT NULL,
    createdate INTEGER NOT NULL,
    description TEXT,
-   FOREIGN KEY(owner) REFERENCES users(userid)
+   FOREIGN KEY(maintainer) REFERENCES users(userid)
 );
 
 CREATE UNIQUE INDEX locations_idx1 ON locations (name);
-CREATE INDEX locations_idx2 ON locations (owner);
+CREATE INDEX locations_idx2 ON locations (maintainer);
 
 
 CREATE TABLE nodes (
    nodeid INTEGER PRIMARY KEY NOT NULL,
    name VARCHAR(50) NOT NULL,
-   owner INTEGER NOT NULL,
+   maintainer INTEGER NOT NULL,
    location INTEGER NOT NULL,
    createdate INTEGER NOT NULL,
    description TEXT,
-   FOREIGN KEY(owner) REFERENCES users(userid),
+   FOREIGN KEY(maintainer) REFERENCES users(userid),
    FOREIGN KEY(location) REFERENCES locations(locationid)
 );
 
 CREATE INDEX nodes_idx1 ON nodes (name);
-CREATE INDEX nodes_idx2 ON nodes (owner);
+CREATE INDEX nodes_idx2 ON nodes (maintainer);
 CREATE INDEX nodes_idx3 ON nodes (location);
 
 

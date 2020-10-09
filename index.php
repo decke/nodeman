@@ -472,7 +472,7 @@ $app->post('/location/add', function ($request, $response) use ($session) {
 
         if (!$location->loadByName($request->getParam('name'))) {
             $location->name = $request->getParam('name');
-            $location->owner = $session->getUser()->userid;
+            $location->maintainer = $session->getUser()->userid;
             $location->address = $request->getParam('address');
             $location->latitude = $request->getParam('latitude');
             $location->longitude = $request->getParam('longitude');
@@ -521,7 +521,7 @@ $app->get('/location/{location}/edit', function ($request, $response, $args) use
         return $response->withStatus(302)->withHeader('Location', '/');
     }
 
-    if ($location->owner != $session->getUser()->userid) {
+    if ($location->maintainer != $session->getUser()->userid) {
         $this->get('flash')->addMessage('error', 'Permission denied');
 
         return $response->withStatus(302)->withHeader('Location', '/');
@@ -571,7 +571,7 @@ $app->post('/location/{location}/edit', function ($request, $response, $args) us
         $location = new Location();
 
         if ($location->loadByName($args['location'])) {
-            if ($location->owner != $session->getUser()->userid) {
+            if ($location->maintainer != $session->getUser()->userid) {
                 $this->get('flash')->addMessage('error', 'Permission denied');
 
                 return $response->withStatus(302)->withHeader('Location', '/');
@@ -657,7 +657,7 @@ $app->post('/location/{location}/add', function ($request, $response, $args) use
 
         return $response->withStatus(302)->withHeader('Location', '/');
     }
-    if ($location->owner != $session->getUser()->userid) {
+    if ($location->maintainer != $session->getUser()->userid) {
         $this->get('flash')->addMessage('error', 'Permission denied');
 
         return $response->withStatus(302)->withHeader('Location', '/');
@@ -677,7 +677,7 @@ $app->post('/location/{location}/add', function ($request, $response, $args) use
     if (!$this->get('flash')->hasMessage('error')) {
         $node = new Node();
         $node->name = $request->getParam('name');
-        $node->owner = $session->getUser()->userid;
+        $node->maintainer = $session->getUser()->userid;
         $node->location = $location->locationid;
         $node->description = $request->getParam('description');
 

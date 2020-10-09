@@ -18,7 +18,7 @@ class Node
 
     public int $nodeid;
     public string $name;
-    public int $owner;
+    public int $maintainer;
     public int $location;
     public int $createdate;
     public string $description;
@@ -58,20 +58,20 @@ class Node
     public function save(): bool
     {
         if (!isset($this->nodeid)) {
-            $stmt = $this->_handle->prepare('INSERT INTO nodes (name, owner, location, createdate,
+            $stmt = $this->_handle->prepare('INSERT INTO nodes (name, maintainer, location, createdate,
                 description) VALUES (?, ?, ?, ?, ?)');
 
-            if ($stmt->execute(array($this->name, $this->owner, $this->location, $this->createdate,
+            if ($stmt->execute(array($this->name, $this->maintainer, $this->location, $this->createdate,
                 $this->description))) {
                 $this->nodeid = (int)$this->_handle->lastInsertId();
 
                 return true;
             }
         } else {
-            $stmt = $this->_handle->prepare('UPDATE nodes SET name = ?, owner = ?, location = ?,
+            $stmt = $this->_handle->prepare('UPDATE nodes SET name = ?, maintainer = ?, location = ?,
                 createdate = ?, description = ? WHERE nodeid = ?');
 
-            return $stmt->execute(array($this->name, $this->owner, $this->location, $this->createdate,
+            return $stmt->execute(array($this->name, $this->maintainer, $this->location, $this->createdate,
                 $this->description, $this->nodeid));
         }
 
