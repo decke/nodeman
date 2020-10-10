@@ -403,6 +403,10 @@ $app->get('/mapdata', function ($request, $response) {
             continue;
         }
 
+        if ($link->status != 'up') {
+            continue;
+        }
+
         $fromloc = $link->getFromLocation();
         $toloc = $link->getToLocation();
 
