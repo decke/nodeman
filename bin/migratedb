@@ -338,7 +338,6 @@ function createAttributes(\PDO $manman, \PDO $nodeman): bool
 {
     $fivebone = array(
         'tub-cmb'       => array('tub.combinesch.lan', 'combinesch.tub.wifi'),
-        'zoes-windorf'  => array('zoesenberg40.agwindorf.lan', 'windorf.ag-zoes.lan'),
         'dobl-rb109'    => array('bachstrasse.airgrid.wifi', 'rb109.ag-dobl.wifi'),
         'wzr-neup'      => array('wzr14.airgrid-neup.wifi', 'neupauerweg18b.airgrid1.lan'),
         'tub-sch24'     => array('tub.sch24.wifi', 'sch24.tub.lan'),
