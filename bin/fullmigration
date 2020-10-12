@@ -5,19 +5,18 @@ cd ..
 rm -f share/nodeman.db
 
 # create new database and import initial schema
-sqlite3 share/nodeman.db < share/schema.sql
+sqlite3 share/nodeman.db < share/schema.sql || exit 1
 
 if [ -f share/overlay.sql ]; then
-  sqlite3 share/nodeman.db < share/overlay.sql
+  sqlite3 share/nodeman.db < share/overlay.sql || exit 1
 fi
 
 # fix owner/group
 chown www:www share/nodeman.db
 
 # call our migration script
-bin/migratedb
+bin/migratedb || exit 1
 
 # gather current olsr data
-bin/updatelinkdata
-bin/updatehnadata
-bin/olsrinfo
+bin/updatelinkdata || exit 1
+bin/updatehnadata || exit 1
