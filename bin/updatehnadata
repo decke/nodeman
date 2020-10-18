@@ -81,6 +81,11 @@ for ($i=0; $i < $hnacount; $i++) {
         continue;
     }
 
+    if ($hnadata->destination == '0.0.0.0') {
+        logMsg(sprintf('Ignoring %s on gateway %s!', $hnadata->destination, $hnadata->gateway), 'WARN');
+        continue;
+    }
+
     if (isset($hnaifaces[$hnadata->destination])) {
         unset($hnaifaces[$hnadata->destination]);
     }
