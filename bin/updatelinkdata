@@ -22,7 +22,7 @@ function logMsg(string $msg, string $level = 'INFO'): void
     printf("[%s] [%5s] %s\n", date('H:i:s d.m.Y', time()), $level, $msg);
 }
 
-$json = @file_get_contents('http://localhost:9090/topology');
+$json = @file_get_contents(sprintf('http://%s:%d/topology', Config::get('olsrd.address'), 9090));
 if (!$json) {
     logMsg('Failed fetching topology info from olsrd', 'ERROR');
     exit(1);

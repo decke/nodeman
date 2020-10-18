@@ -146,6 +146,7 @@ INSERT INTO "config" VALUES('mail.smtp.host','smtp.gmail.com');
 INSERT INTO "config" VALUES('mail.smtp.port','587');
 INSERT INTO "config" VALUES('mail.smtp.username','');
 INSERT INTO "config" VALUES('mail.smtp.password','');
+INSERT INTO "config" VALUES('olsrd.address', 'localhost');
 
 --- default account
 --- email: admin@example.com, password: admin
