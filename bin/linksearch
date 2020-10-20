@@ -21,51 +21,55 @@ function logMsg(string $msg, string $level = 'INFO'): void
 $handle = Config::getDbHandle();
 $handle->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
-$loc_a = new Location((int)$argv[1]);
-$loc_b = new Location((int)$argv[2]);
+$loc_a = new Location();
+if (!$loc_a->loadByName($argv[1])) {
+    logMsg(sprintf('Location %s not found', $argv[1]));
+    exit(1);
+}
 
-logMsg(sprintf('Finding links between %s and %s', $loc_a->name, $loc_b->name));
+$loc_b = new Location();
+if (!$loc_b->loadByName($argv[2])) {
+    logMsg(sprintf('Location %s not found', $argv[2]));
+    exit(1);
+}
 
-logMsg('');
+$found = 0;
+
+$stmt = $handle->prepare('SELECT fromif, toif FROM linkdata WHERE (fromif IN (SELECT interfaceid FROM interfaces WHERE node IN (SELECT nodeid FROM nodes WHERE location = ?)) AND toif IN (SELECT interfaceid FROM interfaces WHERE node IN (SELECT nodeid FROM nodes WHERE location = ?))) OR (fromif IN (SELECT interfaceid FROM interfaces WHERE node IN (SELECT nodeid FROM nodes WHERE location = ?)) AND toif IN (SELECT interfaceid FROM interfaces WHERE node IN (SELECT nodeid FROM nodes WHERE location = ?)))');
+if (!$stmt->execute([ $loc_a->locationid, $loc_b->locationid, $loc_b->locationid, $loc_a->locationid ])) {
+    return false;
+}
+
+while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+    $iface_a = new NetInterface((int)$row['fromif']);
+    $iface_b = new NetInterface((int)$row['toif']);
+
+    logMsg(sprintf('%s -> %s', $iface_a->getPath(), $iface_b->getPath()));
+    $found++;
+}
+
+if ($found > 0) {
+    exit(0);
+}
+
 logMsg(sprintf('Checking nodes on %s', $loc_a->name));
 
 foreach ($loc_a->getNodes() as $node) {
     logMsg(sprintf('  %s %s', $node->name, $node->description));
 
     foreach ($node->getAllInterfaces() as $iface) {
-        logMsg(sprintf('    %03d %s (%s) %s', $iface->interfaceid, $iface->name, $iface->status, $iface->description));
+        logMsg(sprintf('    %s (%s) %s', $iface->getPath(), $iface->status, $iface->description));
     }
 }
 
-logMsg('');
 logMsg(sprintf('Checking nodes on %s', $loc_b->name));
 
 foreach ($loc_b->getNodes() as $node) {
     logMsg(sprintf('  %s %s', $node->name, $node->description));
 
     foreach ($node->getAllInterfaces() as $iface) {
-        logMsg(sprintf('    %03d %s (%s) %s', $iface->interfaceid, $iface->name, $iface->status, $iface->description));
+        logMsg(sprintf('    %s (%s) %s', $iface->getPath(), $iface->status, $iface->description));
     }
-}
-
-logMsg('');
-logMsg(sprintf('Checking linkdata ...'));
-
-$stmt = $handle->prepare('SELECT fromif, toif FROM linkdata WHERE (fromif IN (SELECT interfaceid FROM interfaces WHERE node IN (SELECT nodeid FROM nodes WHERE location = ?)) AND toif IN (SELECT interfaceid FROM interfaces WHERE node IN (SELECT nodeid FROM nodes WHERE location = ?))) OR (fromif IN (SELECT interfaceid FROM interfaces WHERE node IN (SELECT nodeid FROM nodes WHERE location = ?)) AND toif IN (SELECT interfaceid FROM interfaces WHERE node IN (SELECT nodeid FROM nodes WHERE location = ?)))');
-if (!$stmt->execute(array($argv[1], $argv[2], $argv[2], $argv[1]))) {
-    return false;
-}
-
-while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-    $loc_a = new Location((int)$argv[1]);
-    $iface_a = new NetInterface((int)$row['fromif']);
-    $node_a = new Node($iface_a->node);
-
-    $loc_b = new Location((int)$argv[2]);
-    $iface_b = new NetInterface((int)$row['toif']);
-    $node_b = new Node($iface_b->node);
-
-    logMsg(sprintf('%s.%s.%s (%d) -> %s.%s.%s (%d)', $loc_a->name, $node_a->name, $iface_a->name, $row['fromif'], $loc_b->name, $node_b->name, $iface_b->name, $row['toif']));
 }
 
 exit(0);
