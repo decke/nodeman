@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9677510ceff1bee698ca35a58a631694",
+    "content-hash": "e6a66fba92e81acac8a0ee8f660e897f",
     "packages": [
         {
             "name": "erusev/parsedown",
@@ -1744,12 +1744,19 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
+        "ext-ctype": "*",
         "ext-fileinfo": "*",
         "ext-filter": "*",
         "ext-hash": "*",
+        "ext-iconv": "*",
+        "ext-intl": "*",
+        "ext-json": "*",
+        "ext-openssl": "*",
         "ext-pdo": "*",
         "ext-pdo_sqlite": "*",
         "ext-session": "*",
+        "ext-simplexml": "*",
+        "ext-tokenizer": "*",
         "php": ">=7.4"
     },
     "platform-dev": [],
