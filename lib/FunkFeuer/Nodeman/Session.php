@@ -17,14 +17,15 @@ class Session
     public function __construct()
     {
         self::initialize();
-
-        session_start();
     }
 
     public static function initialize(): void
     {
         // rename session
         session_name('SESSIONID');
+
+        // only accept valid session id's
+        ini_set('session.use_strict_mode', 'true');
 
         // do not expose Cookie value to JavaScript (enforced by browser)
         ini_set('session.cookie_httponly', 'true');
@@ -42,6 +43,8 @@ class Session
 
         // prevent caching by sending no-cache header
         session_cache_limiter('nocache');
+
+        session_start();
     }
 
     public static function getSessionId(): string
@@ -61,6 +64,8 @@ class Session
         }
 
         /* login assumed to be successfull */
+        session_regenerate_id();
+
         $_SESSION['authenticated'] = true;
         $_SESSION['userid'] = $user->userid;
         $_SESSION['loginip'] = $_SERVER['REMOTE_ADDR'];
