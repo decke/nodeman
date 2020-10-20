@@ -351,11 +351,19 @@ function createInterfaces(\PDO $manman, \PDO $nodeman): bool
 function createAttributes(\PDO $manman, \PDO $nodeman): bool
 {
     $fivebone = array(
-        'tub-cmb'       => array('tub.combinesch.lan', 'combinesch.tub.wifi'),
-        'dobl-rb109'    => array('bachstrasse.airgrid.wifi', 'rb109.ag-dobl.wifi'),
-        'wzr-neup'      => array('wzr14.airgrid-neup.wifi', 'neupauerweg18b.airgrid1.lan'),
-        'tub-sch24'     => array('tub.sch24.wifi', 'sch24.tub.lan'),
-        'neup-mcg'      => array('neupauerweg18b.airgrid1.lan', 'mcg.airgrid2.wifi')
+        'dobl-rb109'          => array('bachstrasse.airgrid.wifi', 'rb109.ag-dobl.wifi'),
+        'eur20-idl52'         => array('eur20.7704.wifi', 'idl52.7703.wifi'),
+        'hbg31-windorf'       => array('hbg31.bullet.wifi', 'windorf.ag-hbg.lan'),
+        'mcg-hbg31'           => array('mcg.alix3.lan', 'hbg31.alix.lan'),
+        'mcg-mzgs197'         => array('mcg.airgrid2.lan', 'mzgs197.airgrid.lan'),
+        'mcg-rudolf11'        => array('mcg.airgrid4.lan', 'rudolf11.5ag-mcg.lan'),
+        'neup-mcg'            => array('neupauerweg18b.airgrid1.lan', 'mcg.airgrid2.wifi'),
+        'rudolf11-steinbruch' => array('rudolf11.5ag-sb.lan', 'steinbruch.5ag-rud.lan'),
+        'tub-cmb'             => array('tub.combinesch.lan', 'combinesch.tub.wifi'),
+        'tub-graba68'         => array('tub.uhrturm.lan', 'graba68.tub.lan'),
+        'tub-mor11'           => array('tub.0322.wifi', 'mor11.0321.wifi'),
+        'tub-sch24'           => array('tub.sch24.wifi', 'sch24.tub.lan'),
+        'wzr-neup'            => array('wzr14.airgrid-neup.wifi', 'neupauerweg18b.airgrid1.lan')
     );
 
     $nodeman->exec('DELETE FROM nodeattributes');
@@ -364,7 +372,7 @@ function createAttributes(\PDO $manman, \PDO $nodeman): bool
     /* Create Node Attributes */
     foreach (fetchBackboneLinks($manman) as $link) {
         if (!isset($fivebone[$link['name']])) {
-            logMsg(sprintf('Ignoring unknown 5bone link %s', $link['name']));
+            logMsg(sprintf('Ignoring unknown 5bone link %s', $link['name']), 'WARN');
             continue;
         }
 
