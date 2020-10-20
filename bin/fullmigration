@@ -12,7 +12,7 @@ if [ -f share/overlay.sql ]; then
 fi
 
 # fix owner/group
-chown www:www share/nodeman.db
+chown nobody:nobody share/nodeman.db
 
 # call our migration script
 bin/migratedb || exit 1
