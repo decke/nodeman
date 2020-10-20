@@ -59,6 +59,7 @@ $container->set('view', function () {
 $app = AppFactory::create();
 
 $app->add(TwigMiddleware::createFromContainer($app));
+$app->addErrorMiddleware(false, true, true);
 
 $view = $container->get('view');
 
