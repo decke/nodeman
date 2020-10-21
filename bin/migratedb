@@ -351,19 +351,32 @@ function createInterfaces(\PDO $manman, \PDO $nodeman): bool
 function createAttributes(\PDO $manman, \PDO $nodeman): bool
 {
     $fivebone = array(
+        'algo-stg30'          => array('algo.r2ko.ff', 'steyrer30.edge1.mesh'),
+        'cmb-graba68'         => array('combinesch.alix.wifi', 'graba68.alix.wifi-mcg'),
         'dobl-rb109'          => array('bachstrasse.airgrid.wifi', 'rb109.ag-dobl.wifi'),
         'eur20-idl52'         => array('eur20.7704.wifi', 'idl52.7703.wifi'),
         'hbg31-windorf'       => array('hbg31.bullet.wifi', 'windorf.ag-hbg.lan'),
+        'mcg-cmb'             => array('mcg.nanobridge1.wifi', 'combinesch.mcg.wifi'),
         'mcg-hbg31'           => array('mcg.alix3.lan', 'hbg31.alix.lan'),
         'mcg-mzgs197'         => array('mcg.airgrid2.lan', 'mzgs197.airgrid.lan'),
         'mcg-rudolf11'        => array('mcg.airgrid4.lan', 'rudolf11.5ag-mcg.lan'),
+        'mcg-stg30'           => array('mcg.alix2.lan', 'steyrer30.edge1.mesh'),
+        'mdb128-windorf'      => array('mdb128.5ag-windorf.lan', 'windorf.ag-mdb.lan'),
         'neup-mcg'            => array('neupauerweg18b.airgrid1.lan', 'mcg.airgrid2.wifi'),
+        'neuwindorf-rb109'    => array('rb109.ag-neuwindorf.lan', 'rb109.panel.wifi'),
+        'rb-sfu'              => array('rb-koegler.router.wifi', 'sfu.5ns-rb.wifi'),
+        'rhs-lz15'            => array('rhsender.lz15.lz15', 'lz15.rhs.wifi'),
+        'rhs-tub'             => array('rhsender.tub.wifi', 'tub.rhsender.wifi'),
         'rudolf11-steinbruch' => array('rudolf11.5ag-sb.lan', 'steinbruch.5ag-rud.lan'),
+        'stg30-hoch'          => array('steyrer30.hochstein.wifi', 'hochstein.bullet.wifi'),
+        'stg30-tub'           => array('steyrer30.edge1.mesh', 'tub.ost.lan'),
+        'steinbruch-sfu'      => array('steinbruch.5nb-sfu.wifi', 'sfu.5ag-sb.wifi'),
         'tub-cmb'             => array('tub.combinesch.lan', 'combinesch.tub.wifi'),
         'tub-graba68'         => array('tub.uhrturm.lan', 'graba68.tub.lan'),
         'tub-mor11'           => array('tub.0322.wifi', 'mor11.0321.wifi'),
         'tub-sch24'           => array('tub.sch24.wifi', 'sch24.tub.lan'),
-        'wzr-neup'            => array('wzr14.airgrid-neup.wifi', 'neupauerweg18b.airgrid1.lan')
+        'wzr-neup'            => array('wzr14.airgrid-neup.wifi', 'neupauerweg18b.airgrid1.lan'),
+        'zoes-windorf'        => array('zoesenberg40.agwindorf.mgmt', 'windorf.ag-zoes.wifi')
     );
 
     $nodeman->exec('DELETE FROM nodeattributes');
