@@ -47,7 +47,7 @@
                 </div>
 
                 <h5 class="title is-5">Description</h5>
-                <div class="block">
+                <div class="content">
                   {{ location.renderDescription()|raw }}
                 </div>
 
@@ -129,7 +129,7 @@
           </div>
 
           <h5 class="title is-5">Description</h5>
-          <div class="block">
+          <div class="content">
             {{ node.renderDescription()|raw }}
           </div>
 
@@ -142,9 +142,9 @@
                   <span class="tag is-medium {% if interface.status == "online" %}is-success{% else %}is-danger{% endif %}">
                     {{ interface.getPath() }}
                   </span>
-                  <span>
+                  <div class="content">
                     {{ interface.renderDescription|raw }}
-                  </span>
+                  </div>
                 </div>
                 <div class="column">
                   <strong>{{ interface.type }}:</strong> {{ interface.address }}<br />

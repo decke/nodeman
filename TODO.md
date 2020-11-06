@@ -16,7 +16,6 @@
 
 ### migratedb
 
-* migratedb: html URLs zu Markdown konvertieren und manman links zu nodeman links
 * migratedb: linktyp erkennung einbauen wie in karte: https://git.ffgraz.net/karte.git/plain/data.php
 * migratedb: fiber konvertieren aus backbone_links (type=1)
 * migratedb: fivebone links eintragen

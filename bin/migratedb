@@ -22,6 +22,22 @@ function logMsg(string $msg, string $level = 'INFO'): void
     printf("[%s] [%5s] %s\n", date('H:i:s d.m.Y', time()), $level, $msg);
 }
 
+function HTMLtoMarkdown($str)
+{
+    $conv = new \League\HTMLToMarkdown\HtmlConverter();
+    $conv->getConfig()->setOption('strip_tags', true);
+    $conv->getConfig()->setOption('hard_break', true);
+    $conv->getConfig()->setOption('use_autolinks', false);
+
+    $str = str_replace(
+        ['\"', '="', '\r\n'],
+        ['', '=', '<br>'],
+        $str
+    );
+
+    return $conv->convert($str);
+}
+
 function fetchPersons(\PDO $handle): array
 {
     $data = array();
@@ -224,7 +240,7 @@ function createLocations(\PDO $manman, \PDO $nodeman): bool
         $location->status = 'interested';
         $location->gallerylink = $loc['gallery_link'];
         $location->createdate = strtotime($loc['time']);
-        $location->description = $loc['comment'];
+        $location->description = HTMLtoMarkdown($loc['comment']);
 
         if ($location->createdate < 0) {
             logMsg(sprintf('Fixing invalid node createdate for %s', $loc['name']), 'WARN');
@@ -283,7 +299,12 @@ function createNodes(\PDO $manman, \PDO $nodeman): bool
         $newnode->maintainer = (int)$node['person_id'];
         $newnode->location = (int)$node['location_id'];
         $newnode->createdate = strtotime($node['time']);
-        $newnode->description = $node['comment'];
+        $newnode->description = HTMLtoMarkdown($node['comment']);
+
+        if ($newnode->createdate < 0) {
+            $loc = new \FunkFeuer\Nodeman\Location($newnode->location);
+            $newnode->createdate = $loc->createdate;
+        }
 
         try {
             $newnode->save();

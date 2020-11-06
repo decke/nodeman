@@ -29,6 +29,11 @@
       "ext-tokenizer": "*",
       "php": ">=7.4"
    },
+   "require-dev": {
+      "ext-dom": "*",
+      "ext-xml": "*",
+      "league/html-to-markdown": "^4.10"
+   },
    "autoload": {
       "psr-0": {
          "FunkFeuer\\": "lib"

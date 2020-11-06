@@ -45,7 +45,8 @@ class Location
     {
         $parser = new \Parsedown();
         $parser->setSafeMode(true);
-        return $parser->text(str_replace('\r\n', "\n\n", $this->description));
+        $parser->setBreaksEnabled(true);
+        return $parser->text($this->description);
     }
 
     public function load(int $id): bool
