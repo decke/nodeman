@@ -22,7 +22,7 @@ function logMsg(string $msg, string $level = 'INFO'): void
     printf("[%s] [%5s] %s\n", date('H:i:s d.m.Y', time()), $level, $msg);
 }
 
-function HTMLtoMarkdown($str)
+function HTMLtoMarkdown(string $str): string
 {
     $conv = new \League\HTMLToMarkdown\HtmlConverter();
     $conv->getConfig()->setOption('strip_tags', true);
