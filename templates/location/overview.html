@@ -95,7 +95,7 @@
       {% for node in nodes %}
       <div class="card">
         <header class="card-header">
-          <p class="card-header-title">{{ node.name }}</p>
+          <p class="card-header-title">Node: {{ node.name }}</p>
 
           {% if location.getMaintainer().userid == user.userid %}
           <div class="card-header-icon dropdown is-hoverable is-small">
