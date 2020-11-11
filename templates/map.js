@@ -25,6 +25,30 @@ function initmap() {
 	bounds: [[46.35877, 8.782379], [49.037872, 17.189532]]
    });
 
+   var osmmap = new L.TileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.{format}', {
+	minZoom: 10,
+	maxZoom: 19,
+	attribution: '\u00a9  <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
+	format: 'png',
+	bounds: [[46.35877, 8.782379], [49.037872, 17.189532]]
+   });
+
+   var graumap = L.tileLayer('https://maps{s}.wien.gv.at/basemap/bmapgrau/normal/google3857/{z}/{y}/{x}.{format}', {
+	maxZoom: 20,
+	attribution: 'Datenquelle: <a href="https://www.basemap.at/">basemap.at</a>',
+	subdomains: ["", "1", "2", "3", "4"],
+	format: 'png',
+	bounds: [[46.35877, 8.782379], [49.037872, 17.189532]]
+   });
+
+   var overmap = L.tileLayer('https://maps{s}.wien.gv.at/basemap/bmapoverlay/normal/google3857/{z}/{y}/{x}.{format}', {
+	maxZoom: 20,
+	attribution: 'Datenquelle: <a href="https://www.basemap.at/">basemap.at</a>',
+	subdomains: ["", "1", "2", "3", "4"],
+	format: 'png',
+	bounds: [[46.35877, 8.782379], [49.037872, 17.189532]]
+   });
+
    var topomap = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
 	attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community'
    });
@@ -39,7 +63,10 @@ function initmap() {
    {
       "Karte": basemap,
       "Satellit": orthomap,
-      "Terrain": topomap
+      "Terrain": topomap,
+      "OpenStreetMap": osmmap,
+      "Grau": graumap,
+      "Overlay": overmap
    });
 
    layerControl.addTo(map);
