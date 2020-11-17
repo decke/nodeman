@@ -90,7 +90,7 @@ CREATE TABLE interfaces (
    interfaceid INTEGER PRIMARY KEY NOT NULL,
    name VARCHAR(50) NOT NULL,
    node INTEGER NOT NULL,
-   category VARCHAR(10) NOT NULL, -- interface category: [fiber|tunnel|wifi2.4|wifi5|wifi60]
+   category VARCHAR(10) NOT NULL, -- interface category: [copper|fiber|tunnel|wifi2.4|wifi5|wifi60]
    type VARCHAR(5) NOT NULL, -- interface type: [IPv4|IPv6]
    address VARCHAR(50) NOT NULL,
    status VARCHAR(10) NOT NULL, -- current OLSR status: [online|offline]

@@ -336,6 +336,11 @@ $app->get('/mapdata', function ($request, $response) {
     );
 
     $linkdata = array(
+        'copper' => array(
+            'links' => [],
+            'name'  => 'Kupfer',
+            'color' => 'brown'
+        ),
         'fiber' => array(
             'links' => [],
             'name'  => 'Fiber',
