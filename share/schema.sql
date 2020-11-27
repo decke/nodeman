@@ -121,6 +121,7 @@ CREATE TABLE linkdata (
    fromif INTEGER NOT NULL,
    toif INTEGER NOT NULL,
    quality REAL NOT NULL,
+   neighborquality REAL NOT NULL,
    source VARCHAR(10) NOT NULL, -- datasource: [olsrd|manual]
    status VARCHAR(10) NOT NULL, -- [up|down]
    firstup INTEGER NOT NULL,

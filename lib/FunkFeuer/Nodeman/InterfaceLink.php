@@ -21,6 +21,7 @@ class InterfaceLink
     public int $fromif;
     public int $toif;
     public float $quality;
+    public float $neighborquality;
     public string $source;
     public string $status;
     public int $firstup;
@@ -59,21 +60,21 @@ class InterfaceLink
     public function save(): bool
     {
         if (!isset($this->linkid)) {
-            $stmt = $this->_handle->prepare('INSERT INTO linkdata (fromif, toif, quality, source,
-               status, firstup, lastup) VALUES (?, ?, ?, ?, ?, ?, ?)');
+            $stmt = $this->_handle->prepare('INSERT INTO linkdata (fromif, toif, quality, neighborquality, source,
+               status, firstup, lastup) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
 
-            if ($stmt->execute(array($this->fromif, $this->toif, $this->quality, $this->source,
-                $this->status, $this->firstup, $this->lastup))) {
+            if ($stmt->execute(array($this->fromif, $this->toif, $this->quality, $this->neighborquality,
+                $this->source, $this->status, $this->firstup, $this->lastup))) {
                 $this->linkid = (int)$this->_handle->lastInsertId();
 
                 return true;
             }
         } else {
             $stmt = $this->_handle->prepare('UPDATE linkdata SET fromif = ?, toif = ?, quality = ?,
-                source = ?, status = ?, firstup = ?, lastup = ? WHERE linkid = ?');
+                neighborquality = ?, source = ?, status = ?, firstup = ?, lastup = ? WHERE linkid = ?');
 
-            return $stmt->execute(array($this->fromif, $this->toif, $this->quality, $this->source,
-                $this->status, $this->firstup, $this->lastup, $this->linkid));
+            return $stmt->execute(array($this->fromif, $this->toif, $this->quality, $this->neighborquality,
+                $this->source, $this->status, $this->firstup, $this->lastup, $this->linkid));
         }
 
         return false;
