@@ -28,24 +28,38 @@ if (!$json) {
     exit(1);
 }
 
-$data = json_decode($json);
-if (!$data) {
+$tdata = json_decode($json);
+if (!$tdata) {
     logMsg('Failed parsing json content from olsrd', 'ERROR');
     exit(1);
 }
+unset($json);
+
+$json = @file_get_contents(sprintf('http://%s:%d/mid', Config::get('olsrd.address'), 9090));
+if (!$json) {
+    logMsg('Failed fetching mid info from olsrd', 'ERROR');
+    exit(1);
+}
+
+$mdata = json_decode($json);
+if (!$mdata) {
+    logMsg('Failed parsing json content from olsrd', 'ERROR');
+    exit(1);
+}
+unset($json);
 
 $handle = Config::getDbHandle();
 $handle->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
 $iface = new NetInterface();
-$linkcount = count($data->{'topology'});
+$linkcount = count($tdata->{'topology'});
 
 $recalcInterfaces = array();
 
 logMsg('Analyzing '.$linkcount.' active links', 'INFO');
 
 for ($i=0; $i < $linkcount; $i++) {
-    $topodata = $data->{'topology'}[$i];
+    $topodata = $tdata->{'topology'}[$i];
 
     $ifaceFrom = new NetInterface();
     if (!$ifaceFrom->loadByIPAddress($topodata->lastHopIP)) {
@@ -69,25 +83,51 @@ for ($i=0; $i < $linkcount; $i++) {
 
     if ($link->status != 'up') {
         if (!in_array($link->fromif, $recalcInterfaces)) {
-            $recalcInterfaces[] = $link->fromif;
+            $recalcInterfaces[] = $ifaceFrom->interfaceid;
         }
 
         if (!in_array($link->toif, $recalcInterfaces)) {
-            $recalcInterfaces[] = $link->toif;
+            $recalcInterfaces[] = $ifaceTo->interfaceid;
         }
     }
 
     $link->quality = $topodata->linkQuality;
+    $link->neighborquality = $topodata->neighborLinkQuality;
     $link->source = 'olsrd';
     $link->status = 'up';
-    $link->lastup = $data->{'systemTime'};
+    $link->lastup = $tdata->{'systemTime'};
 
     if (!$link->save()) {
         logMsg('Could not update linkdata', 'ERROR');
         continue;
     }
 
-    logMsg(sprintf('%05d IP %s - %s (%0.1f)', $link->linkid, $topodata->lastHopIP, $topodata->destinationIP, $topodata->linkQuality), 'INFO');
+    logMsg(sprintf('%05d IP %s - %s (%0.1f/%0.1f)', $link->linkid, $topodata->lastHopIP, $topodata->destinationIP,
+        $topodata->linkQuality, $topodata->neighborLinkQuality), 'INFO');
+}
+
+// process MID entries
+$midcount = count($mdata->{'mid'});
+
+logMsg('Analyzing '.$midcount.' alias IPs', 'INFO');
+
+for ($i=0; $i < $midcount; $i++) {
+    $middata = $mdata->{'mid'}[$i];
+
+    foreach($middata->{'aliases'} as $midentry) {
+        $iface = new NetInterface();
+        if (!$iface->loadByIPAddress($midentry->ipAddress)) {
+            logMsg(sprintf('IP %s is not known!', $midentry->ipAddress), 'WARN');
+            continue;
+        }
+
+        $iface->status = 'online';
+
+        if (!$iface->save()) {
+            logMsg('Could not update interface', 'ERROR');
+            continue;
+        }
+    }
 }
 
 // find and process outdated links
@@ -95,7 +135,7 @@ logMsg('Finding outdated links', 'INFO');
 
 $stmt = $handle->prepare('SELECT linkid FROM linkdata WHERE lastup < ?');
 
-if (!$stmt->execute(array($data->{'systemTime'}))) {
+if (!$stmt->execute(array($tdata->{'systemTime'}))) {
     logMsg('Failed to find outdated links', 'ERROR');
     exit(1);
 }
@@ -114,6 +154,7 @@ while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
     }
 
     $link->quality = 0.0;
+    $link->neighborquality = 0.0;
     $link->status = 'down';
 
     if (!$link->save()) {
