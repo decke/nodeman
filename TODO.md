@@ -1,18 +1,27 @@
 ## TODO
 
-### MGMT
-
-* EMail an core fuer Knotenbetreiber die jsoninfo/httpinfo/txtinfo nicht aktiviert haben
-    config snippet fuer olsr versionen und Erklaerung
+* updatelinkdata: alle interfaces die online sind mit MID Liste (main+alias) abgleichen und was dort nicht drin ist -> down setzen
+* TOPO: MID Daten sagen welche IPs es noch auf dem Geraet gibt
+ * bei Topology einbauen, alle IPs auf up setzen
+ * wie koennen wir mit Topology Daten dann die Links einer IP zuordnen?
 
 
 ### QUICKFIX
 
+* KARTE: Verbindungsqualitaet anzeigen mit linienstaerke?
+* KARTE: Kupfer Verbindungsart von tri280_aa zu tri280_ab
+* KARTE: Permalink der layerauswahl, zoom, position beruecksichtigt
+    https://blog.mastermaps.com/2012/10/how-to-control-your-leaflet-map-with.html
+* LOCATION: Links alphabetisch sortieren (FROM asc, TO asc)
+* LOCATION: Linkquality anzeigen
+* OLSRINFO: nur IPs die in OLSRD topology aufscheinen auch anfragen (ca 230)
 * BUG: MAP: Icons auf Chrome reparieren
 * BUG: Layout mit Link anzeige auf smartphones kaputt
 * QUICK: Mehrere Maintainer Felder pro Location (hauptmaintainer kann alles, andere nur hinzufuegen, aendern)
 * QUICK: Admins duerfen auch Locations/Nodes/Interfaces editieren
 * DSGVO: checkboxen ob name/email/telefonnummer fuer andere sichbar sein soll (default off)
+* QUICK: ETX einbauen, ETX=1/(LinkQuality x NeighborLinkQuality)
+   https://wiki.funkfeuer.at/index.php/FAQ#Was_bedeuten_die_Werte_f.C3.BCr_LinkQuality_.2F_NLQ_.2F_ETX_in_der_Freifunk-Firmware.3F
 
 ### migratedb
 
@@ -70,7 +79,7 @@ spek-hoch               spektral   hochstein
 * MESSAGES: Messages integrieren ala ECE-Dashboard
 * MESSAGES: Allocation fuer IP/Subnetz/PublicIP beantragen, OpenVPN Zertifikat beantragen
 * Manuelles eintragen von Links (zB Fiber TU - Realraum)
-
+* olsrinfo: interface namen per json auslesen und in DB anpassen
 
 ### FEATURES
 
@@ -91,6 +100,8 @@ spek-hoch               spektral   hochstein
     ngraph: https://github.com/anvaka/ngraph.fromdot
     visjs: https://visjs.github.io/vis-network/examples/network/data/dotLanguage/dotLanguage.html
 
+* KARTE: Entfernungsmesstool
+* KARTE: Stich von Punkt A zu Punkt B zeichnen fuer planung
 * STATUS: Status Seite integrieren (monitored links down, ips die verwendet werden aber nicht alloziert sind, inkonsistente links (fiber zu wifi5))
 
 * MIGRATION: Wiki auth anpassen (verwendet auch MySQL connection) https://wiki.graz.funkfeuer.at/ManmanAuth
@@ -115,3 +126,5 @@ spek-hoch               spektral   hochstein
 
 * https://wiki.funkfeuer.at/wiki/Projekte/0xFF-NodeMap
 * https://github.com/freifunk-gluon/packages/tree/master/net/respondd
+* https://openwrt.org/docs/guide-user/additional-software/imagebuilder
+* https://github.com/aparcar/asu
