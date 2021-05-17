@@ -14,6 +14,8 @@ namespace FunkFeuer\Nodeman;
  */
 class Session
 {
+    const SESSIONNAME = 'SESSIONID';
+
     public function __construct()
     {
         self::initialize();
@@ -22,7 +24,7 @@ class Session
     public static function initialize(): void
     {
         // rename session
-        session_name('SESSIONID');
+        session_name(self::SESSIONNAME);
 
         // only accept valid session id's
         ini_set('session.use_strict_mode', 'true');
@@ -49,7 +51,12 @@ class Session
 
     public static function getSessionId(): string
     {
-        return session_id();
+        $id = session_id();
+
+        if($id === false)
+            return "";
+
+        return $id;
     }
 
     public static function login(string $email, string $password): bool
@@ -101,7 +108,7 @@ class Session
         /* also destroy session cookie on client */
         $params = session_get_cookie_params();
         setcookie(
-            session_name(),
+            self::SESSIONNAME,
             '',
             time() - 42000,
             $params['path'],
