@@ -11,7 +11,7 @@ build: vendor
 	make -C css
 
 test: vendor
-	php-cs-fixer fix --dry-run
+	php-cs-fixer list-files
 	phpstan analyse -l max -c phpstan.neon bin/* lib index.php
 
 fix:
